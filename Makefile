@@ -41,10 +41,11 @@ $(NAME_BYTE):	$(CMOS) $(OBJS)
 	$(OCAMLC) $(OCAMLCFLAGS) -custom $(OCAMLLDFLAGS) $^ -a -o $@
 $(NAME_OPT):	$(CMXS) $(OBJS)
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLLDFLAGS) $^ -a -o $@
+	@rm GLFW.o GLFW.a
 
 clean:
 	rm -f $(DEPENDS) $(CMOS) $(CMXS) $(SRCS:%.ml=%.cmi) $(OBJS) \
-		GLFW_key_conv_arrays.inl GLFW.o GLFW.a
+		GLFW_key_conv_arrays.inl
 fclean:	clean
 	rm -f $(NAME_BYTE) $(NAME_OPT)
 re:
