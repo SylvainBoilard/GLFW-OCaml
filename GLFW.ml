@@ -348,8 +348,8 @@ external setWindowPos : window:window -> xpos:int -> ypos:int -> unit
   = "caml_glfwSetWindowPos" [@@noalloc]
 external getWindowSize : window:window -> int * int = "caml_glfwGetWindowSize"
 external setWindowSizeLimits :
-  window:window -> minWidth:int -> minHeight:int
-  -> maxWidth:int -> maxHeight:int -> unit
+  window:window -> minWidth:int option -> minHeight:int option
+  -> maxWidth:int option -> maxHeight:int option -> unit
   = "caml_glfwSetWindowSizeLimits" [@@noalloc]
 external setWindowAspectRatio : window:window -> numer:int -> denom:int -> unit
   = "caml_glfwSetWindowAspectRatio" [@@noalloc]

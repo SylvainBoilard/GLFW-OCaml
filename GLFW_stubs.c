@@ -580,8 +580,13 @@ CAMLprim value caml_glfwGetWindowSize(value window)
 CAMLprim value caml_glfwSetWindowSizeLimits(
     value window, value minW, value minH, value maxW, value maxH)
 {
-    glfwSetWindowSizeLimits((GLFWwindow*)window, Int_val(minW), Int_val(minH),
-                            Int_val(maxW), Int_val(maxH));
+    int glfw_minW = minW == Val_none ? GLFW_DONT_CARE : Int_val(Field(minW, 0));
+    int glfw_minH = minH == Val_none ? GLFW_DONT_CARE : Int_val(Field(minH, 0));
+    int glfw_maxW = maxW == Val_none ? GLFW_DONT_CARE : Int_val(Field(maxW, 0));
+    int glfw_maxH = maxH == Val_none ? GLFW_DONT_CARE : Int_val(Field(maxH, 0));
+
+    glfwSetWindowSizeLimits(
+        (GLFWwindow*)window, glfw_minW, glfw_minH, glfw_maxW, glfw_maxH);
     return Val_unit;
 }
 
