@@ -481,7 +481,7 @@ CAMLprim value caml_glfwCreateWindow(
     value width, value height, value title, value mntor, value share)
 {
     GLFWwindow* window = glfwCreateWindow(
-        Val_int(width), Val_int(height), String_val(title), (GLFWmonitor*)mntor,
+        Int_val(width), Int_val(height), String_val(title), (GLFWmonitor*)mntor,
         share == Val_none ? NULL : (GLFWwindow*)Field(share, 0));
     void* user_pointer = malloc(sizeof(value));
     value callbacks = caml_alloc_small(ML_WINDOW_CALLBACKS_WOSIZE, 0);
