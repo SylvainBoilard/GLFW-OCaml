@@ -478,10 +478,11 @@ CAMLprim value caml_glfwWindowHint(value hint, value ml_val)
 }
 
 CAMLprim value caml_glfwCreateWindow(
-    value width, value height, value title, value mntor, value share)
+    value width, value height, value title, value mntor, value share, CAMLvoid)
 {
     GLFWwindow* window = glfwCreateWindow(
-        Int_val(width), Int_val(height), String_val(title), (GLFWmonitor*)mntor,
+        Int_val(width), Int_val(height), String_val(title),
+        mntor == Val_none ? NULL : (GLFWmonitor*)Field(mntor, 0),
         share == Val_none ? NULL : (GLFWwindow*)Field(share, 0));
     void* user_pointer = malloc(sizeof(value));
     value callbacks = caml_alloc_small(ML_WINDOW_CALLBACKS_WOSIZE, 0);
@@ -492,6 +493,13 @@ CAMLprim value caml_glfwCreateWindow(
     caml_register_global_root(user_pointer);
     glfwSetWindowUserPointer(window, user_pointer);
     return (value)window;
+}
+
+CAMLprim value caml_glfwCreateWindow_byte(value* val_array, int val_count)
+{
+    (void)val_count;
+    return caml_glfwCreateWindow(val_array[0], val_array[1], val_array[2],
+                                 val_array[3], val_array[4], Val_unit);
 }
 
 CAMLprim value caml_glfwDestroyWindow(value window)

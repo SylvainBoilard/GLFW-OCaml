@@ -276,10 +276,9 @@ external defaultWindowHints : unit -> unit = "caml_glfwDefaultWindowHints"
 external windowHint : hint:'a WindowHint.t -> value:'a -> unit
   = "caml_glfwWindowHint" [@@noalloc]
 external createWindow :
-  width:int ->
-  height:int ->
-  title:string -> monitor:monitor -> share:window option -> window
-  = "caml_glfwCreateWindow"
+  width:int -> height:int -> title:string -> ?monitor:monitor -> ?share:window
+  -> unit -> window
+  = "caml_glfwCreateWindow_byte" "caml_glfwCreateWindow"
 external destroyWindow : window:window -> unit = "caml_glfwDestroyWindow"
   [@@noalloc]
 external windowShouldClose : window:window -> bool
