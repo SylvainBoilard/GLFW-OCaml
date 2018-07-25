@@ -1,5 +1,6 @@
 NAME_BYTE := GLFW.cma
 NAME_OPT := GLFW.cmxa
+NAME_TOPLEVEL := ocaml.GLFW
 
 OCAML := ocaml
 OCAMLC := ocamlc
@@ -7,6 +8,7 @@ OCAMLCFLAGS :=
 OCAMLOPT := ocamlopt
 OCAMLOPTFLAGS :=
 OCAMLLDFLAGS := -cclib -lglfw
+OCAMLMKTOP := ocamlmktop
 
 DEPENDS := .depends
 SRCS := GLFW.ml
@@ -17,7 +19,10 @@ CMXS := $(SRCS:%.ml=%.cmx)
 CMIS := $(INTS:%.mli=%.cmi)
 OBJS := $(STUBS:%.c=%.o)
 
-all:	$(NAME_BYTE) $(NAME_OPT)
+all:	$(NAME_BYTE) $(NAME_OPT) $(NAME_TOPLEVEL)
+byte:	$(NAME_BYTE)
+opt:	$(NAME_OPT)
+toplevel:	$(NAME_TOPLEVEL)
 
 $(DEPENDS):	$(SRCS) $(INTS)
 	ocamldep $^ > $@
@@ -42,12 +47,14 @@ $(NAME_BYTE):	$(CMOS) $(OBJS)
 $(NAME_OPT):	$(CMXS) $(OBJS)
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLLDFLAGS) $^ -a -o $@
 	@rm GLFW.o GLFW.a
+$(NAME_TOPLEVEL):	$(NAME_BYTE)
+	$(OCAMLMKTOP) $^ -o $@
 
 clean:
 	rm -f $(DEPENDS) $(CMOS) $(CMXS) $(SRCS:%.ml=%.cmi) $(OBJS) \
 		GLFW_key_conv_arrays.inl
 fclean:	clean
-	rm -f $(NAME_BYTE) $(NAME_OPT)
+	rm -f $(NAME_BYTE) $(NAME_OPT) $(NAME_TOPLEVEL)
 re:
 	@$(MAKE) $(MFLAGS) fclean
 	@$(MAKE) $(MFLAGS) all
