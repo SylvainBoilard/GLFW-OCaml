@@ -19,6 +19,8 @@ CMXS := $(SRCS:%.ml=%.cmx)
 CMIS := $(INTS:%.mli=%.cmi)
 OBJS := $(STUBS:%.c=%.o)
 
+GENERATED := GLFW_key_conv_arrays.inl
+
 all:	$(NAME_BYTE) $(NAME_OPT) $(NAME_TOPLEVEL)
 byte:	$(NAME_BYTE)
 opt:	$(NAME_OPT)
@@ -29,7 +31,7 @@ $(DEPENDS):	$(SRCS) $(INTS)
 
 -include $(DEPENDS)
 
-$(OBJS):	GLFW_key_conv_arrays.inl
+$(OBJS):	$(GENERATED)
 GLFW_key_conv_arrays.inl:
 	$(OCAML) str.cma gen_key_conv_arrays.ml
 
@@ -46,15 +48,14 @@ $(NAME_BYTE):	$(CMOS) $(OBJS)
 	$(OCAMLC) $(OCAMLCFLAGS) -custom $(OCAMLLDFLAGS) $^ -a -o $@
 $(NAME_OPT):	$(CMXS) $(OBJS)
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLLDFLAGS) $^ -a -o $@
-	@rm GLFW.o GLFW.a
 $(NAME_TOPLEVEL):	$(NAME_BYTE)
 	$(OCAMLMKTOP) $^ -o $@
 
 clean:
-	rm -f $(DEPENDS) $(CMOS) $(CMXS) $(SRCS:%.ml=%.cmi) $(OBJS) \
-		GLFW_key_conv_arrays.inl
+	rm -f $(CMOS) $(CMXS) $(OBJS) $(SRCS:%.ml=%.cmi) $(CMXS:%.cmx=%.o) \
+		$(DEPENDS) $(GENERATED)
 fclean:	clean
-	rm -f $(NAME_BYTE) $(NAME_OPT) $(NAME_TOPLEVEL)
+	rm -f $(NAME_BYTE) $(NAME_OPT) $(NAME_OPT:%.cmxa=%.a) $(NAME_TOPLEVEL)
 re:
 	@$(MAKE) $(MFLAGS) fclean
 	@$(MAKE) $(MFLAGS) all
