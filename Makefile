@@ -21,6 +21,9 @@ OBJS := $(STUBS:%.c=%.o)
 
 GENERATED := GLFW_key_conv_arrays.inl
 
+LIBS_BYTE := bigarray.cma
+LIBS_OPT := bigarray.a
+
 all:	$(NAME_BYTE) $(NAME_OPT) $(NAME_TOPLEVEL)
 byte:	$(NAME_BYTE)
 opt:	$(NAME_OPT)
@@ -45,9 +48,9 @@ GLFW_key_conv_arrays.inl:
 	$(OCAMLC) $(OCAMLCFLAGS) -c $< -o $@
 
 $(NAME_BYTE):	$(CMOS) $(OBJS)
-	$(OCAMLC) $(OCAMLCFLAGS) -custom $(OCAMLLDFLAGS) $^ -a -o $@
+	$(OCAMLC) $(OCAMLCFLAGS) -custom $(OCAMLLDFLAGS) $(LIBS_BYTE) $^ -a -o $@
 $(NAME_OPT):	$(CMXS) $(OBJS)
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLLDFLAGS) $^ -a -o $@
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) $(OCAMLLDFLAGS) $(LIBS_OPT) $^ -a -o $@
 $(NAME_TOPLEVEL):	$(NAME_BYTE)
 	$(OCAMLMKTOP) $^ -o $@
 

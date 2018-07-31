@@ -232,14 +232,11 @@ type window
 type cursor
 module GammaRamp :
   sig
-    type t = bytes * bytes * bytes * int
-    type channel = Red | Green | Blue
-    val create : int -> bytes * bytes * bytes * int
-    val size : 'a * 'b * 'c * 'd -> 'd
-    val get : t -> 'a -> int -> int
-    val ( .%{} ) : t -> 'a * int -> int
-    val set : t -> 'a -> int -> int -> unit
-    val ( .%{}<- ) : t -> 'a * int -> int -> unit
+    type channel =
+      (int, Bigarray.int16_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
+    type t = private { red : channel; green : channel; blue : channel }
+    val create : red:channel -> green:channel -> blue:channel -> t
+    val make : size:int -> t
   end
 type image = { width : int; height : int; pixels : bytes; }
 external init : unit -> bool = "caml_glfwInit" [@@noalloc]

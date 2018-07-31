@@ -1,10 +1,10 @@
-#include <string.h>
 #include <GLFW/glfw3.h>
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
 #include <caml/memory.h>
 #include <caml/fail.h>
 #include <caml/callback.h>
+#include <caml/bigarray.h>
 
 #define CAMLvoid CAMLunused_start value unit CAMLunused_end
 
@@ -223,37 +223,6 @@ static inline value caml_copy_vidmode(const GLFWvidmode* vidmode)
     return v;
 }
 
-CAMLprim intnat caml_GammaRamp_get(
-    value gamma_ramp, intnat channel, intnat offset)
-{
-    if (offset < 0 || offset >= Int_val(Field(gamma_ramp, 3)))
-        caml_invalid_argument("GLFW.GammaRamp.get: index out of bounds.");
-    return ((unsigned short*)Bytes_val(Field(gamma_ramp, channel)))[offset];
-}
-
-CAMLprim value caml_GammaRamp_get_byte(
-    value gamma_ramp, value channel, value offset)
-{
-    return Val_int(
-        caml_GammaRamp_get(gamma_ramp, Int_val(channel), Int_val(offset)));
-}
-
-CAMLprim value caml_GammaRamp_set(
-    value gamma_ramp, intnat channel, intnat offset, intnat val)
-{
-    if (offset < 0 || offset >= Int_val(Field(gamma_ramp, 3)))
-        caml_invalid_argument("GLFW.GammaRamp.set: index out of bounds.");
-    ((unsigned short*)Bytes_val(Field(gamma_ramp, channel)))[offset] = val;
-    return Val_unit;
-}
-
-CAMLprim value caml_GammaRamp_set_byte(
-    value gamma_ramp, value channel, value offset, value val)
-{
-    return caml_GammaRamp_set(gamma_ramp, Int_val(channel), Int_val(offset),
-                              Int_val(val));
-}
-
 CAMLprim value caml_glfwInit(CAMLvoid)
 {
     return Val_bool(glfwInit());
@@ -381,18 +350,16 @@ CAMLprim value caml_glfwGetGammaRamp(value monitor)
     CAMLparam0();
     CAMLlocal1(ret);
     const GLFWgammaramp* gamma_ramp = glfwGetGammaRamp((GLFWmonitor*)monitor);
-    const unsigned int byte_size = gamma_ramp->size * sizeof(*gamma_ramp->red);
+    const int flags = CAML_BA_UINT16 | CAML_BA_C_LAYOUT;
+    intnat size = gamma_ramp->size;
 
     ret = caml_alloc_small(3, 0);
     Field(ret, 0) = Val_unit;
     Field(ret, 1) = Val_unit;
     Field(ret, 2) = Val_unit;
-    Store_field(ret, 0, caml_alloc_string(byte_size));
-    memcpy(Bytes_val(Field(ret, 0)), gamma_ramp->red, byte_size);
-    Store_field(ret, 1, caml_alloc_string(byte_size));
-    memcpy(Bytes_val(Field(ret, 1)), gamma_ramp->green, byte_size);
-    Store_field(ret, 2, caml_alloc_string(byte_size));
-    memcpy(Bytes_val(Field(ret, 2)), gamma_ramp->blue, byte_size);
+    Store_field(ret, 0, caml_ba_alloc(flags, 1, gamma_ramp->red, &size));
+    Store_field(ret, 1, caml_ba_alloc(flags, 1, gamma_ramp->green, &size));
+    Store_field(ret, 2, caml_ba_alloc(flags, 1, gamma_ramp->blue, &size));
     CAMLreturn(ret);
 }
 
@@ -401,10 +368,10 @@ CAMLprim value caml_glfwSetGammaRamp(value monitor, value ml_gamma_ramp)
     GLFWgammaramp gamma_ramp;
 
     gamma_ramp.size =
-        caml_string_length(Field(ml_gamma_ramp, 0)) / sizeof(*gamma_ramp.red);
-    gamma_ramp.red = (unsigned short*)Bytes_val(Field(ml_gamma_ramp, 0));
-    gamma_ramp.green = (unsigned short*)Bytes_val(Field(ml_gamma_ramp, 1));
-    gamma_ramp.blue = (unsigned short*)Bytes_val(Field(ml_gamma_ramp, 2));
+        caml_ba_num_elts(Caml_ba_array_val(Field(ml_gamma_ramp, 0)));
+    gamma_ramp.red = Caml_ba_data_val(Field(ml_gamma_ramp, 0));
+    gamma_ramp.green = Caml_ba_data_val(Field(ml_gamma_ramp, 1));
+    gamma_ramp.blue = Caml_ba_data_val(Field(ml_gamma_ramp, 2));
     glfwSetGammaRamp((GLFWmonitor*)monitor, &gamma_ramp);
     return Val_unit;
 }

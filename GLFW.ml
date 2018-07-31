@@ -275,22 +275,19 @@ type cursor
 
 module GammaRamp =
   struct
-    type t = bytes * bytes * bytes * int
-    type channel = Red | Green | Blue
-    let create size =
-      let byte_size = size * 2 in
-      Bytes.create byte_size, Bytes.create byte_size, Bytes.create byte_size, size
-    let size (_, _, _, s) = s
-    external get_real :
-      t -> (int [@untagged]) -> (int [@untagged]) -> (int [@untagged])
-      = "caml_GammaRamp_get_byte" "caml_GammaRamp_get" [@@noalloc]
-    let get r c o = get_real r (Obj.magic c : int) o [@@inline]
-    let (.%{}) r (c, o) = get_real r (Obj.magic c : int) o [@@inline]
-    external set_real :
-      t -> (int [@untagged]) -> (int [@untagged]) -> (int [@untagged]) -> unit
-      = "caml_GammaRamp_set_byte" "caml_GammaRamp_set" [@@noalloc]
-    let set r c o v = set_real r (Obj.magic c : int) o v [@@inline]
-    let (.%{}<-) r (c, o) v = set_real r (Obj.magic c : int) o v [@@inline]
+    open Bigarray
+    type channel = (int, int16_unsigned_elt, c_layout) Array1.t
+    type t = { red : channel; green : channel; blue : channel }
+    let create ~red ~green ~blue =
+      let red_dim = Array1.dim red in
+      if red_dim = Array1.dim green && red_dim = Array1.dim blue
+      then { red; green; blue }
+      else invalid_arg "GammaRamp.make: inconstitent channel dimension."
+    let make ~size = {
+        red = Array1.create Int16_unsigned C_layout size;
+        green = Array1.create Int16_unsigned C_layout size;
+        blue = Array1.create Int16_unsigned C_layout size;
+      }
   end
 
 type image = {
