@@ -281,7 +281,7 @@ external destroyWindow : window:window -> unit = "caml_glfwDestroyWindow"
 external windowShouldClose : window:window -> bool
   = "caml_glfwWindowShouldClose" [@@noalloc]
 external setWindowShouldClose : window:window -> b:bool -> unit
-  = "caml_glfwWindowShouldClose" [@@noalloc]
+  = "caml_glfwSetWindowShouldClose" [@@noalloc]
 external setWindowTitle : window:window -> title:string -> unit
   = "caml_glfwSetWindowTitle" [@@noalloc]
 external setWindowIcon : window:window -> images:image list -> unit
