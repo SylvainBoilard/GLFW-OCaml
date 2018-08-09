@@ -860,12 +860,16 @@ CAMLprim value caml_glfwGetMouseButton(value window, value button)
 
 CAMLprim value caml_glfwGetCursorPos(value window)
 {
+    CAMLparam0();
+    CAMLlocal3(ml_xpos, ml_ypos, ret);
     double xpos, ypos;
-    value ret = caml_alloc_float_array(2);
 
     glfwGetCursorPos((GLFWwindow*)window, &xpos, &ypos);
-    Double_flat_field(ret, 0) = xpos;
-    Double_flat_field(ret, 1) = ypos;
+    ml_xpos = caml_copy_double(xpos);
+    ml_ypos = caml_copy_double(ypos);
+    ret = caml_alloc_small(2, 0);
+    Field(ret, 0) = ml_xpos;
+    Field(ret, 1) = ml_ypos;
     return ret;
 }
 
