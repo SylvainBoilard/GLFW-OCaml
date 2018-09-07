@@ -1,4 +1,3 @@
-let perm_664 = 436
 let glfw_header_location = "/usr/include/GLFW/glfw3.h"
 
 let read_keys () =
@@ -21,7 +20,7 @@ let read_keys () =
 let () =
   let key_stub =
     open_out_gen
-      [Open_creat; Open_trunc; Open_wronly] 436 "GLFW_key_conv_arrays.inl"
+      [Open_creat; Open_trunc; Open_wronly] 0o664 "GLFW_key_conv_arrays.inl"
   in
   let keys = ref (read_keys ()) in
   let min_key, max_key =

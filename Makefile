@@ -35,7 +35,7 @@ $(DEPENDS):	$(SRCS) $(INTS)
 -include $(DEPENDS)
 
 $(OBJS):	$(GENERATED)
-GLFW_key_conv_arrays.inl:
+GLFW_key_conv_arrays.inl:	gen_key_conv_arrays.ml
 	$(OCAML) str.cma gen_key_conv_arrays.ml
 
 %.cmo:	%.ml
