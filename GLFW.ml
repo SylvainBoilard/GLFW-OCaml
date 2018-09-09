@@ -313,7 +313,7 @@ external getMonitorName : monitor:monitor -> string = "caml_glfwGetMonitorName"
 external setMonitorCallback :
   f:(monitor -> connection_event -> unit) option
   -> (monitor -> connection_event -> unit) option
-  = "caml_glfwSetErrorCallback"
+  = "caml_glfwSetMonitorCallback"
 external getVideoModes : monitor:monitor -> video_mode list
   = "caml_glfwGetVideoModes"
 external getVideoMode : monitor:monitor -> video_mode = "caml_glfwGetVideoMode"
