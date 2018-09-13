@@ -870,7 +870,7 @@ CAMLprim value caml_glfwGetCursorPos(value window)
     ret = caml_alloc_small(2, 0);
     Field(ret, 0) = ml_xpos;
     Field(ret, 1) = ml_ypos;
-    return ret;
+    CAMLreturn(ret);
 }
 
 CAMLprim value caml_glfwSetCursorPos(value window, value xpos, value ypos)
@@ -882,12 +882,13 @@ CAMLprim value caml_glfwSetCursorPos(value window, value xpos, value ypos)
 CAMLprim value caml_glfwCreateCursor(value image, value xhot, value yhot)
 {
     GLFWimage glfw_image;
+    GLFWcursor* ret;
 
     glfw_image.width = Int_val(Field(image, 0));
     glfw_image.height = Int_val(Field(image, 1));
     glfw_image.pixels = Bytes_val(Field(image, 2));
-    glfwCreateCursor(&glfw_image, Int_val(xhot), Int_val(yhot));
-    return Val_unit;
+    ret = glfwCreateCursor(&glfw_image, Int_val(xhot), Int_val(yhot));
+    return (value)ret;
 }
 
 CAMLprim value caml_glfwCreateStandardCursor(value shape)
@@ -1030,6 +1031,7 @@ void drop_callback_stub(GLFWwindow* window, int count, const char** paths)
         caml_modify(&ml_paths, tmp);
     }
     caml_callback2(ml_window_callbacks->drop, (value)window, ml_paths);
+    CAMLreturn0;
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetDropCallback, drop)
