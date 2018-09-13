@@ -1,6 +1,7 @@
 val version_major : int
 val version_minor : int
 val version_revision : int
+
 exception NotInitialized of string
 exception NoCurrentContext of string
 exception InvalidEnum of string
@@ -11,9 +12,14 @@ exception VersionUnavailable of string
 exception PlatformError of string
 exception FormatUnavailable of string
 exception NoWindowContext of string
-type key_action = Release | Press | Repeat
+
+type key_action =
+  | Release
+  | Press
+  | Repeat
+
 type key =
-    Unknown
+  | Unknown
   | Space
   | Apostrophe
   | Comma
@@ -134,24 +140,45 @@ type key =
   | RightAlt
   | RightSuper
   | Menu
-type key_mod = Shift | Control | Alt | Super
+
+type key_mod =
+  | Shift
+  | Control
+  | Alt
+  | Super
+
 val mouse_button_max_count : int
+
 val joystick_max_count : int
-type client_api = NoApi | OpenGLApi | OpenGLESApi
+
+type client_api =
+  | NoApi
+  | OpenGLApi
+  | OpenGLESApi
+
 type context_robustness =
-    NoRobustness
+  | NoRobustness
   | NoResetNotification
   | LoseContextOnReset
-type opengl_profile = AnyProfile | CoreProfile | CompatProfile
+
+type opengl_profile =
+  | AnyProfile
+  | CoreProfile
+  | CompatProfile
+
 type context_release_behavior =
-    AnyReleaseBehavior
+  | AnyReleaseBehavior
   | ReleaseBehaviorFlush
   | ReleaseBehaviorNone
-type context_creation_api = NativeContextApi | EGLContextApi
+
+type context_creation_api =
+  | NativeContextApi
+  | EGLContextApi
+
 module WindowHint :
   sig
     type _ t =
-        Focused : bool t
+      | Focused : bool t
       | Resizable : bool t
       | Visible : bool t
       | Decorated : bool t
@@ -185,10 +212,11 @@ module WindowHint :
       | ContextNoError : bool t
       | ContextCreationApi : context_creation_api t
   end
+
 module WindowAttribute :
   sig
     type _ t =
-        Focused : bool t
+      | Focused : bool t
       | Iconified : bool t
       | Resizable : bool t
       | Visible : bool t
@@ -205,30 +233,44 @@ module WindowAttribute :
       | OpenGLProfile : opengl_profile t
       | ContextCreationApi : context_creation_api t
   end
-type cursor_mode = Normal | Hidden | Disabled
+
+type cursor_mode =
+  | Normal
+  | Hidden
+  | Disabled
+
 type _ input_mode =
-    Cursor : cursor_mode input_mode
+  | Cursor : cursor_mode input_mode
   | StickyKeys : bool input_mode
   | StickyMouseButtons : bool input_mode
+
 type cursor_shape =
-    ArrowCursor
+  | ArrowCursor
   | IBeamCursor
   | CrosshairCursor
   | HandCursor
   | HResizeCursor
   | VResizeCursor
-type connection_event = Connected | Disconnected
+
+type connection_event =
+  | Connected
+  | Disconnected
+
 type video_mode = {
-  width : int;
-  height : int;
-  red_bits : int;
-  green_bits : int;
-  blue_bits : int;
-  refresh_rate : int;
-}
+    width : int;
+    height : int;
+    red_bits : int;
+    green_bits : int;
+    blue_bits : int;
+    refresh_rate : int;
+  }
+
 type monitor
+
 type window
+
 type cursor
+
 module GammaRamp :
   sig
     type channel =
@@ -237,29 +279,32 @@ module GammaRamp :
     val create : red:channel -> green:channel -> blue:channel -> t
     val make : size:int -> t
   end
-type image = { width : int; height : int; pixels : bytes; }
+
+type image = {
+    width : int;
+    height : int;
+    pixels : bytes;
+  }
+
 external init : unit -> unit = "caml_glfwInit"
 external terminate : unit -> unit = "caml_glfwTerminate"
 external getVersion : unit -> int * int * int = "caml_glfwGetVersion"
 external getVersionString : unit -> string = "caml_glfwGetVersion"
 external getMonitors : unit -> monitor list = "caml_glfwGetMonitors"
 external getPrimaryMonitor : unit -> monitor = "caml_glfwGetPrimaryMonitor"
-external getMonitorPos : monitor:monitor -> int * int
-  = "caml_glfwGetMonitorPos"
+external getMonitorPos : monitor:monitor -> int * int = "caml_glfwGetMonitorPos"
 external getMonitorPhysicalSize : monitor:monitor -> int * int
   = "caml_glfwGetMonitorPhysicalSize"
-external getMonitorName : monitor:monitor -> string
-  = "caml_glfwGetMonitorName"
+external getMonitorName : monitor:monitor -> string = "caml_glfwGetMonitorName"
 external setMonitorCallback :
-  f:(monitor -> connection_event -> unit) option ->
-  (monitor -> connection_event -> unit) option = "caml_glfwSetMonitorCallback"
+  f:(monitor -> connection_event -> unit) option
+  -> (monitor -> connection_event -> unit) option
+  = "caml_glfwSetMonitorCallback"
 external getVideoModes : monitor:monitor -> video_mode list
   = "caml_glfwGetVideoModes"
-external getVideoMode : monitor:monitor -> video_mode
-  = "caml_glfwGetVideoMode"
+external getVideoMode : monitor:monitor -> video_mode = "caml_glfwGetVideoMode"
 external setGamma : monitor:monitor -> gamma:float -> unit = "caml_glfwSetGamma"
-external getGammaRamp : monitor:monitor -> GammaRamp.t
-  = "caml_glfwGetGammaRamp"
+external getGammaRamp : monitor:monitor -> GammaRamp.t = "caml_glfwGetGammaRamp"
 external setGammaRamp : monitor:monitor -> gamma_ramp:GammaRamp.t -> unit
   = "caml_glfwSetGammaRamp"
 external defaultWindowHints : unit -> unit = "caml_glfwDefaultWindowHints"
@@ -281,14 +326,12 @@ external setWindowIcon : window:window -> images:image list -> unit
 external getWindowPos : window:window -> int * int = "caml_glfwGetWindowPos"
 external setWindowPos : window:window -> xpos:int -> ypos:int -> unit
   = "caml_glfwSetWindowPos"
-external getWindowSize : window:window -> int * int
-  = "caml_glfwGetWindowSize"
+external getWindowSize : window:window -> int * int = "caml_glfwGetWindowSize"
 external setWindowSizeLimits :
   window:window -> minWidth:int option -> minHeight:int option
   -> maxWidth:int option -> maxHeight:int option -> unit
   = "caml_glfwSetWindowSizeLimits"
-external setWindowAspectRatio :
-  window:window -> numer:int -> denom:int -> unit
+external setWindowAspectRatio : window:window -> numer:int -> denom:int -> unit
   = "caml_glfwSetWindowAspectRatio"
 external setWindowSize : window:window -> width:int -> height:int -> unit
   = "caml_glfwSetWindowSize"
@@ -305,21 +348,19 @@ external focusWindow : window:window -> unit = "caml_glfwFocusWindow"
 external getWindowMonitor : window:window -> monitor
   = "caml_glfwGetWindowMonitor"
 external setWindowMonitor :
-  window:window ->
-  monitor:monitor ->
-  xpos:int -> ypos:int -> width:int -> height:int -> refreshRate:int -> unit
+  window:window -> monitor:monitor -> xpos:int -> ypos:int
+  -> width:int -> height:int -> refreshRate:int -> unit
   = "caml_glfwSetWindowMonitor_byte" "caml_glfwSetWindowMonitor"
-external getWindowAttrib :
-  window:window -> attribute:'a WindowAttribute.t -> 'a
+external getWindowAttrib : window:window -> attribute:'a WindowAttribute.t -> 'a
   = "caml_glfwGetWindowAttrib"
 external setWindowPosCallback :
-  window:window ->
-  f:(window -> int -> int -> unit) option ->
-  (window -> int -> int -> unit) option = "caml_glfwSetWindowPosCallback"
+  window:window -> f:(window -> int -> int -> unit) option
+  -> (window -> int -> int -> unit) option
+  = "caml_glfwSetWindowPosCallback"
 external setWindowSizeCallback :
-  window:window ->
-  f:(window -> int -> int -> unit) option ->
-  (window -> int -> int -> unit) option = "caml_glfwSetWindowSizeCallback"
+  window:window -> f:(window -> int -> int -> unit) option
+  -> (window -> int -> int -> unit) option
+  = "caml_glfwSetWindowSizeCallback"
 external setWindowCloseCallback :
   window:window -> f:(window -> unit) option -> (window -> unit) option
   = "caml_glfwSetWindowCloseCallback"
@@ -327,17 +368,16 @@ external setWindowRefreshCallback :
   window:window -> f:(window -> unit) option -> (window -> unit) option
   = "caml_glfwSetWindowRefreshCallback"
 external setWindowFocusCallback :
-  window:window ->
-  f:(window -> bool -> unit) option -> (window -> bool -> unit) option
+  window:window -> f:(window -> bool -> unit) option
+  -> (window -> bool -> unit) option
   = "caml_glfwSetWindowFocusCallback"
 external setWindowIconifyCallback :
-  window:window ->
-  f:(window -> bool -> unit) option -> (window -> bool -> unit) option
+  window:window -> f:(window -> bool -> unit) option
+  -> (window -> bool -> unit) option
   = "caml_glfwSetWindowIconifyCallback"
 external setFramebufferSizeCallback :
-  window:window ->
-  f:(window -> int -> int -> unit) option ->
-  (window -> int -> int -> unit) option
+  window:window -> f:(window -> int -> int -> unit) option
+  -> (window -> int -> int -> unit) option
   = "caml_glfwSetFramebufferSizeCallback"
 external pollEvents : unit -> unit = "caml_glfwPollEvents"
 external waitEvents : unit -> unit = "caml_glfwWaitEvents"
@@ -346,8 +386,7 @@ external waitEventsTimeout : timeout:float -> unit
 external postEmptyEvent : unit -> unit = "caml_glfwPostEmptyEvent"
 external getInputMode : window:window -> mode:'a input_mode -> 'a
   = "caml_glfwGetInputMode"
-external setInputMode :
-  window:window -> mode:'a input_mode -> value:'a -> unit
+external setInputMode : window:window -> mode:'a input_mode -> value:'a -> unit
   = "caml_glfwGetInputMode"
 external getKeyName : key:key -> scancode:int -> string option
   = "caml_glfwGetKeyName"
@@ -365,48 +404,47 @@ external destroyCursor : cursor:cursor -> unit = "caml_glfwDestroyCursor"
 external setCursor : window:window -> cursor:cursor -> unit
   = "caml_glfwSetCursor"
 external setKeyCallback :
-  window:window ->
-  f:(window -> key -> int -> key_action -> key_mod list -> unit) option ->
-  (window -> key -> int -> key_action -> key_mod list -> unit) option
+  window:window
+  -> f:(window -> key -> int -> key_action -> key_mod list -> unit) option
+  -> (window -> key -> int -> key_action -> key_mod list -> unit) option
   = "caml_glfwSetKeyCallback"
 external setCharCallback :
-  window:window ->
-  f:(window -> int -> unit) option -> (window -> int -> unit) option
+  window:window -> f:(window -> int -> unit) option
+  -> (window -> int -> unit) option
   = "caml_glfwSetCharCallback"
 external setCharModsCallback :
-  window:window ->
-  f:(window -> int -> key_mod list -> unit) option ->
-  (window -> int -> key_mod list -> unit) option
+  window:window -> f:(window -> int -> key_mod list -> unit) option
+  -> (window -> int -> key_mod list -> unit) option
   = "caml_glfwSetCharModsCallback"
 external setMouseButtonCallback :
-  window:window ->
-  f:(window -> int -> bool -> key_mod list -> unit) option ->
-  (window -> int -> bool -> key_mod list -> unit) option
+  window:window -> f:(window -> int -> bool -> key_mod list -> unit) option
+  -> (window -> int -> bool -> key_mod list -> unit) option
   = "caml_glfwSetMouseButtonCallback"
 external setCursorPosCallback :
-  window:window ->
-  f:(window -> float -> float -> unit) option ->
-  (window -> float -> float -> unit) option = "caml_glfwSetCursorPosCallback"
+  window:window -> f:(window -> float -> float -> unit) option
+  -> (window -> float -> float -> unit) option
+  = "caml_glfwSetCursorPosCallback"
 external setCursorEnterCallback :
-  window:window ->
-  f:(window -> bool -> unit) option -> (window -> bool -> unit) option
+  window:window -> f:(window -> bool -> unit) option
+  -> (window -> bool -> unit) option
   = "caml_glfwSetCursorEnterCallback"
 external setScrollCallback :
-  window:window ->
-  f:(window -> float -> float -> unit) option ->
-  (window -> float -> float -> unit) option = "caml_glfwSetScrollCallback"
+  window:window -> f:(window -> float -> float -> unit) option
+  -> (window -> float -> float -> unit) option
+  = "caml_glfwSetScrollCallback"
 external setDropCallback :
-  window:window ->
-  f:(window -> string list -> unit) option ->
-  (window -> string list -> unit) option = "caml_glfwSetDropCallback"
+  window:window -> f:(window -> string list -> unit) option
+  -> (window -> string list -> unit) option
+  = "caml_glfwSetDropCallback"
 external joystickPresent : joy:int -> bool = "caml_glfwJoystickPresent"
 external getJoystickAxes : joy:int -> float array = "caml_glfwGetJoystickAxes"
 external getJoystickButtons : joy:int -> bool array
   = "caml_glfwGetJoystickButtons"
 external getJoystickName : joy:int -> string option = "caml_glfwGetJoystickName"
 external setJoystickCallback :
-  f:(int -> connection_event -> unit) option ->
-  (int -> connection_event -> unit) option = "caml_glfwSetJoystickCallback"
+  f:(int -> connection_event -> unit) option
+  -> (int -> connection_event -> unit) option
+  = "caml_glfwSetJoystickCallback"
 external setClipboardString : window:window -> string:string -> unit
   = "caml_glfwSetClipboardString"
 external getClipboardString : window:window -> string
