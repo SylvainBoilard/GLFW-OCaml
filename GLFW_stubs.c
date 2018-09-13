@@ -844,7 +844,15 @@ CAMLprim value caml_glfwGetKeyName(value key, value scancode)
 {
     const char* name =
         glfwGetKeyName(Int_val(ml_to_glfw_key[key]), Int_val(scancode));
-    return caml_copy_string(name != NULL ? name : "");
+
+    if (name == NULL)
+        return Val_none;
+    CAMLparam0();
+    CAMLlocal2(str, ret);
+    str = caml_copy_string(name);
+    ret = caml_alloc_small(1, 0);
+    Field(ret, 0) = str;
+    CAMLreturn(ret);
 }
 
 CAMLprim value caml_glfwGetKey(value window, value key)
@@ -1072,7 +1080,15 @@ CAMLprim value caml_glfwGetJoystickButtons(value joy)
 CAMLprim value caml_glfwGetJoystickName(value joy)
 {
     const char* name = glfwGetJoystickName(Int_val(joy));
-    return caml_copy_string(name != NULL ? name : "");
+
+    if (name == NULL)
+        return Val_none;
+    CAMLparam0();
+    CAMLlocal2(str, ret);
+    str = caml_copy_string(name);
+    ret = caml_alloc_small(1, 0);
+    Field(ret, 0) = str;
+    CAMLreturn(ret);
 }
 
 static value joystick_closure = Val_unit;
@@ -1120,13 +1136,24 @@ CAMLprim value caml_glfwGetTimerFrequency(CAMLvoid)
 
 CAMLprim value caml_glfwMakeContextCurrent(value window)
 {
-    glfwMakeContextCurrent((GLFWwindow*)window);
+    if (window == Val_none)
+        glfwMakeContextCurrent(NULL);
+    else
+        glfwMakeContextCurrent((GLFWwindow*)Field(window, 0));
     return Val_unit;
 }
 
 CAMLprim value caml_glfwGetCurrentContext(CAMLvoid)
 {
-    return (value)glfwGetCurrentContext();
+    GLFWwindow* window = glfwGetCurrentContext();
+
+    if (window == NULL)
+        return Val_none;
+    CAMLparam0();
+    CAMLlocal1(ret);
+    ret = caml_alloc_small(1, 0);
+    Field(ret, 0) = (value)window;
+    CAMLreturn(ret);
 }
 
 CAMLprim value caml_glfwSwapBuffers(value window)

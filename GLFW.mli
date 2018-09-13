@@ -364,8 +364,8 @@ external getInputMode : window:window -> mode:'a input_mode -> 'a
 external setInputMode :
   window:window -> mode:'a input_mode -> value:'a -> unit
   = "caml_glfwGetInputMode" [@@noalloc]
-val getKeyName : key:key -> string
-val getKeyNameByScancode : scancode:int -> string
+external getKeyName : key:key -> scancode:int -> string option
+  = "caml_glfwGetKeyName"
 external getKey : window:window -> key:key -> bool = "caml_glfwGetKey"
   [@@noalloc]
 external getMouseButton : window:window -> button:int -> bool
@@ -423,7 +423,7 @@ external getJoystickAxes : joy:int -> float array
   = "caml_glfwGetJoystickAxes"
 external getJoystickButtons : joy:int -> bool array
   = "caml_glfwGetJoystickButtons"
-external getJoystickName : joy:int -> string = "caml_glfwGetJoystickName"
+external getJoystickName : joy:int -> string option = "caml_glfwGetJoystickName"
 external setJoystickCallback :
   f:(int -> connection_event -> unit) option ->
   (int -> connection_event -> unit) option = "caml_glfwSetJoystickCallback"
@@ -435,10 +435,10 @@ external getTime : unit -> float = "caml_glfwGetTime"
 external setTime : time:float -> unit = "caml_glfwSetTime" [@@noalloc]
 external getTimerValue : unit -> int64 = "caml_glfwGetTimerValue"
 external getTimerFrequency : unit -> int64 = "caml_glfwGetTimerFrequency"
-external makeContextCurrent : window:window -> unit
+external makeContextCurrent : window:window option -> unit
   = "caml_glfwMakeContextCurrent" [@@noalloc]
-external getCurrentContext : unit -> window = "caml_glfwMakeContextCurrent"
-  [@@noalloc]
+external getCurrentContext : unit -> window option
+  = "caml_glfwGetCurrentContext"
 external swapBuffers : window:window -> unit = "caml_glfwSwapBuffers"
   [@@noalloc]
 external swapInterval : interval:int -> unit = "caml_glfwSwapInterval"
