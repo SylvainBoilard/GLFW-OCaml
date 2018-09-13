@@ -28,6 +28,7 @@
             if (name##_closure != Val_unit)                 \
             {                                               \
                 glfw_setter(NULL);                          \
+                raise_if_error();                           \
                 caml_remove_global_root(&name##_closure);   \
                 name##_closure = Val_unit;                  \
             }                                               \
@@ -37,6 +38,7 @@
             if (name##_closure == Val_unit)                 \
             {                                               \
                 glfw_setter(name##_callback_stub);          \
+                raise_if_error();                           \
                 caml_register_global_root(&name##_closure); \
             }                                               \
             name##_closure = Field(new_closure, 0);         \
@@ -75,6 +77,7 @@ struct ml_window_callbacks
             *(struct ml_window_callbacks**)                             \
             glfwGetWindowUserPointer((GLFWwindow*)window);              \
                                                                         \
+        raise_if_error();                                               \
         if (ml_window_callbacks->name == Val_unit)                      \
             previous_closure = Val_none;                                \
         else                                                            \
@@ -223,14 +226,77 @@ static inline value caml_copy_vidmode(const GLFWvidmode* vidmode)
     return v;
 }
 
+static value error_tag = Val_unit;
+static value error_arg = Val_unit;
+
+static void error_callback(int error, const char* description)
+{
+    switch (error)
+    {
+    case GLFW_NOT_INITIALIZED:
+        error_tag = *caml_named_value("GLFW.NotInitialized");
+        break;
+    case GLFW_NO_CURRENT_CONTEXT:
+        error_tag = *caml_named_value("GLFW.NoCurrentContext");
+        break;
+    case GLFW_INVALID_ENUM:
+        error_tag = *caml_named_value("GLFW.InvalidEnum");
+        break;
+    case GLFW_INVALID_VALUE:
+        error_tag = *caml_named_value("GLFW.InvalidValue");
+        break;
+    case GLFW_OUT_OF_MEMORY:
+        error_tag = *caml_named_value("GLFW.OutOfMemory");
+        break;
+    case GLFW_API_UNAVAILABLE:
+        error_tag = *caml_named_value("GLFW.ApiUnavailable");
+        break;
+    case GLFW_VERSION_UNAVAILABLE:
+        error_tag = *caml_named_value("GLFW.VersionUnavailable");
+        break;
+    case GLFW_PLATFORM_ERROR:
+        error_tag = *caml_named_value("GLFW.PlatformError");
+        break;
+    case GLFW_FORMAT_UNAVAILABLE:
+        error_tag = *caml_named_value("GLFW.FormatUnavailable");
+        break;
+    case GLFW_NO_WINDOW_CONTEXT:
+        error_tag = *caml_named_value("GLFW.NoWindowContext");
+    }
+    error_arg = caml_copy_string(description);
+}
+
+static inline void raise_if_error(void)
+{
+    if (error_tag != Val_unit)
+    {
+        value error_tag_dup = error_tag;
+        value error_arg_dup = error_arg;
+
+        error_tag = Val_unit;
+        error_arg = Val_unit;
+        caml_raise_with_arg(error_tag_dup, error_arg_dup);
+    }
+}
+
+CAMLprim value init_stub(CAMLvoid)
+{
+    caml_register_global_root(&error_arg);
+    glfwSetErrorCallback(error_callback);
+    return Val_unit;
+}
+
 CAMLprim value caml_glfwInit(CAMLvoid)
 {
-    return Val_bool(glfwInit());
+    glfwInit();
+    raise_if_error();
+    return Val_unit;
 }
 
 CAMLprim value caml_glfwTerminate(CAMLvoid)
 {
     glfwTerminate();
+    raise_if_error();
     return Val_unit;
 }
 
@@ -252,27 +318,20 @@ CAMLprim value caml_glfwGetVersionString(CAMLvoid)
     return caml_copy_string(glfwGetVersionString());
 }
 
-static value error_closure = Val_unit;
-
-void error_callback_stub(int error_code, const char* description)
-{
-    caml_callback2(error_closure, Val_int(error_code - GLFW_NOT_INITIALIZED),
-                   caml_copy_string(description));
-}
-
-CAML_SETTER_STUB(glfwSetErrorCallback, error)
-
 CAMLprim value caml_glfwGetMonitors(CAMLvoid)
 {
     int monitor_count;
     GLFWmonitor** monitors = glfwGetMonitors(&monitor_count);
 
+    raise_if_error();
     return caml_list_of_pointer_array((void**)monitors, monitor_count);
 }
 
 CAMLprim value caml_glfwGetPrimaryMonitor(CAMLvoid)
 {
-    return (value)glfwGetPrimaryMonitor();
+    GLFWmonitor* ret = glfwGetPrimaryMonitor();
+    raise_if_error();
+    return (value)ret;
 }
 
 CAMLprim value caml_glfwGetMonitorPos(value monitor)
@@ -281,6 +340,7 @@ CAMLprim value caml_glfwGetMonitorPos(value monitor)
     value ret;
 
     glfwGetMonitorPos((GLFWmonitor*)monitor, &xpos, &ypos);
+    raise_if_error();
     ret = caml_alloc_small(2, 0);
     Field(ret, 0) = Val_int(xpos);
     Field(ret, 1) = Val_int(ypos);
@@ -293,6 +353,7 @@ CAMLprim value caml_glfwGetMonitorPhysicalSize(value monitor)
     value ret;
 
     glfwGetMonitorPhysicalSize((GLFWmonitor*)monitor, &width, &height);
+    raise_if_error();
     ret = caml_alloc_small(2, 0);
     Field(ret, 0) = Val_int(width);
     Field(ret, 1) = Val_int(height);
@@ -301,7 +362,9 @@ CAMLprim value caml_glfwGetMonitorPhysicalSize(value monitor)
 
 CAMLprim value caml_glfwGetMonitorName(value monitor)
 {
-    return caml_copy_string(glfwGetMonitorName((GLFWmonitor*)monitor));
+    const char* ret = glfwGetMonitorName((GLFWmonitor*)monitor);
+    raise_if_error();
+    return caml_copy_string(ret);
 }
 
 static value monitor_closure = Val_unit;
@@ -322,6 +385,7 @@ CAMLprim value caml_glfwGetVideoModes(value monitor)
     const GLFWvidmode* videomodes =
         glfwGetVideoModes((GLFWmonitor*)monitor, &videomode_count);
 
+    raise_if_error();
     ret = Val_emptylist;
     while (videomode_count > 0)
     {
@@ -336,12 +400,15 @@ CAMLprim value caml_glfwGetVideoModes(value monitor)
 
 CAMLprim value caml_glfwGetVideoMode(value monitor)
 {
-    return caml_copy_vidmode(glfwGetVideoMode((GLFWmonitor*)monitor));
+    const GLFWvidmode* ret = glfwGetVideoMode((GLFWmonitor*)monitor);
+    raise_if_error();
+    return caml_copy_vidmode(ret);
 }
 
 CAMLprim value caml_glfwSetGamma(value monitor, value gamma)
 {
     glfwSetGamma((GLFWmonitor*)monitor, Double_val(gamma));
+    raise_if_error();
     return Val_unit;
 }
 
@@ -350,6 +417,7 @@ CAMLprim value caml_glfwGetGammaRamp(value monitor)
     CAMLparam0();
     CAMLlocal1(ret);
     const GLFWgammaramp* gamma_ramp = glfwGetGammaRamp((GLFWmonitor*)monitor);
+    raise_if_error();
     const int flags = CAML_BA_UINT16 | CAML_BA_C_LAYOUT;
     intnat size = gamma_ramp->size;
 
@@ -373,13 +441,15 @@ CAMLprim value caml_glfwSetGammaRamp(value monitor, value ml_gamma_ramp)
     gamma_ramp.green = Caml_ba_data_val(Field(ml_gamma_ramp, 1));
     gamma_ramp.blue = Caml_ba_data_val(Field(ml_gamma_ramp, 2));
     glfwSetGammaRamp((GLFWmonitor*)monitor, &gamma_ramp);
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwDefaultWindowHints(CAMLvoid)
 {
     glfwDefaultWindowHints();
-    return (Val_unit);
+    raise_if_error();
+    return Val_unit;
 }
 
 CAMLprim value caml_glfwWindowHint(value hint, value ml_val)
@@ -441,7 +511,8 @@ CAMLprim value caml_glfwWindowHint(value hint, value ml_val)
             glfw_val = GLFW_EGL_CONTEXT_API;
     }
     glfwWindowHint(ml_window_hint[offset].glfw_window_hint, glfw_val);
-    return (Val_unit);
+    raise_if_error();
+    return Val_unit;
 }
 
 CAMLprim value caml_glfwCreateWindow(
@@ -451,6 +522,7 @@ CAMLprim value caml_glfwCreateWindow(
         Int_val(width), Int_val(height), String_val(title),
         mntor == Val_none ? NULL : (GLFWmonitor*)Field(mntor, 0),
         share == Val_none ? NULL : (GLFWwindow*)Field(share, 0));
+    raise_if_error();
     void* user_pointer = malloc(sizeof(value));
     value callbacks = caml_alloc_small(ML_WINDOW_CALLBACKS_WOSIZE, 0);
 
@@ -473,26 +545,32 @@ CAMLprim value caml_glfwDestroyWindow(value window)
 {
     void* user_pointer = glfwGetWindowUserPointer((GLFWwindow*)window);
 
+    raise_if_error();
     caml_remove_global_root(user_pointer);
     free(user_pointer);
     glfwDestroyWindow((GLFWwindow*)window);
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwWindowShouldClose(value window)
 {
-    return Val_bool(glfwWindowShouldClose((GLFWwindow*)window));
+    int ret = glfwWindowShouldClose((GLFWwindow*)window);
+    raise_if_error();
+    return Val_bool(ret);
 }
 
 CAMLprim value caml_glfwSetWindowShouldClose(value window, value val)
 {
     glfwSetWindowShouldClose((GLFWwindow*)window, Bool_val(val));
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwSetWindowTitle(value window, value title)
 {
     glfwSetWindowTitle((GLFWwindow*)window, String_val(title));
+    raise_if_error();
     return Val_unit;
 }
 
@@ -519,6 +597,7 @@ CAMLprim value caml_glfwSetWindowIcon(value window, value images)
     }
     glfwSetWindowIcon((GLFWwindow*)window, count, glfw_images);
     free(glfw_images);
+    raise_if_error();
     return Val_unit;
 }
 
@@ -528,6 +607,7 @@ CAMLprim value caml_glfwGetWindowPos(value window)
     value ret;
 
     glfwGetWindowPos((GLFWwindow*)window, &xpos, &ypos);
+    raise_if_error();
     ret = caml_alloc_small(2, 0);
     Field(ret, 0) = Val_int(xpos);
     Field(ret, 1) = Val_int(ypos);
@@ -537,6 +617,7 @@ CAMLprim value caml_glfwGetWindowPos(value window)
 CAMLprim value caml_glfwSetWindowPos(value window, value xpos, value ypos)
 {
     glfwSetWindowPos((GLFWwindow*)window, Int_val(xpos), Int_val(ypos));
+    raise_if_error();
     return Val_unit;
 }
 
@@ -546,6 +627,7 @@ CAMLprim value caml_glfwGetWindowSize(value window)
     value ret;
 
     glfwGetWindowSize((GLFWwindow*)window, &width, &height);
+    raise_if_error();
     ret = caml_alloc_small(2, 0);
     Field(ret, 0) = Val_int(width);
     Field(ret, 1) = Val_int(height);
@@ -562,18 +644,21 @@ CAMLprim value caml_glfwSetWindowSizeLimits(
 
     glfwSetWindowSizeLimits(
         (GLFWwindow*)window, glfw_minW, glfw_minH, glfw_maxW, glfw_maxH);
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwSetWindowAspectRatio(value window, value num, value den)
 {
     glfwSetWindowAspectRatio((GLFWwindow*)window, Int_val(num), Int_val(den));
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwSetWindowSize(value window, value width, value height)
 {
     glfwSetWindowSize((GLFWwindow*)window, Int_val(width), Int_val(height));
+    raise_if_error();
     return Val_unit;
 }
 
@@ -583,6 +668,7 @@ CAMLprim value caml_glfwGetFramebufferSize(value window)
     value ret;
 
     glfwGetFramebufferSize((GLFWwindow*)window, &width, &height);
+    raise_if_error();
     ret = caml_alloc_small(2, 0);
     Field(ret, 0) = Val_int(width);
     Field(ret, 1) = Val_int(height);
@@ -595,6 +681,7 @@ CAMLprim value caml_glfwGetWindowFrameSize(value window)
     value ret;
 
     glfwGetWindowFrameSize((GLFWwindow*)window, &left, &top, &right, &bottom);
+    raise_if_error();
     ret = caml_alloc_small(4, 0);
     Field(ret, 0) = Val_int(left);
     Field(ret, 1) = Val_int(top);
@@ -606,42 +693,50 @@ CAMLprim value caml_glfwGetWindowFrameSize(value window)
 CAMLprim value caml_glfwIconifyWindow(value window)
 {
     glfwIconifyWindow((GLFWwindow*)window);
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwRestoreWindow(value window)
 {
     glfwRestoreWindow((GLFWwindow*)window);
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwMaximizeWindow(value window)
 {
     glfwMaximizeWindow((GLFWwindow*)window);
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwShowWindow(value window)
 {
     glfwShowWindow((GLFWwindow*)window);
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwHideWindow(value window)
 {
     glfwHideWindow((GLFWwindow*)window);
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwFocusWindow(value window)
 {
     glfwFocusWindow((GLFWwindow*)window);
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwGetWindowMonitor(value window)
 {
-    return (value)glfwGetWindowMonitor((GLFWwindow*)window);
+    GLFWmonitor* ret = glfwGetWindowMonitor((GLFWwindow*)window);
+    raise_if_error();
+    return (value)ret;
 }
 
 CAMLprim value caml_glfwSetWindowMonitor(
@@ -652,6 +747,7 @@ CAMLprim value caml_glfwSetWindowMonitor(
         (GLFWwindow*)window, (GLFWmonitor*)monitor,
         Int_val(xpos), Int_val(ypos), Int_val(width), Int_val(height),
         Int_val(refreshRate));
+    raise_if_error();
     return Val_unit;
 }
 
@@ -668,6 +764,7 @@ CAMLprim value caml_glfwGetWindowAttrib(value window, value attribute)
     const int offset = Int_val(attribute);
     int glfw_val = glfwGetWindowAttrib(
         (GLFWwindow*)window, ml_window_attrib[offset].glfw_window_attrib);
+    raise_if_error();
     value ret = Val_unit;
 
     switch (ml_window_attrib[offset].value_type)
@@ -799,24 +896,28 @@ CAML_WINDOW_SETTER_STUB(glfwSetFramebufferSizeCallback, framebuffer_size)
 CAMLprim value caml_glfwPollEvents(CAMLvoid)
 {
     glfwPollEvents();
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwWaitEvents(CAMLvoid)
 {
     glfwWaitEvents();
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwWaitEventsTimeout(value timeout)
 {
     glfwWaitEventsTimeout(Double_val(timeout));
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwPostEmptyEvent(CAMLvoid)
 {
     glfwPostEmptyEvent();
+    raise_if_error();
     return Val_unit;
 }
 
@@ -824,6 +925,7 @@ CAMLprim value caml_glfwGetInputMode(value window, value mode)
 {
     int v = glfwGetInputMode((GLFWwindow*)window, Int_val(mode) + GLFW_CURSOR);
 
+    raise_if_error();
     if (Int_val(mode) == 0)
         return Val_int(v - GLFW_CURSOR_NORMAL);
     return Val_bool(v);
@@ -837,6 +939,7 @@ CAMLprim value caml_glfwSetInputMode(value window, value mode, value v)
     else
         glfwSetInputMode(
             (GLFWwindow*)window, Int_val(mode) + GLFW_CURSOR, Bool_val(v));
+    raise_if_error();
     return Val_unit;
 }
 
@@ -845,6 +948,7 @@ CAMLprim value caml_glfwGetKeyName(value key, value scancode)
     const char* name =
         glfwGetKeyName(Int_val(ml_to_glfw_key[key]), Int_val(scancode));
 
+    raise_if_error();
     if (name == NULL)
         return Val_none;
     CAMLparam0();
@@ -858,12 +962,15 @@ CAMLprim value caml_glfwGetKeyName(value key, value scancode)
 CAMLprim value caml_glfwGetKey(value window, value key)
 {
     int ret = glfwGetKey((GLFWwindow*)window, Int_val(ml_to_glfw_key[key]));
+    raise_if_error();
     return Val_bool(ret);
 }
 
 CAMLprim value caml_glfwGetMouseButton(value window, value button)
 {
-    return Val_int(glfwGetMouseButton((GLFWwindow*)window, Int_val(button)));
+    int ret = glfwGetMouseButton((GLFWwindow*)window, Int_val(button));
+    raise_if_error();
+    return Val_bool(ret);
 }
 
 CAMLprim value caml_glfwGetCursorPos(value window)
@@ -873,6 +980,7 @@ CAMLprim value caml_glfwGetCursorPos(value window)
     double xpos, ypos;
 
     glfwGetCursorPos((GLFWwindow*)window, &xpos, &ypos);
+    raise_if_error();
     ml_xpos = caml_copy_double(xpos);
     ml_ypos = caml_copy_double(ypos);
     ret = caml_alloc_small(2, 0);
@@ -884,6 +992,7 @@ CAMLprim value caml_glfwGetCursorPos(value window)
 CAMLprim value caml_glfwSetCursorPos(value window, value xpos, value ypos)
 {
     glfwSetCursorPos((GLFWwindow*)window, Double_val(xpos), Double_val(ypos));
+    raise_if_error();
     return Val_unit;
 }
 
@@ -896,23 +1005,29 @@ CAMLprim value caml_glfwCreateCursor(value image, value xhot, value yhot)
     glfw_image.height = Int_val(Field(image, 1));
     glfw_image.pixels = Bytes_val(Field(image, 2));
     ret = glfwCreateCursor(&glfw_image, Int_val(xhot), Int_val(yhot));
+    raise_if_error();
     return (value)ret;
 }
 
 CAMLprim value caml_glfwCreateStandardCursor(value shape)
 {
-    return (value)glfwCreateStandardCursor(Int_val(shape) - GLFW_ARROW_CURSOR);
+    GLFWcursor* ret =
+        glfwCreateStandardCursor(Int_val(shape) - GLFW_ARROW_CURSOR);
+    raise_if_error();
+    return (value)ret;
 }
 
 CAMLprim value caml_glfwDestroyCursor(value cursor)
 {
     glfwDestroyCursor((GLFWcursor*)cursor);
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwSetCursor(value window, value cursor)
 {
     glfwSetCursor((GLFWwindow*)window, (GLFWcursor*)cursor);
+    raise_if_error();
     return Val_unit;
 }
 
@@ -1046,7 +1161,9 @@ CAML_WINDOW_SETTER_STUB(glfwSetDropCallback, drop)
 
 CAMLprim value caml_glfwJoystickPresent(value joy)
 {
-    return Val_bool(glfwJoystickPresent(Int_val(joy)));
+    value ret = glfwJoystickPresent(Int_val(joy));
+    raise_if_error();
+    return Val_bool(ret);
 }
 
 CAMLprim value caml_glfwGetJoystickAxes(value joy)
@@ -1055,6 +1172,7 @@ CAMLprim value caml_glfwGetJoystickAxes(value joy)
     int count;
     const float* axes = glfwGetJoystickAxes(Int_val(joy), &count);
 
+    raise_if_error();
     if (count == 0)
         return Atom(Double_array_tag);
     ret = caml_alloc_float_array(count);
@@ -1069,6 +1187,7 @@ CAMLprim value caml_glfwGetJoystickButtons(value joy)
     int count;
     const unsigned char* buttons = glfwGetJoystickButtons(Int_val(joy), &count);
 
+    raise_if_error();
     if (count == 0)
         return Atom(0);
     ret = caml_alloc_float_array(count);
@@ -1081,6 +1200,7 @@ CAMLprim value caml_glfwGetJoystickName(value joy)
 {
     const char* name = glfwGetJoystickName(Int_val(joy));
 
+    raise_if_error();
     if (name == NULL)
         return Val_none;
     CAMLparam0();
@@ -1104,34 +1224,43 @@ CAML_SETTER_STUB(glfwSetJoystickCallback, joystick)
 CAMLprim value caml_glfwSetClipboardString(value window, value string)
 {
     glfwSetClipboardString((GLFWwindow*)window, String_val(string));
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwGetClipboardString(value window)
 {
     const char* string = glfwGetClipboardString((GLFWwindow*)window);
-    return caml_copy_string(string != NULL ? string : "");
+    raise_if_error();
+    return caml_copy_string(string);
 }
 
 CAMLprim value caml_glfwGetTime(CAMLvoid)
 {
-    return caml_copy_double(glfwGetTime());
+    double time = glfwGetTime();
+    raise_if_error();
+    return caml_copy_double(time);
 }
 
 CAMLprim value caml_glfwSetTime(value time)
 {
     glfwSetTime(Double_val(time));
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwGetTimerValue(CAMLvoid)
 {
-    return caml_copy_int64(glfwGetTimerValue());
+    uint64_t timer_value = glfwGetTimerValue();
+    raise_if_error();
+    return caml_copy_int64(timer_value);
 }
 
 CAMLprim value caml_glfwGetTimerFrequency(CAMLvoid)
 {
-    return caml_copy_int64(glfwGetTimerFrequency());
+    uint64_t timer_frequency = glfwGetTimerFrequency();
+    raise_if_error();
+    return caml_copy_int64(timer_frequency);
 }
 
 CAMLprim value caml_glfwMakeContextCurrent(value window)
@@ -1140,6 +1269,7 @@ CAMLprim value caml_glfwMakeContextCurrent(value window)
         glfwMakeContextCurrent(NULL);
     else
         glfwMakeContextCurrent((GLFWwindow*)Field(window, 0));
+    raise_if_error();
     return Val_unit;
 }
 
@@ -1147,6 +1277,7 @@ CAMLprim value caml_glfwGetCurrentContext(CAMLvoid)
 {
     GLFWwindow* window = glfwGetCurrentContext();
 
+    raise_if_error();
     if (window == NULL)
         return Val_none;
     CAMLparam0();
@@ -1159,11 +1290,13 @@ CAMLprim value caml_glfwGetCurrentContext(CAMLvoid)
 CAMLprim value caml_glfwSwapBuffers(value window)
 {
     glfwSwapBuffers((GLFWwindow*)window);
+    raise_if_error();
     return Val_unit;
 }
 
 CAMLprim value caml_glfwSwapInterval(value interval)
 {
     glfwSwapInterval(Int_val(interval));
+    raise_if_error();
     return Val_unit;
 }
