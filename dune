@@ -1,0 +1,13 @@
+(library
+ (name            GLFW)
+ (public_name     glfw-ocaml)
+ (modules         gen_dummy GLFW)
+ (wrapped         false)
+ (libraries       bigarray)
+ (c_names         GLFW_stubs)
+ (c_library_flags (-lglfw)))
+
+(rule
+ (targets GLFW_key_conv_arrays.inl gen_dummy.ml)
+ (deps    (:gen gen_key_conv_arrays.ml))
+ (action  (run %{ocaml} str.cma %{gen})))
