@@ -734,19 +734,30 @@ CAMLprim value caml_glfwFocusWindow(value window)
 
 CAMLprim value caml_glfwGetWindowMonitor(value window)
 {
-    GLFWmonitor* ret = glfwGetWindowMonitor((GLFWwindow*)window);
+    GLFWmonitor* monitor = glfwGetWindowMonitor((GLFWwindow*)window);
+    value ret;
+
     raise_if_error();
-    return (value)ret;
+    if (monitor == NULL)
+        return Val_none;
+    ret = caml_alloc_small(1, 0);
+    Field(ret, 0) = (value)monitor;
+    return ret;
 }
 
 CAMLprim value caml_glfwSetWindowMonitor(
     value window, value monitor, value xpos, value ypos,
     value width, value height, value refreshRate)
 {
+    GLFWmonitor* glfw_monitor =
+        monitor == Val_none ? NULL : (GLFWmonitor*)Field(monitor, 0);
+    int glfw_refresh_rate = refreshRate == Val_none
+        ? GLFW_DONT_CARE
+        : Int_val(Field(refreshRate, 0));
+
     glfwSetWindowMonitor(
-        (GLFWwindow*)window, (GLFWmonitor*)monitor,
-        Int_val(xpos), Int_val(ypos), Int_val(width), Int_val(height),
-        Int_val(refreshRate));
+        (GLFWwindow*)window, glfw_monitor, Int_val(xpos), Int_val(ypos),
+        Int_val(width), Int_val(height), glfw_refresh_rate);
     raise_if_error();
     return Val_unit;
 }
@@ -1276,15 +1287,14 @@ CAMLprim value caml_glfwMakeContextCurrent(value window)
 CAMLprim value caml_glfwGetCurrentContext(CAMLvoid)
 {
     GLFWwindow* window = glfwGetCurrentContext();
+    value ret;
 
     raise_if_error();
     if (window == NULL)
         return Val_none;
-    CAMLparam0();
-    CAMLlocal1(ret);
     ret = caml_alloc_small(1, 0);
     Field(ret, 0) = (value)window;
-    CAMLreturn(ret);
+    return ret;
 }
 
 CAMLprim value caml_glfwSwapBuffers(value window)

@@ -345,11 +345,11 @@ external maximizeWindow : window:window -> unit = "caml_glfwMaximizeWindow"
 external showWindow : window:window -> unit = "caml_glfwShowWindow"
 external hideWindow : window:window -> unit = "caml_glfwHideWindow"
 external focusWindow : window:window -> unit = "caml_glfwFocusWindow"
-external getWindowMonitor : window:window -> monitor
+external getWindowMonitor : window:window -> monitor option
   = "caml_glfwGetWindowMonitor"
 external setWindowMonitor :
-  window:window -> monitor:monitor -> xpos:int -> ypos:int
-  -> width:int -> height:int -> refreshRate:int -> unit
+  window:window -> monitor:monitor option -> xpos:int -> ypos:int -> width:int
+  -> height:int -> refreshRate:int option -> unit
   = "caml_glfwSetWindowMonitor_byte" "caml_glfwSetWindowMonitor"
 external getWindowAttrib : window:window -> attribute:'a WindowAttribute.t -> 'a
   = "caml_glfwGetWindowAttrib"
