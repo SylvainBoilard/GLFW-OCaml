@@ -46,5 +46,4 @@ let () =
     | _ -> add_string buffer "    -1,\n"
   done;
   add_string buffer "};\n";
-  output_buffer key_stub buffer;
-  close_out_noerr (open_out "gen_dummy.ml")
+  output_buffer key_stub buffer
