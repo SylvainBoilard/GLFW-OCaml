@@ -4,6 +4,7 @@
  (modules                   GLFW)
  (wrapped                   false)
  (libraries                 bigarray)
+ (c_library_flags           -lglfw)
  (self_build_stubs_archive  (GLFW_stubs)))
 
 (rule
