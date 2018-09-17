@@ -957,7 +957,7 @@ CAMLprim value caml_glfwSetInputMode(value window, value mode, value v)
 CAMLprim value caml_glfwGetKeyName(value key, value scancode)
 {
     const char* name =
-        glfwGetKeyName(Int_val(ml_to_glfw_key[key]), Int_val(scancode));
+        glfwGetKeyName(ml_to_glfw_key[Int_val(key)], Int_val(scancode));
 
     raise_if_error();
     if (name == NULL)
@@ -972,7 +972,7 @@ CAMLprim value caml_glfwGetKeyName(value key, value scancode)
 
 CAMLprim value caml_glfwGetKey(value window, value key)
 {
-    int ret = glfwGetKey((GLFWwindow*)window, Int_val(ml_to_glfw_key[key]));
+    int ret = glfwGetKey((GLFWwindow*)window, ml_to_glfw_key[Int_val(key)]);
     raise_if_error();
     return Val_bool(ret);
 }
@@ -1049,7 +1049,7 @@ void key_callback_stub(
         *(struct ml_window_callbacks**)
         glfwGetWindowUserPointer((GLFWwindow*)window);
     value args[] = {
-        (value)window, Val_int(glfw_to_ml_key[key + GLFW_KEY_FIRST]),
+        (value)window, Val_int(glfw_to_ml_key[key - GLFW_KEY_FIRST]),
         Val_int(scancode), Val_int(action), caml_list_of_flags(mods, 4)
     };
 
