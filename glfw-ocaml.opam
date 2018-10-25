@@ -1,15 +1,14 @@
-opam-version: "1.2"
-version: "3.2.1"
-maintainer: "Sylvain Boilard <boilard@crans.org>"
-authors: ["Sylvain Boilard <boilard@crans.org>"]
+opam-version: "2.0"
+version: "3.2.1~rc1"
+maintainer: "Sylvain BOILARD <boilard@crans.org>"
+authors: ["Sylvain BOILARD <boilard@crans.org>"]
 license: "Zlib"
 homepage: "https://github.com/SylvainBoilard/GLFW-OCaml"
 bug-reports: "https://github.com/SylvainBoilard/GLFW-OCaml/issues"
-dev-repo: "https://github.com/SylvainBoilard/GLFW-OCaml.git"
+dev-repo: "git+https://github.com/SylvainBoilard/GLFW-OCaml.git"
 build: [["dune" "build" "-p" name "-j" jobs]]
 depends: [
   "base-bigarray"
   "dune"            {build & >= "1.0"}
+  "ocaml"           {>= "4.02.0"}
 ]
-build-test: [["dune" "runtest" "-p" name "-j" jobs]]
-available: [ocaml-version >= "4.02.0"]

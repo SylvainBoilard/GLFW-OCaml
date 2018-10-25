@@ -5,7 +5,7 @@
  (wrapped                   false)
  (libraries                 bigarray)
  (c_library_flags           -lglfw)
- (self_build_stubs_archive  (GLFW_stubs)))
+ (self_build_stubs_archive  (GLFW)))
 
 (rule
  (targets   libGLFW_stubs.a dllGLFW_stubs.so)
