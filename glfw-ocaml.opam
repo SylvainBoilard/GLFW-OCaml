@@ -9,6 +9,7 @@ bug-reports: "https://github.com/SylvainBoilard/GLFW-OCaml/issues"
 dev-repo: "git+https://github.com/SylvainBoilard/GLFW-OCaml.git"
 build: [["dune" "build" "-p" name "-j" jobs]]
 depends: [
+  "conf-glfw3"
   "base-bigarray"
   "dune"            {build & >= "1.0"}
   "ocaml"           {>= "4.02.0"}
