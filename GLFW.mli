@@ -1,7 +1,16 @@
+(** OCaml binding for GLFW 3.2.1 *)
+
+(** GLFW-OCaml version numbers. *)
 val version_major : int
 val version_minor : int
 val version_revision : int
 
+(** Exceptions raised by the various functions of this module.
+
+    @see <http://www.glfw.org/docs/latest/group__errors.html>
+
+    If you ever get an InvalidEnum exception and are not using unsafe features
+    that would be a bug in GLFW-OCaml. Please fill an issue on GitHub. *)
 exception NotInitialized of string
 exception NoCurrentContext of string
 exception InvalidEnum of string
@@ -13,11 +22,17 @@ exception PlatformError of string
 exception FormatUnavailable of string
 exception NoWindowContext of string
 
+(** Key actions.
+
+    @see <http://www.glfw.org/docs/latest/group__input.html> *)
 type key_action =
   | Release
   | Press
   | Repeat
 
+(** Keyboard keys.
+
+    @see <http://www.glfw.org/docs/latest/group__keys.html> *)
 type key =
   | Unknown
   | Space
@@ -141,40 +156,58 @@ type key =
   | RightSuper
   | Menu
 
+(** Keyboard key and mouse button modifiers.
+
+    @see <http://www.glfw.org/docs/latest/group__mods.html> *)
 type key_mod =
   | Shift
   | Control
   | Alt
   | Super
 
+(** Maximum number of buttons handled for a mouse. *)
 val mouse_button_max_count : int
 
+(** Maximum number of buttons handled for a joystick. *)
 val joystick_max_count : int
 
+(** Client OpenGL API hint *)
 type client_api =
   | NoApi
   | OpenGLApi
   | OpenGLESApi
 
+(** Context robustness hint *)
 type context_robustness =
   | NoRobustness
   | NoResetNotification
   | LoseContextOnReset
 
+(** OpenGL profile hint *)
 type opengl_profile =
   | AnyProfile
   | CoreProfile
   | CompatProfile
 
+(** Context release behavior hint *)
 type context_release_behavior =
   | AnyReleaseBehavior
   | ReleaseBehaviorFlush
   | ReleaseBehaviorNone
 
+(** Context creation API hint *)
 type context_creation_api =
   | NativeContextApi
   | EGLContextApi
 
+(** Window hints. Use with setWindowHint like this:
+
+    setWindowHint ~hint:WindowHint.Maximized ~value:true
+    setWindowHint ~hint:WindowHint.OpenGLProfile ~value:CoreProfile
+    setWindowHint ~hint:WindowHint.RefreshRate ~value:(Some 60)
+    setWindowHint ~hint:WindowHint.DepthBits ~value:None
+
+    @see <http://www.glfw.org/docs/latest/window_guide.html#window_hints> *)
 module WindowHint :
   sig
     type _ t =
@@ -213,6 +246,10 @@ module WindowHint :
       | ContextCreationApi : context_creation_api t
   end
 
+(** Windows attributes. Use with getWindowAttrib in a similar manner as with
+    window hints.
+
+    @see <http://www.glfw.org/docs/latest/window_guide.html#window_attribs> *)
 module WindowAttribute :
   sig
     type _ t =
@@ -234,16 +271,22 @@ module WindowAttribute :
       | ContextCreationApi : context_creation_api t
   end
 
+(** Mouse cursor input mode. *)
 type cursor_mode =
   | Normal
   | Hidden
   | Disabled
 
+(** Input modes. Use with setInputMode and getInputMode in a similar manner as
+    with window hints.
+
+    @see <http://www.glfw.org/docs/latest/group__input.html#gaa92336e173da9c8834558b54ee80563b> *)
 type _ input_mode =
   | Cursor : cursor_mode input_mode
   | StickyKeys : bool input_mode
   | StickyMouseButtons : bool input_mode
 
+(** Standard cursor shapes. *)
 type cursor_shape =
   | ArrowCursor
   | IBeamCursor
@@ -252,10 +295,14 @@ type cursor_shape =
   | HResizeCursor
   | VResizeCursor
 
+(** Joystick connection event. *)
 type connection_event =
   | Connected
   | Disconnected
 
+(** Video mode description as returned by getVideoMode(s).
+
+    @see <http://www.glfw.org/docs/latest/structGLFWvidmode.html> *)
 type video_mode = {
     width : int;
     height : int;
@@ -271,20 +318,52 @@ type window
 
 type cursor
 
+(** GammaRamp module. Describes the gamma ramp for a monitor.
+
+    @see <http://www.glfw.org/docs/latest/structGLFWgammaramp.html> *)
 module GammaRamp :
   sig
     type channel =
       (int, Bigarray.int16_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
     type t = private { red : channel; green : channel; blue : channel }
+
+    (** Create a gamma ramp from three user-supplied channels.
+
+        @raise Failure if the supplied channels are of different lengths. *)
     val create : red:channel -> green:channel -> blue:channel -> t
+
+    (** Create an empty gamma ramp with three channels of the given size. *)
     val make : size:int -> t
   end
 
+(** Image data for creating custom cursors.
+
+    @see <http://www.glfw.org/docs/latest/structGLFWimage.html> *)
 type image = {
     width : int;
     height : int;
     pixels : bytes;
   }
+
+(** Module functions. These are mostly identical to their original GLFW
+    counterparts.
+
+    There are no bindings for the glfwSetWindowUserPointer and
+    glfwGetWindowUserPointer functions because you would have to use unsafe
+    features to set the correct type for your data. If you need to make user
+    data accessible inside a callback you can instead capture it in a closure
+    and use that closure as your callback function.
+
+    There is no binding for the glfwGetProcAddress function because it would
+    basicaly require to write an entire OpenGL wrapper to make the functions
+    returned by GLFW usable from OCaml. Incidentaly the glfwExtensionSupported
+    function is not provided either. There are numerous OpenGL bindings
+    available for OCaml that you can use instead.
+
+    The Vulkan related functions are not supported as of now but we might look
+    into it at some point.
+
+    @see <http://www.glfw.org/docs/latest/glfw3_8h.html#func-members> *)
 
 external init : unit -> unit = "caml_glfwInit"
 external terminate : unit -> unit = "caml_glfwTerminate"
