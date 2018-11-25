@@ -149,6 +149,10 @@ type key_mod =
 
 let mouse_button_max_count = 8
 
+let mouse_button_left = 0
+let mouse_button_right = 1
+let mouse_button_middle = 2
+
 let joystick_max_count = 16
 
 type client_api =

@@ -168,7 +168,12 @@ type key_mod =
 (** Maximum number of buttons handled for a mouse. *)
 val mouse_button_max_count : int
 
-(** Maximum number of buttons handled for a joystick. *)
+(** Values of common mouse buttons. *)
+val mouse_button_left : int
+val mouse_button_right : int
+val mouse_button_middle : int
+
+(** Maximum number of joysticks connected. *)
 val joystick_max_count : int
 
 (** Client OpenGL API hint *)
