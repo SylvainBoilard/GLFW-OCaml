@@ -344,11 +344,17 @@ module GammaRamp :
 (** Image data for creating custom cursors and window icons.
 
     @see <http://www.glfw.org/docs/latest/structGLFWimage.html> *)
-type image = {
-    width : int;
-    height : int;
-    pixels : bytes;
-  }
+module Image :
+  sig
+    type t
+
+    (** Create an image from the supplied pixel data with the specified width
+        and height.
+
+        @raise Invalid_argument if a dimension is negative or if there is not
+        enough data to make an image with the specified dimensions. *)
+    val create : width:int -> height:int -> pixels:bytes -> t
+  end
 
 (** Module functions. These are mostly identical to their original GLFW
     counterparts.
@@ -405,7 +411,7 @@ external setWindowShouldClose : window:window -> b:bool -> unit
   = "caml_glfwSetWindowShouldClose"
 external setWindowTitle : window:window -> title:string -> unit
   = "caml_glfwSetWindowTitle"
-external setWindowIcon : window:window -> images:image list -> unit
+external setWindowIcon : window:window -> images:Image.t list -> unit
   = "caml_glfwSetWindowIcon"
 external getWindowPos : window:window -> int * int = "caml_glfwGetWindowPos"
 external setWindowPos : window:window -> xpos:int -> ypos:int -> unit
@@ -480,7 +486,7 @@ external getMouseButton : window:window -> button:int -> bool
 external getCursorPos : window:window -> float * float = "caml_glfwGetCursorPos"
 external setCursorPos : window:window -> xpos:float -> ypos:float -> unit
   = "caml_glfwSetCursorPos"
-external createCursor : image:image -> xhot:int -> yhot:int -> cursor
+external createCursor : image:Image.t -> xhot:int -> yhot:int -> cursor
   = "caml_glfwCreateCursor"
 external createStandardCursor : shape:cursor_shape -> cursor
   = "caml_glfwCreateStandardCursor"

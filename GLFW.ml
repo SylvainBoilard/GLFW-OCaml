@@ -292,11 +292,16 @@ module GammaRamp =
       }
   end
 
-type image = {
-    width : int;
-    height : int;
-    pixels : bytes
-  }
+module Image =
+  struct
+    type t = int * int * bytes
+    let create ~width ~height ~pixels =
+      if width < 0 || height < 0
+      then invalid_arg "Image.create: negative dimension."
+      else if width * height * 4 > Bytes.length pixels
+      then invalid_arg "Image.create: insufficient pixel data."
+      else width, height, pixels
+  end
 
 external init : unit -> unit = "caml_glfwInit"
 external terminate : unit -> unit = "caml_glfwTerminate"
@@ -333,7 +338,7 @@ external setWindowShouldClose : window:window -> b:bool -> unit
   = "caml_glfwSetWindowShouldClose"
 external setWindowTitle : window:window -> title:string -> unit
   = "caml_glfwSetWindowTitle"
-external setWindowIcon : window:window -> images:image list -> unit
+external setWindowIcon : window:window -> images:Image.t list -> unit
   = "caml_glfwSetWindowIcon"
 external getWindowPos : window:window -> int * int = "caml_glfwGetWindowPos"
 external setWindowPos : window:window -> xpos:int -> ypos:int -> unit
@@ -408,7 +413,7 @@ external getMouseButton : window:window -> button:int -> bool
 external getCursorPos : window:window -> float * float = "caml_glfwGetCursorPos"
 external setCursorPos : window:window -> xpos:float -> ypos:float -> unit
   = "caml_glfwSetCursorPos"
-external createCursor : image:image -> xhot:int -> yhot:int -> cursor
+external createCursor : image:Image.t -> xhot:int -> yhot:int -> cursor
   = "caml_glfwCreateCursor"
 external createStandardCursor : shape:cursor_shape -> cursor
   = "caml_glfwCreateStandardCursor"

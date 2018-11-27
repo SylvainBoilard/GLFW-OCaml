@@ -56,8 +56,10 @@ There is no need for user pointers in GLFW-OCaml as you can capture your data in
 
 When later versions of GLFW introduce user pointers for individual objects other than windows (such as joysticks and monitors) with a global callback shared by all objects of the same type, the plan for GLFW-OCaml is to instead allow setting a different callback per individual object so you can capture their related data individually in several closures for example.
 
-### Gamma ramps
+### Gamma ramps and images
 The `GammaRamp` module provides two functions `create` and `make` to create gamma ramps while insuring all channels have the same length. The former builds a gamma ramp from three user-supplied channels while the later builds an empty gamma ramp with three channels of the supplied length. You can freely access and modify the contents of an existing gamma ramp but are required to use one of these functions to build one.
+
+The `Image` module likewise provides a `create` function to create an image from raw pixel data with acceptable dimensions. Once created the dimensions of an image cannot be changed but you can still change its pixels by modifying the original byte array.
 
 ### Return values
 Some of the original functions return their result via pointer arguments. In GLFW-OCaml these functions instead return a tuple with the individual elements in the same order as they appear in the original function.
