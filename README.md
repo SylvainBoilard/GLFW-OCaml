@@ -46,7 +46,7 @@ Instead of defining values for individual mouse buttons and joysticks, a plain 0
 ### Window hints, attributes and input modes
 Window hints, attributes and input modes make use of GADTs to retain the polymorphic aspect of the corresponding original functions while ensuring type correctness.
 
-Unlike the other functions where you can omit the labels of arguments, you will find you have to use them with `windowHint`, `getWindowAttrib` and `setInputMode`. This is because the return type of these functions is polymorphic and the compiler will try to put any unlabeled arguments there. This makes for most peculiar errors.
+Unlike the other functions where you can omit the labels of arguments, you will find you have to use them with `getWindowAttrib` and `getInputMode`. This is because the return type of these functions is polymorphic and the compiler will try to put any unlabeled arguments there. This makes for most peculiar errors.
 
 ### Error handling
 Errors are propagated with exceptions instead of through a callback function. While there is a definition for an `InvalidEnum` exception, one should never be raised if you are not using unsafe features; otherwise that would be a GLFW-OCaml bug.
