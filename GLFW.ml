@@ -284,7 +284,7 @@ module GammaRamp =
       let red_dim = Array1.dim red in
       if red_dim = Array1.dim green && red_dim = Array1.dim blue
       then { red; green; blue }
-      else invalid_arg "GammaRamp.make: inconstitent channel dimension."
+      else invalid_arg "GammaRamp.make: inconsistent channel dimension."
     let make ~size = {
         red = Array1.create Int16_unsigned C_layout size;
         green = Array1.create Int16_unsigned C_layout size;

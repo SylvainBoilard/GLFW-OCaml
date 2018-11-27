@@ -334,7 +334,8 @@ module GammaRamp :
 
     (** Create a gamma ramp from three user-supplied channels.
 
-        @raise Failure if the supplied channels are of different lengths. *)
+        @raise Invalid_argument if the supplied channels are of different
+        lengths. *)
     val create : red:channel -> green:channel -> blue:channel -> t
 
     (** Create an empty gamma ramp with three channels of the given size. *)
