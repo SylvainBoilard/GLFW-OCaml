@@ -205,12 +205,12 @@ type context_creation_api =
   | NativeContextApi
   | EGLContextApi
 
-(** Window hints. Use with setWindowHint like this:
+(** Window hints. Use with windowHint like this:
 
-    setWindowHint ~hint:WindowHint.Maximized ~value:true
-    setWindowHint ~hint:WindowHint.OpenGLProfile ~value:CoreProfile
-    setWindowHint ~hint:WindowHint.RefreshRate ~value:(Some 60)
-    setWindowHint ~hint:WindowHint.DepthBits ~value:None
+    windowHint ~hint:WindowHint.Maximized ~value:true
+    windowHint ~hint:WindowHint.OpenGLProfile ~value:CoreProfile
+    windowHint ~hint:WindowHint.RefreshRate ~value:(Some 60)
+    windowHint ~hint:WindowHint.DepthBits ~value:None
 
     @see <http://www.glfw.org/docs/latest/window_guide.html#window_hints> *)
 module WindowHint :
@@ -341,7 +341,7 @@ module GammaRamp :
     val make : size:int -> t
   end
 
-(** Image data for creating custom cursors.
+(** Image data for creating custom cursors and window icons.
 
     @see <http://www.glfw.org/docs/latest/structGLFWimage.html> *)
 type image = {
