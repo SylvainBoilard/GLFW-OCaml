@@ -278,13 +278,16 @@ type cursor
 module GammaRamp =
   struct
     open Bigarray
+
     type channel = (int, int16_unsigned_elt, c_layout) Array1.t
     type t = { red : channel; green : channel; blue : channel }
+
     let create ~red ~green ~blue =
       let red_dim = Array1.dim red in
       if red_dim = Array1.dim green && red_dim = Array1.dim blue
       then { red; green; blue }
       else invalid_arg "GammaRamp.make: inconsistent channel dimension."
+
     let make ~size = {
         red = Array1.create Int16_unsigned C_layout size;
         green = Array1.create Int16_unsigned C_layout size;
@@ -294,13 +297,14 @@ module GammaRamp =
 
 module Image =
   struct
-    type t = int * int * bytes
+    type t = { width : int; height : int; pixels : bytes }
+
     let create ~width ~height ~pixels =
       if width < 0 || height < 0
       then invalid_arg "Image.create: negative dimension."
       else if width * height * 4 > Bytes.length pixels
       then invalid_arg "Image.create: insufficient pixel data."
-      else width, height, pixels
+      else { width; height; pixels }
   end
 
 external init : unit -> unit = "caml_glfwInit"

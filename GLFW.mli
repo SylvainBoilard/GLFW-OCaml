@@ -347,7 +347,7 @@ module GammaRamp :
     @see <http://www.glfw.org/docs/latest/structGLFWimage.html> *)
 module Image :
   sig
-    type t
+    type t = private { width : int; height : int; pixels : bytes }
 
     (** Create an image from the supplied pixel data with the specified width
         and height.
