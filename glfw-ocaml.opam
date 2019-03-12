@@ -12,5 +12,6 @@ depends: [
   "conf-glfw3"
   "base-bigarray"
   "dune"            {build & >= "1.0"}
+  "conf-pkg-config" {build}
   "ocaml"           {>= "4.02.0"}
 ]

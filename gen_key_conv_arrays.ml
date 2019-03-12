@@ -1,9 +1,9 @@
-let glfw_header_location = "/usr/include/GLFW/glfw3.h"
+module C = Configurator.V1
 
-let read_keys () =
+let read_keys headers_location =
   let delim_regexp = Str.regexp " +" in
   let prefix_regexp = Str.regexp "GLFW_KEY_" in
-  let glfw_header = open_in glfw_header_location in
+  let glfw_header = open_in (headers_location ^ "/GLFW/glfw3.h") in
   let rec loop acc i =
     let line = input_line glfw_header in
     match Str.split delim_regexp line with
@@ -17,12 +17,12 @@ let read_keys () =
   in
   loop [] 0
 
-let () =
+let generate keys =
   let key_stub =
     open_out_gen
       [Open_creat; Open_trunc; Open_wronly] 0o664 "GLFW_key_conv_arrays.inl"
   in
-  let keys = ref (read_keys ()) in
+  let keys = ref keys in
   let min_key, max_key =
     List.fold_left (fun (min_key, max_key) (_, _, v) ->
         min min_key v, max max_key v
@@ -30,7 +30,7 @@ let () =
   in
   let open Buffer in
   let open Printf in
-  let buffer = create 4096 in
+  let buffer = create 8192 in
   add_string buffer (sprintf "#define GLFW_KEY_FIRST %d\n" min_key);
   add_string buffer "\nstatic const int ml_to_glfw_key[] = {\n";
   List.iter (fun (_, name, _) ->
@@ -47,3 +47,21 @@ let () =
   done;
   add_string buffer "};\n";
   output_buffer key_stub buffer
+
+let main c =
+  let (|>>) v f = match v with None -> None | Some v -> f v in
+  let rec find_header_read_keys = function
+    | [] -> read_keys "/usr/include"
+    | hd :: tl when Str.first_chars hd 2 <> "-I" -> find_header_read_keys tl
+    | hd :: tl ->
+       try read_keys (Str.string_after hd 2)
+       with Sys_error _ -> find_header_read_keys tl
+  in
+  C.Pkg_config.get c
+  |>> C.Pkg_config.query ~package:"glfw3"
+  |> (function None -> [] | Some deps -> deps.cflags)
+  |> find_header_read_keys
+  |> generate
+
+let () =
+  C.main ~name:"gen_key_conv_arrays" main

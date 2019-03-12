@@ -17,5 +17,10 @@
 
 (rule
  (targets GLFW_key_conv_arrays.inl)
- (deps    (:gen gen_key_conv_arrays.ml))
- (action  (run %{ocaml} str.cma %{gen})))
+ (deps    (:gen gen_key_conv_arrays.exe))
+ (action  (run %{gen})))
+
+(executable
+ (name      gen_key_conv_arrays)
+ (modules   gen_key_conv_arrays)
+ (libraries str dune.configurator))
