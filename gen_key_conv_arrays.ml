@@ -46,7 +46,8 @@ let generate keys =
     | _ -> add_string buffer "    -1,\n"
   done;
   add_string buffer "};\n";
-  output_buffer key_stub buffer
+  output_buffer key_stub buffer;
+  close_out_noerr key_stub
 
 let main c =
   let (|>>) v f = match v with None -> None | Some v -> f v in
