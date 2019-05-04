@@ -1171,7 +1171,7 @@ CAML_WINDOW_SETTER_STUB(glfwSetDropCallback, drop)
 
 CAMLprim value caml_glfwJoystickPresent(value joy)
 {
-    value ret = glfwJoystickPresent(Int_val(joy));
+    int ret = glfwJoystickPresent(Int_val(joy));
     raise_if_error();
     return Val_bool(ret);
 }
