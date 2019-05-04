@@ -281,7 +281,6 @@ static inline void raise_if_error(void)
 
 CAMLprim value init_stub(CAMLvoid)
 {
-    caml_register_global_root(&error_arg);
     glfwSetErrorCallback(error_callback);
     return Val_unit;
 }
