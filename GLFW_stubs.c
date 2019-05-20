@@ -1200,9 +1200,9 @@ CAMLprim value caml_glfwGetJoystickButtons(value joy)
     raise_if_error();
     if (count == 0)
         return Atom(0);
-    ret = caml_alloc_float_array(count);
+    ret = caml_alloc_small(count, 0);
     for (int i = 0; i < count; ++i)
-        Field(ret, i) = Int_val(buttons[i]);
+        Field(ret, i) = Val_int(buttons[i] == GLFW_PRESS);
     return ret;
 }
 
