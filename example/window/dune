@@ -1,0 +1,9 @@
+(library
+ (name             window_stubs)
+ (modules          ())
+ (c_names          window_stubs)
+ (c_library_flags  -lGL))
+
+(executable
+ (name       window)
+ (libraries  GLFW window_stubs))
