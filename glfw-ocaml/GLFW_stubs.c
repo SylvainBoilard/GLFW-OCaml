@@ -59,6 +59,7 @@ struct ml_window_callbacks
     value window_focus;
     value window_iconify;
     value framebuffer_size;
+    value window_content_scale;
     value key;
     value character;
     value character_mods;
@@ -156,7 +157,8 @@ static const struct ml_window_hint ml_window_hint[] = {
     {GLFW_OPENGL_PROFILE, OpenGLProfile},
     {GLFW_CONTEXT_RELEASE_BEHAVIOR, ContextReleaseBehavior},
     {GLFW_CONTEXT_NO_ERROR, Int},
-    {GLFW_CONTEXT_CREATION_API, ContextCreationApi}
+    {GLFW_CONTEXT_CREATION_API, ContextCreationApi},
+    {GLFW_SCALE_TO_MONITOR, Int}
 };
 
 struct ml_window_attrib
@@ -362,6 +364,22 @@ CAMLprim value caml_glfwGetMonitorPhysicalSize(value monitor)
     Field(ret, 0) = Val_int(width);
     Field(ret, 1) = Val_int(height);
     return ret;
+}
+
+CAMLprim value caml_glfwGetMonitorContentScale(value monitor)
+{
+    CAMLparam0();
+    CAMLlocal3(ml_xscale, ml_yscale, ret);
+    float xscale, yscale;
+
+    glfwGetMonitorContentScale((GLFWmonitor*)monitor, &xscale, &yscale);
+    raise_if_error();
+    ml_xscale = caml_copy_double(xscale);
+    ml_yscale = caml_copy_double(yscale);
+    ret = caml_alloc_small(2, 0);
+    Field(ret, 0) = ml_xscale;
+    Field(ret, 1) = ml_yscale;
+    CAMLreturn(ret);
 }
 
 CAMLprim value caml_glfwGetMonitorName(value monitor)
@@ -694,6 +712,22 @@ CAMLprim value caml_glfwGetWindowFrameSize(value window)
     return ret;
 }
 
+CAMLprim value caml_glfwGetWindowContentScale(value window)
+{
+    CAMLparam0();
+    CAMLlocal3(ml_xscale, ml_yscale, ret);
+    float xscale, yscale;
+
+    glfwGetWindowContentScale((GLFWwindow*)window, &xscale, &yscale);
+    raise_if_error();
+    ml_xscale = caml_copy_double(xscale);
+    ml_yscale = caml_copy_double(yscale);
+    ret = caml_alloc_small(2, 0);
+    Field(ret, 0) = ml_xscale;
+    Field(ret, 1) = ml_yscale;
+    CAMLreturn(ret);
+}
+
 CAMLprim value caml_glfwIconifyWindow(value window)
 {
     glfwIconifyWindow((GLFWwindow*)window);
@@ -907,6 +941,24 @@ void framebuffer_size_callback_stub(GLFWwindow* window, int width, int height)
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetFramebufferSizeCallback, framebuffer_size)
+
+void window_content_scale_callback_stub(GLFWwindow* window, float xscale,
+                                        float yscale)
+{
+    CAMLparam0();
+    CAMLlocal2(ml_xscale, ml_yscale);
+    struct ml_window_callbacks* ml_window_callbacks =
+        *(struct ml_window_callbacks**)
+        glfwGetWindowUserPointer((GLFWwindow*)window);
+
+    ml_xscale = caml_copy_double(xscale);
+    ml_yscale = caml_copy_double(yscale);
+    caml_callback3(ml_window_callbacks->window_content_scale, (value)window,
+                   ml_xscale, ml_yscale);
+    CAMLreturn0;
+}
+
+CAML_WINDOW_SETTER_STUB(glfwSetWindowContentScaleCallback, window_content_scale)
 
 CAMLprim value caml_glfwPollEvents(CAMLvoid)
 {

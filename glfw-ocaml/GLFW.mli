@@ -249,6 +249,7 @@ module WindowHint :
       | ContextReleaseBehavior : context_release_behavior t
       | ContextNoError : bool t
       | ContextCreationApi : context_creation_api t
+      | ScaleToMonitor : bool t
   end
 
 (** Windows attributes. Use with getWindowAttrib in a similar manner as with
@@ -395,6 +396,8 @@ external getPrimaryMonitor : unit -> monitor = "caml_glfwGetPrimaryMonitor"
 external getMonitorPos : monitor:monitor -> int * int = "caml_glfwGetMonitorPos"
 external getMonitorPhysicalSize : monitor:monitor -> int * int
   = "caml_glfwGetMonitorPhysicalSize"
+external getMonitorContentScale : monitor:monitor -> float * float
+  = "caml_glfwGetMonitorContentScale"
 external getMonitorName : monitor:monitor -> string = "caml_glfwGetMonitorName"
 external setMonitorCallback :
   f:(monitor -> connection_event -> unit) option
@@ -439,6 +442,8 @@ external getFramebufferSize : window:window -> int * int
   = "caml_glfwGetFramebufferSize"
 external getWindowFrameSize : window:window -> int * int * int * int
   = "caml_glfwGetWindowFrameSize"
+external getWindowContentScale : window:window -> float * float
+  = "caml_glfwGetWindowContentScale"
 external iconifyWindow : window:window -> unit = "caml_glfwIconifyWindow"
 external restoreWindow : window:window -> unit = "caml_glfwRestoreWindow"
 external maximizeWindow : window:window -> unit = "caml_glfwMaximizeWindow"
@@ -479,6 +484,10 @@ external setFramebufferSizeCallback :
   window:window -> f:(window -> int -> int -> unit) option
   -> (window -> int -> int -> unit) option
   = "caml_glfwSetFramebufferSizeCallback"
+external setWindowContentScaleCallback :
+  window:window -> f:(window -> float -> float -> unit) option
+  -> (window -> float -> float -> unit) option
+  = "caml_glfwSetWindowContentScaleCallback"
 external pollEvents : unit -> unit = "caml_glfwPollEvents"
 external waitEvents : unit -> unit = "caml_glfwWaitEvents"
 external waitEventsTimeout : timeout:float -> unit
