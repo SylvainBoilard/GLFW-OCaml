@@ -308,6 +308,11 @@ module Image =
       else { width; height; pixels }
   end
 
+type gamepad_state = {
+    buttons : bool array;
+    axes : float array;
+  }
+
 external init : unit -> unit = "caml_glfwInit"
 external terminate : unit -> unit = "caml_glfwTerminate"
 external getVersion : unit -> int * int * int = "caml_glfwGetVersion"
@@ -463,10 +468,16 @@ external getJoystickAxes : joy:int -> float array = "caml_glfwGetJoystickAxes"
 external getJoystickButtons : joy:int -> bool array
   = "caml_glfwGetJoystickButtons"
 external getJoystickName : joy:int -> string option = "caml_glfwGetJoystickName"
+external getJoystickGUID : joy:int -> string option = "caml_glfwGetJoystickGUID"
+external joystickIsGamepad : joy:int -> bool = "caml_glfwJoystickIsGamepad"
 external setJoystickCallback :
   f:(int -> connection_event -> unit) option
   -> (int -> connection_event -> unit) option
   = "caml_glfwSetJoystickCallback"
+external updateGamepadMappings : string:string -> unit
+  = "caml_glfwUpdateGamepadMappings"
+external getGamepadName : joy:int -> string option = "caml_glfwGetGamepadName"
+external getGamepadState : joy:int -> gamepad_state = "caml_glfwGetGamepadState"
 external setClipboardString : window:window -> string:string -> unit
   = "caml_glfwSetClipboardString"
 external getClipboardString : window:window -> string

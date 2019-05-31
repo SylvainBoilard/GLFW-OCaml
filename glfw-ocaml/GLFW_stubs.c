@@ -1211,6 +1211,21 @@ CAMLprim value caml_glfwGetJoystickButtons(value joy)
     return ret;
 }
 
+CAMLprim value caml_glfwGetJoystickGUID(value joy)
+{
+    const char* name = glfwGetJoystickGUID(Int_val(joy));
+
+    raise_if_error();
+    if (name == NULL)
+        return Val_none;
+    CAMLparam0();
+    CAMLlocal2(str, ret);
+    str = caml_copy_string(name);
+    ret = caml_alloc_small(1, 0);
+    Field(ret, 0) = str;
+    CAMLreturn(ret);
+}
+
 CAMLprim value caml_glfwGetJoystickName(value joy)
 {
     const char* name = glfwGetJoystickName(Int_val(joy));
@@ -1226,6 +1241,13 @@ CAMLprim value caml_glfwGetJoystickName(value joy)
     CAMLreturn(ret);
 }
 
+CAMLprim value caml_glfwJoystickIsGamepad(value joy)
+{
+    int ret = glfwJoystickIsGamepad(Int_val(joy));
+    raise_if_error();
+    return Val_bool(ret);
+}
+
 static value joystick_closure = Val_unit;
 
 void joystick_callback_stub(int joy, int event)
@@ -1235,6 +1257,48 @@ void joystick_callback_stub(int joy, int event)
 }
 
 CAML_SETTER_STUB(glfwSetJoystickCallback, joystick)
+
+CAMLprim value caml_glfwUpdateGamepadMappings(value string)
+{
+    glfwUpdateGamepadMappings(String_val(string));
+    raise_if_error();
+    return Val_unit;
+}
+
+CAMLprim value caml_glfwGetGamepadName(value joy)
+{
+    const char* name = glfwGetGamepadName(Int_val(joy));
+
+    raise_if_error();
+    if (name == NULL)
+        return Val_none;
+    CAMLparam0();
+    CAMLlocal2(str, ret);
+    str = caml_copy_string(name);
+    ret = caml_alloc_small(1, 0);
+    Field(ret, 0) = str;
+    CAMLreturn(ret);
+}
+
+CAMLprim value caml_glfwGetGamepadState(value joy)
+{
+    CAMLparam0();
+    CAMLlocal3(buttons, axes, ret);
+    GLFWgamepadstate gamepad_state;
+
+    glfwGetGamepadState(Int_val(joy), &gamepad_state);
+    raise_if_error();
+    buttons = caml_alloc_small(15, 0);
+    for (unsigned int i = 0; i < 15; ++i)
+        Field(buttons, i) = Val_int(gamepad_state.buttons[i] == GLFW_PRESS);
+    axes = caml_alloc_float_array(6);
+    for (unsigned int i = 0; i < 6; ++i)
+        Double_field(axes, i) = gamepad_state.axes[i];
+    ret = caml_alloc_small(2, 0);
+    Field(ret, 0) = buttons;
+    Field(ret, 1) = axes;
+    CAMLreturn(ret);
+}
 
 CAMLprim value caml_glfwSetClipboardString(value window, value string)
 {
