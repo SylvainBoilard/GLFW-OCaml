@@ -6,7 +6,11 @@
 #include <caml/callback.h>
 #include <caml/bigarray.h>
 
-#define CAMLvoid CAMLunused_start value unit CAMLunused_end
+#ifdef CAMLunused_start
+# define CAMLvoid CAMLunused_start value unit CAMLunused_end
+#else
+# define CAMLvoid CAMLunused value unit
+#endif
 
 #define Val_none Val_int(0)
 

@@ -2,7 +2,11 @@
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 
-#define CAMLvoid CAMLunused_start value unit CAMLunused_end
+#ifdef CAMLunused_start
+# define CAMLvoid CAMLunused_start value unit CAMLunused_end
+#else
+# define CAMLvoid CAMLunused value unit
+#endif
 
 CAMLprim value caml_glClearColorBufferBit(CAMLvoid)
 {
