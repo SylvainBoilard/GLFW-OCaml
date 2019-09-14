@@ -223,6 +223,7 @@ module WindowHint :
       | AutoIconify : bool t
       | Floating : bool t
       | Maximized : bool t
+      | FocusOnShow : bool t
       | RedBits : int option t
       | GreenBits : int option t
       | BlueBits : int option t
@@ -267,6 +268,7 @@ module WindowAttribute :
       | AutoIconify : bool t
       | Floating : bool t
       | Maximized : bool t
+      | FocusOnShow : bool t
       | ClientApi : client_api t
       | ContextVersionMajor : int t
       | ContextVersionMinor : int t
