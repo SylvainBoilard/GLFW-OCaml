@@ -280,6 +280,20 @@ module WindowAttribute :
       | ContextCreationApi : context_creation_api t
   end
 
+(** Window updateable attributes. Use with setWindowAttrib in a similar manner
+    as with window hints.
+
+    @see <http://www.glfw.org/docs/latest/window_guide.html#window_attribs> *)
+module WindowUpdateableAttribute :
+  sig
+    type _ t =
+      | Resizable : bool t
+      | Decorated : bool t
+      | AutoIconify : bool t
+      | Floating : bool t
+      | FocusOnShow : bool t
+  end
+
 (** Mouse cursor input mode. *)
 type cursor_mode =
   | Normal
@@ -460,6 +474,9 @@ external setWindowMonitor :
   = "caml_glfwSetWindowMonitor_byte" "caml_glfwSetWindowMonitor"
 external getWindowAttrib : window:window -> attribute:'a WindowAttribute.t -> 'a
   = "caml_glfwGetWindowAttrib"
+external setWindowAttrib :
+  window:window -> attribute:'a WindowUpdateableAttribute.t -> value:'a -> unit
+  = "caml_glfwSetWindowAttrib"
 external setWindowPosCallback :
   window:window -> f:(window -> int -> int -> unit) option
   -> (window -> int -> int -> unit) option

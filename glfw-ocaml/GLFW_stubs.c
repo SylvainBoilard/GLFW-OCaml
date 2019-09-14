@@ -189,6 +189,15 @@ static const struct ml_window_attrib ml_window_attrib[] = {
     {GLFW_CONTEXT_CREATION_API, ContextCreationApi}
 };
 
+/* All updateable attributes are booleans at the moment. */
+static const int ml_window_updateable_attrib[] = {
+    GLFW_RESIZABLE,
+    GLFW_DECORATED,
+    GLFW_AUTO_ICONIFY,
+    GLFW_FLOATING,
+    GLFW_FOCUS_ON_SHOW
+};
+
 #include "GLFW_key_conv_arrays.inl"
 
 static inline value caml_list_of_pointer_array(void** array, int count)
@@ -860,6 +869,18 @@ CAMLprim value caml_glfwGetWindowAttrib(value window, value attribute)
     default:;
     }
     return (ret);
+}
+
+CAMLprim value caml_glfwSetWindowAttrib(value window, value hint, value ml_val)
+{
+    const int offset = Int_val(hint);
+    /* All updateable attributes are booleans at the moment. */
+    const int glfw_val = Int_val(ml_val);
+
+    glfwSetWindowAttrib(
+        (GLFWwindow*)window, ml_window_updateable_attrib[offset], glfw_val);
+    raise_if_error();
+    return Val_unit;
 }
 
 void window_pos_callback_stub(GLFWwindow* window, int xpos, int ypos)
