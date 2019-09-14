@@ -261,6 +261,8 @@ type _ input_mode =
   | Cursor : cursor_mode input_mode
   | StickyKeys : bool input_mode
   | StickyMouseButtons : bool input_mode
+  | LockKeyMods : bool input_mode
+  | RawMouseMotion : bool input_mode
 
 type cursor_shape =
   | ArrowCursor
@@ -439,6 +441,8 @@ external getInputMode : window:window -> mode:'a input_mode -> 'a
   = "caml_glfwGetInputMode"
 external setInputMode : window:window -> mode:'a input_mode -> value:'a -> unit
   = "caml_glfwGetInputMode"
+external rawMouseMotionSupported : unit -> bool
+  = "caml_glfwRawMouseMotionSupported"
 external getKeyName : key:key -> scancode:int -> string option
   = "caml_glfwGetKeyName"
 external getKey : window:window -> key:key -> bool = "caml_glfwGetKey"

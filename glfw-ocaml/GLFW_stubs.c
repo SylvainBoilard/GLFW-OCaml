@@ -1033,6 +1033,13 @@ CAMLprim value caml_glfwSetInputMode(value window, value mode, value v)
     return Val_unit;
 }
 
+CAMLprim value caml_glfwRawMouseMotionSupported(CAMLvoid)
+{
+    const int ret = glfwRawMouseMotionSupported();
+    raise_if_error();
+    return Val_bool(ret);
+}
+
 CAMLprim value caml_glfwGetKeyName(value key, value scancode)
 {
     const char* name =
