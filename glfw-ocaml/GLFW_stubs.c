@@ -118,6 +118,13 @@ enum value_type
     ContextCreationApi
 };
 
+/* All initialization hints are booleans at the moment. */
+static const int ml_init_hint[] = {
+    GLFW_JOYSTICK_HAT_BUTTONS,
+    GLFW_COCOA_CHDIR_RESOURCES,
+    GLFW_COCOA_MENUBAR
+};
+
 struct ml_window_hint
 {
     int glfw_window_hint;
@@ -313,6 +320,17 @@ CAMLprim value caml_glfwInit(CAMLvoid)
 CAMLprim value caml_glfwTerminate(CAMLvoid)
 {
     glfwTerminate();
+    raise_if_error();
+    return Val_unit;
+}
+
+CAMLprim value caml_glfwInitHint(value hint, value ml_val)
+{
+    const int offset = Int_val(hint);
+    /* All updateable attributes are booleans at the moment. */
+    const int glfw_val = Int_val(ml_val);
+
+    glfwInitHint(ml_init_hint[offset], glfw_val);
     raise_if_error();
     return Val_unit;
 }

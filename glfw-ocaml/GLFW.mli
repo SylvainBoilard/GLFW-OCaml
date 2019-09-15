@@ -325,6 +325,14 @@ type connection_event =
   | Connected
   | Disconnected
 
+(** Initialization hints.
+
+    @see <http://www.glfw.org/docs/latest/intro_guide.html#init_hints> *)
+type _ init_hint =
+  | JoystickHatButtons : bool init_hint
+  | CocoaChdirResources : bool init_hint
+  | CocoaMenubar : bool init_hint
+
 (** Video mode description as returned by getVideoMode(s).
 
     @see <http://www.glfw.org/docs/latest/structGLFWvidmode.html> *)
@@ -416,6 +424,7 @@ type gamepad_state = {
 
 external init : unit -> unit = "caml_glfwInit"
 external terminate : unit -> unit = "caml_glfwTerminate"
+external initHint : hint:'a init_hint -> value:'a -> unit = "caml_glfwInitHint"
 external getVersion : unit -> int * int * int = "caml_glfwGetVersion"
 external getVersionString : unit -> string = "caml_glfwGetVersionString"
 external getMonitors : unit -> monitor list = "caml_glfwGetMonitors"

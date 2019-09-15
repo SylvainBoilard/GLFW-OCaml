@@ -276,6 +276,11 @@ type connection_event =
   | Connected
   | Disconnected
 
+type _ init_hint =
+  | JoystickHatButtons : bool init_hint
+  | CocoaChdirResources : bool init_hint
+  | CocoaMenubar : bool init_hint
+
 type video_mode = {
     width : int;
     height : int;
@@ -336,6 +341,7 @@ type gamepad_state = {
 
 external init : unit -> unit = "caml_glfwInit"
 external terminate : unit -> unit = "caml_glfwTerminate"
+external initHint : hint:'a init_hint -> value:'a -> unit = "caml_glfwInitHint"
 external getVersion : unit -> int * int * int = "caml_glfwGetVersion"
 external getVersionString : unit -> string = "caml_glfwGetVersionString"
 external getMonitors : unit -> monitor list = "caml_glfwGetMonitors"
