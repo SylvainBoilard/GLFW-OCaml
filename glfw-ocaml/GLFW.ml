@@ -323,6 +323,12 @@ module Image =
       else { width; height; pixels }
   end
 
+type hat_status =
+  | HatUp
+  | HatRight
+  | HatDown
+  | HatLeft
+
 type gamepad_state = {
     buttons : bool array;
     axes : float array;
@@ -495,6 +501,8 @@ external joystickPresent : joy:int -> bool = "caml_glfwJoystickPresent"
 external getJoystickAxes : joy:int -> float array = "caml_glfwGetJoystickAxes"
 external getJoystickButtons : joy:int -> bool array
   = "caml_glfwGetJoystickButtons"
+external getJoystickHats : joy:int -> hat_status list array
+  = "caml_glfwGetJoystickHats"
 external getJoystickName : joy:int -> string option = "caml_glfwGetJoystickName"
 external getJoystickGUID : joy:int -> string option = "caml_glfwGetJoystickGUID"
 external joystickIsGamepad : joy:int -> bool = "caml_glfwJoystickIsGamepad"

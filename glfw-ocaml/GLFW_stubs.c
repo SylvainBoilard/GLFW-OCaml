@@ -1293,6 +1293,21 @@ CAMLprim value caml_glfwGetJoystickButtons(value joy)
     return ret;
 }
 
+CAMLprim value caml_glfwGetJoystickHats(value joy)
+{
+    value ret;
+    int count;
+    const unsigned char* hats = glfwGetJoystickHats(Int_val(joy), &count);
+
+    raise_if_error();
+    if (count == 0)
+        return Atom(0);
+    ret = caml_alloc_small(count, 0);
+    for (int i = 0; i < count; ++i)
+        Field(ret, i) = caml_list_of_flags(hats[i], 4);
+    return ret;
+}
+
 CAMLprim value caml_glfwGetJoystickGUID(value joy)
 {
     const char* name = glfwGetJoystickGUID(Int_val(joy));
