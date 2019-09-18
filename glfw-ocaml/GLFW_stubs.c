@@ -799,6 +799,13 @@ CAMLprim value caml_glfwFocusWindow(value window)
     return Val_unit;
 }
 
+CAMLprim value caml_glfwRequestWindowAttention(value window)
+{
+    glfwRequestWindowAttention((GLFWwindow*)window);
+    raise_if_error();
+    return Val_unit;
+}
+
 CAMLprim value caml_glfwGetWindowMonitor(value window)
 {
     GLFWmonitor* monitor = glfwGetWindowMonitor((GLFWwindow*)window);

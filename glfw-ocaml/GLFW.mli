@@ -486,6 +486,8 @@ external maximizeWindow : window:window -> unit = "caml_glfwMaximizeWindow"
 external showWindow : window:window -> unit = "caml_glfwShowWindow"
 external hideWindow : window:window -> unit = "caml_glfwHideWindow"
 external focusWindow : window:window -> unit = "caml_glfwFocusWindow"
+external requestWindowAttention : window:window -> unit
+  = "caml_glfwRequestWindowAttention"
 external getWindowMonitor : window:window -> monitor option
   = "caml_glfwGetWindowMonitor"
 external setWindowMonitor :
