@@ -470,6 +470,7 @@ external rawMouseMotionSupported : unit -> bool
   = "caml_glfwRawMouseMotionSupported"
 external getKeyName : key:key -> scancode:int -> string option
   = "caml_glfwGetKeyName"
+external getKeyScancode : key:key -> int = "caml_glfwGetKeyScancode"
 external getKey : window:window -> key:key -> bool = "caml_glfwGetKey"
 external getMouseButton : window:window -> button:int -> bool
   = "caml_glfwGetMouseButton"

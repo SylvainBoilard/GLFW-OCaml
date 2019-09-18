@@ -1126,6 +1126,13 @@ CAMLprim value caml_glfwGetKeyName(value key, value scancode)
     CAMLreturn(ret);
 }
 
+CAMLprim value caml_glfwGetKeyScancode(value key)
+{
+    int ret = glfwGetKeyScancode(ml_to_glfw_key[Int_val(key)]);
+    raise_if_error();
+    return Val_int(ret);
+}
+
 CAMLprim value caml_glfwGetKey(value window, value key)
 {
     int ret = glfwGetKey((GLFWwindow*)window, ml_to_glfw_key[Int_val(key)]);
