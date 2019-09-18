@@ -579,8 +579,10 @@ CAMLprim value caml_glfwWindowHint(value hint, value ml_val)
     case ContextCreationApi:
         if (ml_val == Val_int(0))
             glfw_val = GLFW_NATIVE_CONTEXT_API;
-        else
+        else if (ml_val == Val_int(1))
             glfw_val = GLFW_EGL_CONTEXT_API;
+        else
+            glfw_val = GLFW_OSMESA_CONTEXT_API;
     }
     glfwWindowHint(ml_window_hint[offset].glfw_window_hint, glfw_val);
     raise_if_error();
@@ -923,8 +925,10 @@ CAMLprim value caml_glfwGetWindowAttrib(value window, value attribute)
     case ContextCreationApi:
         if (glfw_val == GLFW_NATIVE_CONTEXT_API)
             ret = Val_int(0);
-        else
+        else if (glfw_val == GLFW_EGL_CONTEXT_API)
             ret = Val_int(1);
+        else
+            ret = Val_int(2);
 
     default:;
     }

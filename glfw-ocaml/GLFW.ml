@@ -178,6 +178,7 @@ type context_release_behavior =
 type context_creation_api =
   | NativeContextApi
   | EGLContextApi
+  | OSMesaContextApi
 
 module WindowHint =
   struct
