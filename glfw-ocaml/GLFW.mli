@@ -430,6 +430,8 @@ external getVersionString : unit -> string = "caml_glfwGetVersionString"
 external getMonitors : unit -> monitor list = "caml_glfwGetMonitors"
 external getPrimaryMonitor : unit -> monitor = "caml_glfwGetPrimaryMonitor"
 external getMonitorPos : monitor:monitor -> int * int = "caml_glfwGetMonitorPos"
+external getMonitorWorkarea : monitor:monitor -> int * int * int * int
+  = "caml_glfwGetMonitorWorkarea"
 external getMonitorPhysicalSize : monitor:monitor -> int * int
   = "caml_glfwGetMonitorPhysicalSize"
 external getMonitorContentScale : monitor:monitor -> float * float

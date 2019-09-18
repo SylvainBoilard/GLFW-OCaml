@@ -383,6 +383,22 @@ CAMLprim value caml_glfwGetMonitorPos(value monitor)
     return ret;
 }
 
+CAMLprim value caml_glfwGetMonitorWorkarea(value monitor)
+{
+    int xpos, ypos, width, height;
+    value ret;
+
+    glfwGetMonitorWorkarea(
+        (GLFWmonitor*)monitor, &xpos, &ypos, &width, &height);
+    raise_if_error();
+    ret = caml_alloc_small(4, 0);
+    Field(ret, 0) = Val_int(xpos);
+    Field(ret, 1) = Val_int(ypos);
+    Field(ret, 2) = Val_int(width);
+    Field(ret, 3) = Val_int(height);
+    return ret;
+}
+
 CAMLprim value caml_glfwGetMonitorPhysicalSize(value monitor)
 {
     int width, height;
