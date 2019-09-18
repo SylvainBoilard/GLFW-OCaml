@@ -58,6 +58,7 @@ struct ml_window_callbacks
     value window_refresh;
     value window_focus;
     value window_iconify;
+    value window_maximize;
     value framebuffer_size;
     value window_content_scale;
     value key;
@@ -977,6 +978,18 @@ void window_iconify_callback_stub(GLFWwindow* window, int iconified)
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetWindowIconifyCallback, window_iconify)
+
+void window_maximize_callback_stub(GLFWwindow* window, int maximized)
+{
+    struct ml_window_callbacks* ml_window_callbacks =
+        *(struct ml_window_callbacks**)
+        glfwGetWindowUserPointer((GLFWwindow*)window);
+
+    caml_callback2(ml_window_callbacks->window_maximize, (value)window,
+                   Val_bool(maximized));
+}
+
+CAML_WINDOW_SETTER_STUB(glfwSetWindowMaximizeCallback, window_maximize)
 
 void framebuffer_size_callback_stub(GLFWwindow* window, int width, int height)
 {

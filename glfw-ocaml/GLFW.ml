@@ -438,6 +438,10 @@ external setWindowIconifyCallback :
   window:window -> f:(window -> bool -> unit) option
   -> (window -> bool -> unit) option
   = "caml_glfwSetWindowIconifyCallback"
+external setWindowMaximizeCallback :
+  window:window -> f:(window -> bool -> unit) option
+  -> (window -> bool -> unit) option
+  = "caml_glfwSetWindowMaximizeCallback"
 external setFramebufferSizeCallback :
   window:window -> f:(window -> int -> int -> unit) option
   -> (window -> int -> int -> unit) option
