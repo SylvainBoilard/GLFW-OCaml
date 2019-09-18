@@ -223,6 +223,7 @@ module WindowHint :
       | AutoIconify : bool t
       | Floating : bool t
       | Maximized : bool t
+      | TransparentFramebuffer : bool t
       | FocusOnShow : bool t
       | RedBits : int option t
       | GreenBits : int option t
@@ -268,6 +269,7 @@ module WindowAttribute :
       | AutoIconify : bool t
       | Floating : bool t
       | Maximized : bool t
+      | TransparentFramebuffer : bool t
       | FocusOnShow : bool t
       | ClientApi : client_api t
       | ContextVersionMajor : int t
@@ -482,6 +484,9 @@ external getWindowFrameSize : window:window -> int * int * int * int
   = "caml_glfwGetWindowFrameSize"
 external getWindowContentScale : window:window -> float * float
   = "caml_glfwGetWindowContentScale"
+external getWindowOpacity : window:window -> float = "caml_glfwGetWindowOpacity"
+external setWindowOpacity : window:window -> opacity:float -> unit
+  = "caml_glfwSetWindowOpacity"
 external iconifyWindow : window:window -> unit = "caml_glfwIconifyWindow"
 external restoreWindow : window:window -> unit = "caml_glfwRestoreWindow"
 external maximizeWindow : window:window -> unit = "caml_glfwMaximizeWindow"

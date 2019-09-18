@@ -140,6 +140,7 @@ static const struct ml_window_hint ml_window_hint[] = {
     {GLFW_AUTO_ICONIFY, Int},
     {GLFW_FLOATING, Int},
     {GLFW_MAXIMIZED, Int},
+    {GLFW_TRANSPARENT_FRAMEBUFFER, Int},
     {GLFW_FOCUS_ON_SHOW, Int},
     {GLFW_RED_BITS, IntOption},
     {GLFW_GREEN_BITS, IntOption},
@@ -185,6 +186,7 @@ static const struct ml_window_attrib ml_window_attrib[] = {
     {GLFW_AUTO_ICONIFY, Int},
     {GLFW_FLOATING, Int},
     {GLFW_MAXIMIZED, Int},
+    {GLFW_TRANSPARENT_FRAMEBUFFER, Int},
     {GLFW_FOCUS_ON_SHOW, Int},
     {GLFW_CLIENT_API, ClientApi},
     {GLFW_CONTEXT_VERSION_MAJOR, Int},
@@ -772,6 +774,20 @@ CAMLprim value caml_glfwGetWindowContentScale(value window)
     Field(ret, 0) = ml_xscale;
     Field(ret, 1) = ml_yscale;
     CAMLreturn(ret);
+}
+
+CAMLprim value caml_glfwGetWindowOpacity(value window)
+{
+    float opacity = glfwGetWindowOpacity((GLFWwindow*)window);
+    raise_if_error();
+    return caml_copy_double(opacity);
+}
+
+CAMLprim value caml_glfwSetWindowOpacity(value window, value time)
+{
+    glfwSetWindowOpacity((GLFWwindow*)window, Double_val(time));
+    raise_if_error();
+    return Val_unit;
 }
 
 CAMLprim value caml_glfwIconifyWindow(value window)
