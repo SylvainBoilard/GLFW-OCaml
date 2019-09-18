@@ -223,6 +223,7 @@ module WindowHint :
       | AutoIconify : bool t
       | Floating : bool t
       | Maximized : bool t
+      | CenterCursor : bool t
       | TransparentFramebuffer : bool t
       | FocusOnShow : bool t
       | RedBits : int option t
@@ -270,6 +271,7 @@ module WindowAttribute :
       | Floating : bool t
       | Maximized : bool t
       | TransparentFramebuffer : bool t
+      | Hovered : bool t
       | FocusOnShow : bool t
       | ClientApi : client_api t
       | ContextVersionMajor : int t
