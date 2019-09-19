@@ -225,6 +225,7 @@ module WindowAttribute =
       | Resizable : bool t
       | Visible : bool t
       | Decorated : bool t
+      | AutoIconify : bool t
       | Floating : bool t
       | Maximized : bool t
       | ClientApi : client_api t

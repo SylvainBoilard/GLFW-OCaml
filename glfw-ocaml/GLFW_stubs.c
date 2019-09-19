@@ -171,6 +171,7 @@ static const struct ml_window_attrib ml_window_attrib[] = {
     {GLFW_RESIZABLE, Int},
     {GLFW_VISIBLE, Int},
     {GLFW_DECORATED, Int},
+    {GLFW_AUTO_ICONIFY, Int},
     {GLFW_FLOATING, Int},
     {GLFW_MAXIMIZED, Int},
     {GLFW_CLIENT_API, ClientApi},
