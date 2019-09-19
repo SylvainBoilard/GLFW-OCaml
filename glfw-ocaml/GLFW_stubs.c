@@ -1493,16 +1493,16 @@ CAMLprim value caml_glfwGetGamepadState(value joy)
     CAMLreturn(ret);
 }
 
-CAMLprim value caml_glfwSetClipboardString(value window, value string)
+CAMLprim value caml_glfwSetClipboardString(CAMLvoid, value string)
 {
-    glfwSetClipboardString((GLFWwindow*)window, String_val(string));
+    glfwSetClipboardString(NULL, String_val(string));
     raise_if_error();
     return Val_unit;
 }
 
-CAMLprim value caml_glfwGetClipboardString(value window)
+CAMLprim value caml_glfwGetClipboardString(CAMLvoid)
 {
-    const char* string = glfwGetClipboardString((GLFWwindow*)window);
+    const char* string = glfwGetClipboardString(NULL);
     raise_if_error();
     return caml_copy_string(string);
 }

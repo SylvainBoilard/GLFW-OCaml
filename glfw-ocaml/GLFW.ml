@@ -504,7 +504,7 @@ external setCharCallback :
 external setCharModsCallback :
   window:window -> f:(window -> int -> key_mod list -> unit) option
   -> (window -> int -> key_mod list -> unit) option
-  = "caml_glfwSetCharModsCallback"
+  = "caml_glfwSetCharModsCallback" [@@deprecated]
 external setMouseButtonCallback :
   window:window -> f:(window -> int -> bool -> key_mod list -> unit) option
   -> (window -> int -> bool -> key_mod list -> unit) option
@@ -542,10 +542,9 @@ external updateGamepadMappings : string:string -> unit
   = "caml_glfwUpdateGamepadMappings"
 external getGamepadName : joy:int -> string option = "caml_glfwGetGamepadName"
 external getGamepadState : joy:int -> gamepad_state = "caml_glfwGetGamepadState"
-external setClipboardString : window:window -> string:string -> unit
+external setClipboardString : window:_ -> string:string -> unit
   = "caml_glfwSetClipboardString"
-external getClipboardString : window:window -> string
-  = "caml_glfwGetClipboardString"
+external getClipboardString : window:_ -> string = "caml_glfwGetClipboardString"
 external getTime : unit -> float = "caml_glfwGetTime"
 external setTime : time:float -> unit = "caml_glfwSetTime"
 external getTimerValue : unit -> int64 = "caml_glfwGetTimerValue"

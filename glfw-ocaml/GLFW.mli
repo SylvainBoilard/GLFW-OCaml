@@ -425,6 +425,10 @@ type gamepad_state = {
     There is no binding for the glfwWindowHintString function. Simply pass your
     string to the windowHint function as you would for any other value type.
 
+    The window parameter of the {set,get}ClipboardString functions has been
+    deprecated and is no longer used. You may pass the unit value (or anything)
+    as the window argument.
+
     There is no binding for the glfwGetProcAddress function because it would
     basicaly require to write an entire OpenGL wrapper to make the functions
     returned by GLFW usable from OCaml. Incidentaly the glfwExtensionSupported
@@ -591,7 +595,7 @@ external setCharCallback :
 external setCharModsCallback :
   window:window -> f:(window -> int -> key_mod list -> unit) option
   -> (window -> int -> key_mod list -> unit) option
-  = "caml_glfwSetCharModsCallback"
+  = "caml_glfwSetCharModsCallback" [@@deprecated]
 external setMouseButtonCallback :
   window:window -> f:(window -> int -> bool -> key_mod list -> unit) option
   -> (window -> int -> bool -> key_mod list -> unit) option
@@ -629,10 +633,9 @@ external updateGamepadMappings : string:string -> unit
   = "caml_glfwUpdateGamepadMappings"
 external getGamepadName : joy:int -> string option = "caml_glfwGetGamepadName"
 external getGamepadState : joy:int -> gamepad_state = "caml_glfwGetGamepadState"
-external setClipboardString : window:window -> string:string -> unit
+external setClipboardString : window:_ -> string:string -> unit
   = "caml_glfwSetClipboardString"
-external getClipboardString : window:window -> string
-  = "caml_glfwGetClipboardString"
+external getClipboardString : window:_ -> string = "caml_glfwGetClipboardString"
 external getTime : unit -> float = "caml_glfwGetTime"
 external setTime : time:float -> unit = "caml_glfwSetTime"
 external getTimerValue : unit -> int64 = "caml_glfwGetTimerValue"
