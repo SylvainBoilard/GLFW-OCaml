@@ -220,6 +220,11 @@ module WindowHint =
       | ContextNoError : bool t
       | ContextCreationApi : context_creation_api t
       | ScaleToMonitor : bool t
+      | CocoaRetinaFramebuffer : bool t
+      | CocoaFrameName : string t
+      | CocoaGraphicsSwitching : bool t
+      | X11ClassName : string t
+      | X11InstanceName : string t
   end
 
 module WindowAttribute =

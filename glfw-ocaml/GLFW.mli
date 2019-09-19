@@ -212,6 +212,7 @@ type context_creation_api =
     windowHint ~hint:WindowHint.OpenGLProfile ~value:CoreProfile
     windowHint ~hint:WindowHint.RefreshRate ~value:(Some 60)
     windowHint ~hint:WindowHint.DepthBits ~value:None
+    windowHint ~hint:WindowHint.X11ClassName ~value:"MyApplicationName"
 
     @see <http://www.glfw.org/docs/latest/window_guide.html#window_hints> *)
 module WindowHint :
@@ -254,6 +255,11 @@ module WindowHint :
       | ContextNoError : bool t
       | ContextCreationApi : context_creation_api t
       | ScaleToMonitor : bool t
+      | CocoaRetinaFramebuffer : bool t
+      | CocoaFrameName : string t
+      | CocoaGraphicsSwitching : bool t
+      | X11ClassName : string t
+      | X11InstanceName : string t
   end
 
 (** Windows attributes. Use with getWindowAttrib in a similar manner as with
@@ -415,6 +421,9 @@ type gamepad_state = {
     features to set the correct type for your data. If you need to make user
     data accessible inside a callback you can instead capture it in a closure
     and use that closure as your callback function.
+
+    There is no binding for the glfwWindowHintString function. Simply pass your
+    string to the windowHint function as you would for any other value type.
 
     There is no binding for the glfwGetProcAddress function because it would
     basicaly require to write an entire OpenGL wrapper to make the functions

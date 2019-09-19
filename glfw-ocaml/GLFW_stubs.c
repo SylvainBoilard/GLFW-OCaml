@@ -116,7 +116,8 @@ enum value_type
     ContextRobustness,
     OpenGLProfile,
     ContextReleaseBehavior,
-    ContextCreationApi
+    ContextCreationApi,
+    String
 };
 
 /* All initialization hints are booleans at the moment. */
@@ -169,7 +170,12 @@ static const struct ml_window_hint ml_window_hint[] = {
     {GLFW_CONTEXT_RELEASE_BEHAVIOR, ContextReleaseBehavior},
     {GLFW_CONTEXT_NO_ERROR, Int},
     {GLFW_CONTEXT_CREATION_API, ContextCreationApi},
-    {GLFW_SCALE_TO_MONITOR, Int}
+    {GLFW_SCALE_TO_MONITOR, Int},
+    {GLFW_COCOA_RETINA_FRAMEBUFFER, Int},
+    {GLFW_COCOA_FRAME_NAME, String},
+    {GLFW_COCOA_GRAPHICS_SWITCHING, Int},
+    {GLFW_X11_CLASS_NAME, String},
+    {GLFW_X11_INSTANCE_NAME, String}
 };
 
 struct ml_window_attrib
@@ -583,6 +589,13 @@ CAMLprim value caml_glfwWindowHint(value hint, value ml_val)
             glfw_val = GLFW_EGL_CONTEXT_API;
         else
             glfw_val = GLFW_OSMESA_CONTEXT_API;
+        break;
+
+    case String: /* Special case: need to use glfwWindowHintString. */
+        glfwWindowHintString(
+            ml_window_hint[offset].glfw_window_hint, String_val(ml_val));
+        raise_if_error();
+        return Val_unit;
     }
     glfwWindowHint(ml_window_hint[offset].glfw_window_hint, glfw_val);
     raise_if_error();
