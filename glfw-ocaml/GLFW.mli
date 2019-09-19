@@ -416,11 +416,10 @@ type gamepad_state = {
 (** Module functions. These are mostly identical to their original GLFW
     counterparts.
 
-    There are no bindings for the glfwSetWindowUserPointer and
-    glfwGetWindowUserPointer functions because you would have to use unsafe
-    features to set the correct type for your data. If you need to make user
-    data accessible inside a callback you can instead capture it in a closure
-    and use that closure as your callback function.
+    There are no bindings for the glfw{Set,Get}*UserPointer functions because
+    you would have to use unsafe features to set the correct type for your data.
+    If you need to make user data accessible inside a callback you can instead
+    capture it in a closure and use that closure as your callback function.
 
     There is no binding for the glfwWindowHintString function. Simply pass your
     string to the windowHint function as you would for any other value type.
