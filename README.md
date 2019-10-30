@@ -54,8 +54,6 @@ Errors are propagated with exceptions instead of through a callback function. Wh
 ### Callbacks and user pointers
 There is no need for user pointers in GLFW-OCaml as you can capture your data inside a closure and use that closure as a callback function while preserving type information.
 
-When later versions of GLFW introduce user pointers for individual objects other than windows (such as joysticks and monitors) with a global callback shared by all objects of the same type, the plan for GLFW-OCaml is to instead allow setting a different callback per individual object so you can capture their related data individually in several closures for example.
-
 ### Gamma ramps and images
 The `GammaRamp` module provides two functions `create` and `make` to create gamma ramps while insuring all channels have the same length. The former builds a gamma ramp from three user-supplied channels while the later builds an empty gamma ramp with three channels of the supplied length. You can freely access and modify the contents of an existing gamma ramp but are required to use one of these functions to build one.
 
