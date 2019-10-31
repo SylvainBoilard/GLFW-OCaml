@@ -11,7 +11,8 @@ build: [["dune" "build" "-p" name "-j" jobs]]
 depends: [
   "conf-glfw3"
   "base-bigarray"
-  "dune"            {build & >= "1.0"}
-  "conf-pkg-config" {build}
-  "ocaml"           {>= "4.02.0"}
+  "dune"              {build & >= "1.0"}
+  "dune-configurator" {build}
+  "conf-pkg-config"   {build}
+  "ocaml"             {>= "4.02.0"}
 ]
