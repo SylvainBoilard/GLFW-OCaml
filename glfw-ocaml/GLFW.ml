@@ -180,87 +180,83 @@ type context_creation_api =
   | EGLContextApi
   | OSMesaContextApi
 
+module A =
+  struct
+    type ('a, _) window_attr =
+      | Focused : (bool, [<`hint|`attr]) window_attr
+      | Iconified : (bool, [<`attr]) window_attr
+      | Resizable : (bool, [<`hint|`attr|`update]) window_attr
+      | Visible : (bool, [<`hint|`attr]) window_attr
+      | Decorated : (bool, [<`hint|`attr|`update]) window_attr
+      | AutoIconify : (bool, [<`hint|`attr|`update]) window_attr
+      | Floating : (bool, [<`hint|`attr|`update]) window_attr
+      | Maximized : (bool, [<`hint|`attr]) window_attr
+      | CenterCursor : (bool, [<`hint]) window_attr
+      | TransparentFramebuffer : (bool, [<`hint|`attr]) window_attr
+      | Hovered : (bool, [<`attr]) window_attr
+      | FocusOnShow : (bool, [<`hint|`attr|`update]) window_attr
+      | RedBits : (int option, [<`hint]) window_attr
+      | GreenBits : (int option, [<`hint]) window_attr
+      | BlueBits : (int option, [<`hint]) window_attr
+      | AlphaBits : (int option, [<`hint]) window_attr
+      | DepthBits : (int option, [<`hint]) window_attr
+      | StencilBits : (int option, [<`hint]) window_attr
+      | AccumRedBits : (int option, [<`hint]) window_attr
+      | AccumGreenBits : (int option, [<`hint]) window_attr
+      | AccumBlueBits : (int option, [<`hint]) window_attr
+      | AccumAlphaBits : (int option, [<`hint]) window_attr
+      | AuxBuffers : (int option, [<`hint]) window_attr
+      | Stereo : (bool, [<`hint]) window_attr
+      | Samples : (int option, [<`hint]) window_attr
+      | SrgbCapable : (bool, [<`hint]) window_attr
+      | RefreshRate : (int option, [<`hint]) window_attr
+      | DoubleBuffer : (bool, [<`hint]) window_attr
+      | ClientApi : (client_api, [<`hint|`attr]) window_attr
+      | ContextVersionMajor : (int, [<`hint|`attr]) window_attr
+      | ContextVersionMinor : (int, [<`hint|`attr]) window_attr
+      | ContextRevision : (int, [<`attr]) window_attr
+      | ContextRobustness : (context_robustness, [<`hint|`attr]) window_attr
+      | OpenGLForwardCompat : (bool, [<`hint|`attr]) window_attr
+      | OpenGLDebugContext : (bool, [<`hint|`attr]) window_attr
+      | OpenGLProfile : (opengl_profile, [<`hint|`attr]) window_attr
+      | ContextReleaseBehavior :
+          (context_release_behavior, [<`hint]) window_attr
+      | ContextNoError : (bool, [<`hint]) window_attr
+      | ContextCreationApi : (context_creation_api, [<`hint|`attr]) window_attr
+      | ScaleToMonitor : (bool, [<`hint]) window_attr
+      | CocoaRetinaFramebuffer : (bool, [<`hint]) window_attr
+      | CocoaFrameName : (string, [<`hint]) window_attr
+      | CocoaGraphicsSwitching : (bool, [<`hint]) window_attr
+      | X11ClassName : (string, [<`hint]) window_attr
+      | X11InstanceName : (string, [<`hint]) window_attr
+  end
+
+open A
+
+module type S =
+  sig
+    include
+      module type of A with type ('a, 'k) window_attr = ('a, 'k) window_attr
+    type 'a t
+  end
+
 module WindowHint =
   struct
-    type _ t =
-      | Focused : bool t
-      | Resizable : bool t
-      | Visible : bool t
-      | Decorated : bool t
-      | AutoIconify : bool t
-      | Floating : bool t
-      | Maximized : bool t
-      | CenterCursor : bool t
-      | TransparentFramebuffer : bool t
-      | FocusOnShow : bool t
-      | RedBits : int option t
-      | GreenBits : int option t
-      | BlueBits : int option t
-      | AlphaBits : int option t
-      | DepthBits : int option t
-      | StencilBits : int option t
-      | AccumRedBits : int option t
-      | AccumGreenBits : int option t
-      | AccumBlueBits : int option t
-      | AccumAlphaBits : int option t
-      | AuxBuffers : int option t
-      | Stereo : bool t
-      | Samples : int option t
-      | SrgbCapable : bool t
-      | RefreshRate : int option t
-      | DoubleBuffer : bool t
-      | ClientApi : client_api t
-      | ContextVersionMajor : int t
-      | ContextVersionMinor : int t
-      | ContextRobustness : context_robustness t
-      | OpenGLForwardCompat : bool t
-      | OpenGLDebugContext : bool t
-      | OpenGLProfile : opengl_profile t
-      | ContextReleaseBehavior : context_release_behavior t
-      | ContextNoError : bool t
-      | ContextCreationApi : context_creation_api t
-      | ScaleToMonitor : bool t
-      | CocoaRetinaFramebuffer : bool t
-      | CocoaFrameName : string t
-      | CocoaGraphicsSwitching : bool t
-      | X11ClassName : string t
-      | X11InstanceName : string t
-  end
+    include A
+    type 'a t = ('a, [`hint]) window_attr
+  end [@@deprecated]
 
 module WindowAttribute =
   struct
-    type _ t =
-      | Focused : bool t
-      | Iconified : bool t
-      | Resizable : bool t
-      | Visible : bool t
-      | Decorated : bool t
-      | AutoIconify : bool t
-      | Floating : bool t
-      | Maximized : bool t
-      | TransparentFramebuffer : bool t
-      | Hovered : bool t
-      | FocusOnShow : bool t
-      | ClientApi : client_api t
-      | ContextVersionMajor : int t
-      | ContextVersionMinor : int t
-      | ContextRevision : int t
-      | ContextRobustness : context_robustness t
-      | OpenGLForwardCompat : bool t
-      | OpenGLDebugContext : bool t
-      | OpenGLProfile : opengl_profile t
-      | ContextCreationApi : context_creation_api t
-  end
+    include A
+    type 'a t = ('a, [`attr]) window_attr
+  end [@@deprecated]
 
 module WindowUpdateableAttribute =
   struct
-    type _ t =
-      | Resizable : bool t
-      | Decorated : bool t
-      | AutoIconify : bool t
-      | Floating : bool t
-      | FocusOnShow : bool t
-  end
+    include A
+    type 'a t = ('a, [`update]) window_attr
+  end [@@deprecated]
 
 type cursor_mode =
   | Normal
@@ -376,7 +372,7 @@ external getGammaRamp : monitor:monitor -> GammaRamp.t = "caml_glfwGetGammaRamp"
 external setGammaRamp : monitor:monitor -> gamma_ramp:GammaRamp.t -> unit
   = "caml_glfwSetGammaRamp"
 external defaultWindowHints : unit -> unit = "caml_glfwDefaultWindowHints"
-external windowHint : hint:'a WindowHint.t -> value:'a -> unit
+external windowHint : hint:('a, [`hint]) window_attr -> value:'a -> unit
   = "caml_glfwWindowHint"
 external createWindow :
   width:int -> height:int -> title:string -> ?monitor:monitor -> ?share:window
@@ -426,10 +422,11 @@ external setWindowMonitor :
   window:window -> monitor:monitor option -> xpos:int -> ypos:int -> width:int
   -> height:int -> refreshRate:int option -> unit
   = "caml_glfwSetWindowMonitor_byte" "caml_glfwSetWindowMonitor"
-external getWindowAttrib : window:window -> attribute:'a WindowAttribute.t -> 'a
+external getWindowAttrib :
+  window:window -> attribute:('a, [`attr]) window_attr -> 'a
   = "caml_glfwGetWindowAttrib"
 external setWindowAttrib :
-  window:window -> attribute:'a WindowUpdateableAttribute.t -> value:'a -> unit
+  window:window -> attribute:('a, [`update]) window_attr -> value:'a -> unit
   = "caml_glfwSetWindowAttrib"
 external setWindowPosCallback :
   window:window -> f:(window -> int -> int -> unit) option

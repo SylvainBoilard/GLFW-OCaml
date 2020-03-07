@@ -127,14 +127,15 @@ static const int ml_init_hint[] = {
     GLFW_COCOA_MENUBAR
 };
 
-struct ml_window_hint
+struct ml_window_attrib
 {
-    int glfw_window_hint;
+    int glfw_window_attrib;
     enum value_type value_type;
 };
 
-static const struct ml_window_hint ml_window_hint[] = {
+static const struct ml_window_attrib ml_window_attrib[] = {
     {GLFW_FOCUSED, Int},
+    {GLFW_ICONIFIED, Int},
     {GLFW_RESIZABLE, Int},
     {GLFW_VISIBLE, Int},
     {GLFW_DECORATED, Int},
@@ -143,6 +144,7 @@ static const struct ml_window_hint ml_window_hint[] = {
     {GLFW_MAXIMIZED, Int},
     {GLFW_CENTER_CURSOR, Int},
     {GLFW_TRANSPARENT_FRAMEBUFFER, Int},
+    {GLFW_HOVERED, Int},
     {GLFW_FOCUS_ON_SHOW, Int},
     {GLFW_RED_BITS, IntOption},
     {GLFW_GREEN_BITS, IntOption},
@@ -163,6 +165,7 @@ static const struct ml_window_hint ml_window_hint[] = {
     {GLFW_CLIENT_API, ClientApi},
     {GLFW_CONTEXT_VERSION_MAJOR, Int},
     {GLFW_CONTEXT_VERSION_MINOR, Int},
+    {GLFW_CONTEXT_REVISION, Int},
     {GLFW_CONTEXT_ROBUSTNESS, ContextRobustness},
     {GLFW_OPENGL_FORWARD_COMPAT, Int},
     {GLFW_OPENGL_DEBUG_CONTEXT, Int},
@@ -176,44 +179,6 @@ static const struct ml_window_hint ml_window_hint[] = {
     {GLFW_COCOA_GRAPHICS_SWITCHING, Int},
     {GLFW_X11_CLASS_NAME, String},
     {GLFW_X11_INSTANCE_NAME, String}
-};
-
-struct ml_window_attrib
-{
-    int glfw_window_attrib;
-    enum value_type value_type;
-};
-
-static const struct ml_window_attrib ml_window_attrib[] = {
-    {GLFW_FOCUSED, Int},
-    {GLFW_ICONIFIED, Int},
-    {GLFW_RESIZABLE, Int},
-    {GLFW_VISIBLE, Int},
-    {GLFW_DECORATED, Int},
-    {GLFW_AUTO_ICONIFY, Int},
-    {GLFW_FLOATING, Int},
-    {GLFW_MAXIMIZED, Int},
-    {GLFW_TRANSPARENT_FRAMEBUFFER, Int},
-    {GLFW_HOVERED, Int},
-    {GLFW_FOCUS_ON_SHOW, Int},
-    {GLFW_CLIENT_API, ClientApi},
-    {GLFW_CONTEXT_VERSION_MAJOR, Int},
-    {GLFW_CONTEXT_VERSION_MINOR, Int},
-    {GLFW_CONTEXT_REVISION, Int},
-    {GLFW_CONTEXT_ROBUSTNESS, ContextRobustness},
-    {GLFW_OPENGL_FORWARD_COMPAT, Int},
-    {GLFW_OPENGL_DEBUG_CONTEXT, Int},
-    {GLFW_OPENGL_PROFILE, OpenGLProfile},
-    {GLFW_CONTEXT_CREATION_API, ContextCreationApi}
-};
-
-/* All updateable attributes are booleans at the moment. */
-static const int ml_window_updateable_attrib[] = {
-    GLFW_RESIZABLE,
-    GLFW_DECORATED,
-    GLFW_AUTO_ICONIFY,
-    GLFW_FLOATING,
-    GLFW_FOCUS_ON_SHOW
 };
 
 #include "GLFW_key_conv_arrays.inl"
@@ -535,7 +500,7 @@ CAMLprim value caml_glfwWindowHint(value hint, value ml_val)
     const int offset = Int_val(hint);
     int glfw_val = GLFW_DONT_CARE;
 
-    switch (ml_window_hint[offset].value_type)
+    switch (ml_window_attrib[offset].value_type)
     {
     case Int:
         glfw_val = Int_val(ml_val);
@@ -593,11 +558,11 @@ CAMLprim value caml_glfwWindowHint(value hint, value ml_val)
 
     case String: /* Special case: need to use glfwWindowHintString. */
         glfwWindowHintString(
-            ml_window_hint[offset].glfw_window_hint, String_val(ml_val));
+            ml_window_attrib[offset].glfw_window_attrib, String_val(ml_val));
         raise_if_error();
         return Val_unit;
     }
-    glfwWindowHint(ml_window_hint[offset].glfw_window_hint, glfw_val);
+    glfwWindowHint(ml_window_attrib[offset].glfw_window_attrib, glfw_val);
     raise_if_error();
     return Val_unit;
 }
@@ -954,8 +919,8 @@ CAMLprim value caml_glfwSetWindowAttrib(value window, value hint, value ml_val)
     /* All updateable attributes are booleans at the moment. */
     const int glfw_val = Int_val(ml_val);
 
-    glfwSetWindowAttrib(
-        (GLFWwindow*)window, ml_window_updateable_attrib[offset], glfw_val);
+    glfwSetWindowAttrib((GLFWwindow*)window,
+                        ml_window_attrib[offset].glfw_window_attrib, glfw_val);
     raise_if_error();
     return Val_unit;
 }
