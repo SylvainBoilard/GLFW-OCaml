@@ -281,7 +281,7 @@ module A :
       | X11InstanceName : (string, [<`hint]) window_attr
   end
 
-open A
+include module type of A
 
 (** Deprecated window hints and attributes modules.
 

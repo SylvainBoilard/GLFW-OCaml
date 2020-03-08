@@ -231,7 +231,7 @@ module A =
       | X11InstanceName : (string, [<`hint]) window_attr
   end
 
-open A
+include A
 
 module type S =
   sig
