@@ -1272,7 +1272,7 @@ void cursor_enter_callback_stub(GLFWwindow* window, int entered)
         glfwGetWindowUserPointer((GLFWwindow*)window);
 
     caml_callback2(
-        ml_window_callbacks->character, (value)window, Val_bool(entered));
+        ml_window_callbacks->cursor_enter, (value)window, Val_bool(entered));
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetCursorEnterCallback, cursor_enter)
@@ -1288,7 +1288,7 @@ void scroll_callback_stub(GLFWwindow* window, double xoffset, double yoffset)
     ml_xoffset = caml_copy_double(xoffset);
     ml_yoffset = caml_copy_double(yoffset);
     caml_callback3(
-        ml_window_callbacks->cursor_pos, (value)window, ml_xoffset, ml_yoffset);
+        ml_window_callbacks->scroll, (value)window, ml_xoffset, ml_yoffset);
     CAMLreturn0;
 }
 

@@ -571,7 +571,7 @@ external postEmptyEvent : unit -> unit = "caml_glfwPostEmptyEvent"
 external getInputMode : window:window -> mode:'a input_mode -> 'a
   = "caml_glfwGetInputMode"
 external setInputMode : window:window -> mode:'a input_mode -> value:'a -> unit
-  = "caml_glfwGetInputMode"
+  = "caml_glfwSetInputMode"
 external rawMouseMotionSupported : unit -> bool
   = "caml_glfwRawMouseMotionSupported"
 external getKeyName : key:key -> scancode:int -> string option
