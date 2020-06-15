@@ -1,3 +1,3 @@
 (lang dune 1.0)
 (name glfw-ocaml)
-(version 3.3~rc2)
+(version 3.3)
