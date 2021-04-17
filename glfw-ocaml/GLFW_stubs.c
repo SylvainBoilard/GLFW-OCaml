@@ -6,7 +6,7 @@
 #include <caml/callback.h>
 #include <caml/bigarray.h>
 
-#ifdef CAMLunused_start
+#ifdef CAMLunused_start /* Introduced in OCaml 4.03 */
 # define CAMLvoid CAMLunused_start value unit CAMLunused_end
 #else
 # define CAMLvoid CAMLunused value unit
@@ -928,8 +928,7 @@ CAMLprim value caml_glfwSetWindowAttrib(value window, value hint, value ml_val)
 void window_pos_callback_stub(GLFWwindow* window, int xpos, int ypos)
 {
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
     caml_callback3(ml_window_callbacks->window_pos, (value)window,
                    Val_int(xpos), Val_int(ypos));
@@ -940,8 +939,7 @@ CAML_WINDOW_SETTER_STUB(glfwSetWindowPosCallback, window_pos)
 void window_size_callback_stub(GLFWwindow* window, int width, int height)
 {
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
     caml_callback3(ml_window_callbacks->window_size, (value)window,
                    Val_int(width), Val_int(height));
@@ -952,8 +950,7 @@ CAML_WINDOW_SETTER_STUB(glfwSetWindowSizeCallback, window_size)
 void window_close_callback_stub(GLFWwindow* window)
 {
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
     caml_callback(ml_window_callbacks->window_close, (value)window);
 }
@@ -963,8 +960,7 @@ CAML_WINDOW_SETTER_STUB(glfwSetWindowCloseCallback, window_close)
 void window_refresh_callback_stub(GLFWwindow* window)
 {
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
     caml_callback(ml_window_callbacks->window_refresh, (value)window);
 }
@@ -974,8 +970,7 @@ CAML_WINDOW_SETTER_STUB(glfwSetWindowRefreshCallback, window_refresh)
 void window_focus_callback_stub(GLFWwindow* window, int focused)
 {
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
     caml_callback2(
         ml_window_callbacks->window_focus, (value)window, Val_bool(focused));
@@ -986,8 +981,7 @@ CAML_WINDOW_SETTER_STUB(glfwSetWindowFocusCallback, window_focus)
 void window_iconify_callback_stub(GLFWwindow* window, int iconified)
 {
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
     caml_callback2(ml_window_callbacks->window_iconify, (value)window,
                    Val_bool(iconified));
@@ -998,8 +992,7 @@ CAML_WINDOW_SETTER_STUB(glfwSetWindowIconifyCallback, window_iconify)
 void window_maximize_callback_stub(GLFWwindow* window, int maximized)
 {
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
     caml_callback2(ml_window_callbacks->window_maximize, (value)window,
                    Val_bool(maximized));
@@ -1010,8 +1003,7 @@ CAML_WINDOW_SETTER_STUB(glfwSetWindowMaximizeCallback, window_maximize)
 void framebuffer_size_callback_stub(GLFWwindow* window, int width, int height)
 {
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
     caml_callback3(ml_window_callbacks->framebuffer_size, (value)window,
                    Val_int(width), Val_int(height));
@@ -1025,8 +1017,7 @@ void window_content_scale_callback_stub(GLFWwindow* window, float xscale,
     CAMLparam0();
     CAMLlocal2(ml_xscale, ml_yscale);
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
     ml_xscale = caml_copy_double(xscale);
     ml_yscale = caml_copy_double(yscale);
@@ -1193,8 +1184,7 @@ void key_callback_stub(
     GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
     value args[] = {
         (value)window, Val_int(glfw_to_ml_key[key - GLFW_KEY_FIRST]),
         Val_int(scancode), Val_int(action), caml_list_of_flags(mods, 4)
@@ -1209,8 +1199,7 @@ CAML_WINDOW_SETTER_STUB(glfwSetKeyCallback, key)
 void character_callback_stub(GLFWwindow* window, unsigned int codepoint)
 {
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
     caml_callback2(
         ml_window_callbacks->character, (value)window, Val_int(codepoint));
@@ -1222,8 +1211,7 @@ void character_mods_callback_stub(
     GLFWwindow* window, unsigned int codepoint, int mods)
 {
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
     caml_callback3(ml_window_callbacks->character_mods, (value)window,
                    Val_int(codepoint), caml_list_of_flags(mods, 4));
@@ -1235,8 +1223,7 @@ void mouse_button_callback_stub(
     GLFWwindow* window, int button, int action, int mods)
 {
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
     value args[] = {
         (value)window, Val_int(button), Val_bool(action),
         caml_list_of_flags(mods, 4)
@@ -1253,8 +1240,7 @@ void cursor_pos_callback_stub(GLFWwindow* window, double xpos, double ypos)
     CAMLparam0();
     CAMLlocal2(ml_xpos, ml_ypos);
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
     ml_xpos = caml_copy_double(xpos);
     ml_ypos = caml_copy_double(ypos);
@@ -1268,8 +1254,7 @@ CAML_WINDOW_SETTER_STUB(glfwSetCursorPosCallback, cursor_pos)
 void cursor_enter_callback_stub(GLFWwindow* window, int entered)
 {
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
     caml_callback2(
         ml_window_callbacks->cursor_enter, (value)window, Val_bool(entered));
@@ -1282,8 +1267,7 @@ void scroll_callback_stub(GLFWwindow* window, double xoffset, double yoffset)
     CAMLparam0();
     CAMLlocal2(ml_xoffset, ml_yoffset);
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
     ml_xoffset = caml_copy_double(xoffset);
     ml_yoffset = caml_copy_double(yoffset);
@@ -1299,8 +1283,7 @@ void drop_callback_stub(GLFWwindow* window, int count, const char** paths)
     CAMLparam0();
     CAMLlocal3(ml_paths, str, tmp);
     struct ml_window_callbacks* ml_window_callbacks =
-        *(struct ml_window_callbacks**)
-        glfwGetWindowUserPointer((GLFWwindow*)window);
+        *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
     ml_paths = Val_emptylist;
     while (count > 0)
