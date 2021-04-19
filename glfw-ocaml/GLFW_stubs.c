@@ -12,7 +12,20 @@
 # define CAMLvoid CAMLunused value unit
 #endif
 
-#define Val_none Val_int(0)
+#ifndef Val_none /* These definitions appeared in OCaml 4.12 */
+# define Val_none Val_int(0)
+# define Some_val(v) Field(v, 0)
+# define Tag_some 0
+# define Is_none(v) ((v) == Val_none)
+# define Is_some(v) Is_block(v)
+static value caml_alloc_some(value v)
+{
+    CAMLparam1(v);
+    value some = caml_alloc_small(1, 0);
+    Field(some, 0) = v;
+    CAMLreturn(some);
+}
+#endif
 
 #define CAML_SETTER_STUB(glfw_setter, name)                     \
     CAMLprim value caml_##glfw_setter(value new_closure)        \
@@ -23,11 +36,8 @@
         if (name##_closure == Val_unit)                         \
             previous_closure = Val_none;                        \
         else                                                    \
-        {                                                       \
-            previous_closure = caml_alloc_small(1, 0);          \
-            Field(previous_closure, 0) = name##_closure;        \
-        }                                                       \
-        if (new_closure == Val_none)                            \
+            previous_closure = caml_alloc_some(name##_closure); \
+        if (Is_none(new_closure))                               \
         {                                                       \
             if (name##_closure != Val_unit)                     \
             {                                                   \
@@ -45,7 +55,7 @@
                 raise_if_error();                               \
                 caml_register_global_root(&name##_closure);     \
             }                                                   \
-            name##_closure = Field(new_closure, 0);             \
+            name##_closure = Some_val(new_closure);             \
         }                                                       \
         CAMLreturn(previous_closure);                           \
     }
@@ -87,11 +97,8 @@ struct ml_window_callbacks
         if (ml_window_callbacks->name == Val_unit)                      \
             previous_closure = Val_none;                                \
         else                                                            \
-        {                                                               \
-            previous_closure = caml_alloc_small(1, 0);                  \
-            Field(previous_closure, 0) = ml_window_callbacks->name;     \
-        }                                                               \
-        if (new_closure == Val_none)                                    \
+            previous_closure = caml_alloc_some(ml_window_callbacks->name); \
+        if (Is_none(new_closure))                                       \
         {                                                               \
             if (ml_window_callbacks->name != Val_unit)                  \
             {                                                           \
@@ -103,7 +110,7 @@ struct ml_window_callbacks
         {                                                               \
             if (ml_window_callbacks->name == Val_unit)                  \
                 glfw_setter((GLFWwindow*)window, name##_callback_stub); \
-            caml_modify(&ml_window_callbacks->name, Field(new_closure, 0)); \
+            caml_modify(&ml_window_callbacks->name, Some_val(new_closure)); \
         }                                                               \
         CAMLreturn(previous_closure);                                   \
     }
@@ -498,7 +505,7 @@ CAMLprim value caml_glfwDefaultWindowHints(CAMLvoid)
 CAMLprim value caml_glfwWindowHint(value hint, value ml_val)
 {
     const int offset = Int_val(hint);
-    int glfw_val = GLFW_DONT_CARE;
+    int glfw_val;
 
     switch (ml_window_attrib[offset].value_type)
     {
@@ -507,8 +514,7 @@ CAMLprim value caml_glfwWindowHint(value hint, value ml_val)
         break;
 
     case IntOption:
-        if (ml_val != Val_none)
-            glfw_val = Int_val(Field(ml_val, 0));
+        glfw_val = Is_none(ml_val) ? GLFW_DONT_CARE : Int_val(Some_val(ml_val));
         break;
 
     case ClientApi:
@@ -572,8 +578,8 @@ CAMLprim value caml_glfwCreateWindow(
 {
     GLFWwindow* window = glfwCreateWindow(
         Int_val(width), Int_val(height), String_val(title),
-        mntor == Val_none ? NULL : (GLFWmonitor*)Field(mntor, 0),
-        share == Val_none ? NULL : (GLFWwindow*)Field(share, 0));
+        Is_none(mntor) ? NULL : (GLFWmonitor*)Some_val(mntor),
+        Is_none(share) ? NULL : (GLFWwindow*)Some_val(share));
     raise_if_error();
     void* user_pointer = malloc(sizeof(value));
     value callbacks = caml_alloc_small(ML_WINDOW_CALLBACKS_WOSIZE, 0);
@@ -689,10 +695,10 @@ CAMLprim value caml_glfwGetWindowSize(value window)
 CAMLprim value caml_glfwSetWindowSizeLimits(
     value window, value minW, value minH, value maxW, value maxH)
 {
-    int glfw_minW = minW == Val_none ? GLFW_DONT_CARE : Int_val(Field(minW, 0));
-    int glfw_minH = minH == Val_none ? GLFW_DONT_CARE : Int_val(Field(minH, 0));
-    int glfw_maxW = maxW == Val_none ? GLFW_DONT_CARE : Int_val(Field(maxW, 0));
-    int glfw_maxH = maxH == Val_none ? GLFW_DONT_CARE : Int_val(Field(maxH, 0));
+    int glfw_minW = Is_none(minW) ? GLFW_DONT_CARE : Int_val(Some_val(minW));
+    int glfw_minH = Is_none(minH) ? GLFW_DONT_CARE : Int_val(Some_val(minH));
+    int glfw_maxW = Is_none(maxW) ? GLFW_DONT_CARE : Int_val(Some_val(maxW));
+    int glfw_maxH = Is_none(maxH) ? GLFW_DONT_CARE : Int_val(Some_val(maxH));
 
     glfwSetWindowSizeLimits(
         (GLFWwindow*)window, glfw_minW, glfw_minH, glfw_maxW, glfw_maxH);
@@ -824,14 +830,9 @@ CAMLprim value caml_glfwRequestWindowAttention(value window)
 CAMLprim value caml_glfwGetWindowMonitor(value window)
 {
     GLFWmonitor* monitor = glfwGetWindowMonitor((GLFWwindow*)window);
-    value ret;
 
     raise_if_error();
-    if (monitor == NULL)
-        return Val_none;
-    ret = caml_alloc_small(1, 0);
-    Field(ret, 0) = (value)monitor;
-    return ret;
+    return monitor == NULL ? Val_none : caml_alloc_some((value)monitor);
 }
 
 CAMLprim value caml_glfwSetWindowMonitor(
@@ -839,10 +840,9 @@ CAMLprim value caml_glfwSetWindowMonitor(
     value width, value height, value refreshRate)
 {
     GLFWmonitor* glfw_monitor =
-        monitor == Val_none ? NULL : (GLFWmonitor*)Field(monitor, 0);
-    int glfw_refresh_rate = refreshRate == Val_none
-        ? GLFW_DONT_CARE
-        : Int_val(Field(refreshRate, 0));
+        Is_none(monitor) ? NULL : (GLFWmonitor*)Some_val(monitor);
+    int glfw_refresh_rate =
+        Is_none(refreshRate) ? GLFW_DONT_CARE : Int_val(Some_val(refreshRate));
 
     glfwSetWindowMonitor(
         (GLFWwindow*)window, glfw_monitor, Int_val(xpos), Int_val(ypos),
@@ -1091,14 +1091,7 @@ CAMLprim value caml_glfwGetKeyName(value key, value scancode)
         glfwGetKeyName(ml_to_glfw_key[Int_val(key)], Int_val(scancode));
 
     raise_if_error();
-    if (name == NULL)
-        return Val_none;
-    CAMLparam0();
-    CAMLlocal2(str, ret);
-    str = caml_copy_string(name);
-    ret = caml_alloc_small(1, 0);
-    Field(ret, 0) = str;
-    CAMLreturn(ret);
+    return name == NULL ? Val_none : caml_alloc_some(caml_copy_string(name));
 }
 
 CAMLprim value caml_glfwGetKeyScancode(value key)
@@ -1357,14 +1350,7 @@ CAMLprim value caml_glfwGetJoystickGUID(value joy)
     const char* name = glfwGetJoystickGUID(Int_val(joy));
 
     raise_if_error();
-    if (name == NULL)
-        return Val_none;
-    CAMLparam0();
-    CAMLlocal2(str, ret);
-    str = caml_copy_string(name);
-    ret = caml_alloc_small(1, 0);
-    Field(ret, 0) = str;
-    CAMLreturn(ret);
+    return name == NULL ? Val_none : caml_alloc_some(caml_copy_string(name));
 }
 
 CAMLprim value caml_glfwGetJoystickName(value joy)
@@ -1372,14 +1358,7 @@ CAMLprim value caml_glfwGetJoystickName(value joy)
     const char* name = glfwGetJoystickName(Int_val(joy));
 
     raise_if_error();
-    if (name == NULL)
-        return Val_none;
-    CAMLparam0();
-    CAMLlocal2(str, ret);
-    str = caml_copy_string(name);
-    ret = caml_alloc_small(1, 0);
-    Field(ret, 0) = str;
-    CAMLreturn(ret);
+    return name == NULL ? Val_none : caml_alloc_some(caml_copy_string(name));
 }
 
 CAMLprim value caml_glfwJoystickIsGamepad(value joy)
@@ -1411,14 +1390,7 @@ CAMLprim value caml_glfwGetGamepadName(value joy)
     const char* name = glfwGetGamepadName(Int_val(joy));
 
     raise_if_error();
-    if (name == NULL)
-        return Val_none;
-    CAMLparam0();
-    CAMLlocal2(str, ret);
-    str = caml_copy_string(name);
-    ret = caml_alloc_small(1, 0);
-    Field(ret, 0) = str;
-    CAMLreturn(ret);
+    return name == NULL ? Val_none : caml_alloc_some(caml_copy_string(name));
 }
 
 CAMLprim value caml_glfwGetGamepadState(value joy)
@@ -1485,10 +1457,8 @@ CAMLprim value caml_glfwGetTimerFrequency(CAMLvoid)
 
 CAMLprim value caml_glfwMakeContextCurrent(value window)
 {
-    if (window == Val_none)
-        glfwMakeContextCurrent(NULL);
-    else
-        glfwMakeContextCurrent((GLFWwindow*)Field(window, 0));
+    glfwMakeContextCurrent(
+        Is_none(window) ? NULL : (GLFWwindow*)Some_val(window));
     raise_if_error();
     return Val_unit;
 }
@@ -1496,14 +1466,9 @@ CAMLprim value caml_glfwMakeContextCurrent(value window)
 CAMLprim value caml_glfwGetCurrentContext(CAMLvoid)
 {
     GLFWwindow* window = glfwGetCurrentContext();
-    value ret;
 
     raise_if_error();
-    if (window == NULL)
-        return Val_none;
-    ret = caml_alloc_small(1, 0);
-    Field(ret, 0) = (value)window;
-    return ret;
+    return window == NULL ? Val_none : caml_alloc_some((value)window);
 }
 
 CAMLprim value caml_glfwSwapBuffers(value window)
