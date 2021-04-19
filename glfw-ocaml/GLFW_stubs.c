@@ -311,7 +311,7 @@ CAMLprim value caml_glfwInitHint(value hint, value ml_val)
 {
     const int offset = Int_val(hint);
     /* All updateable attributes are booleans at the moment. */
-    const int glfw_val = Int_val(ml_val);
+    const int glfw_val = Bool_val(ml_val);
 
     glfwInitHint(ml_init_hint[offset], glfw_val);
     raise_if_error();
@@ -1326,7 +1326,7 @@ CAMLprim value caml_glfwGetJoystickButtons(value joy)
         return Atom(0);
     ret = caml_alloc_small(count, 0);
     for (int i = 0; i < count; ++i)
-        Field(ret, i) = Val_int(buttons[i] == GLFW_PRESS);
+        Field(ret, i) = Val_bool(buttons[i] == GLFW_PRESS);
     return ret;
 }
 
@@ -1403,7 +1403,7 @@ CAMLprim value caml_glfwGetGamepadState(value joy)
     raise_if_error();
     buttons = caml_alloc_small(15, 0);
     for (unsigned int i = 0; i < 15; ++i)
-        Field(buttons, i) = Val_int(gamepad_state.buttons[i] == GLFW_PRESS);
+        Field(buttons, i) = Val_bool(gamepad_state.buttons[i] == GLFW_PRESS);
     axes = caml_alloc_float_array(6);
     for (unsigned int i = 0; i < 6; ++i)
         Double_field(axes, i) = gamepad_state.axes[i];
