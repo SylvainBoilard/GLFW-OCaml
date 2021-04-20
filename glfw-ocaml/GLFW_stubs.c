@@ -35,37 +35,37 @@ static value caml_alloc_some(value v)
 #define Val_cptr(p) (assert(((uintptr_t)(p) & 1) == 0), (value)(p) | 1)
 #define Cptr_val(t, v) ((t)((v) & ~1))
 
-#define CAML_SETTER_STUB(glfw_setter, name)                     \
-    CAMLprim value caml_##glfw_setter(value new_closure)        \
-    {                                                           \
-        CAMLparam1(new_closure);                                \
-        CAMLlocal1(previous_closure);                           \
-                                                                \
-        if (name##_closure == Val_unit)                         \
-            previous_closure = Val_none;                        \
-        else                                                    \
-            previous_closure = caml_alloc_some(name##_closure); \
-        if (Is_none(new_closure))                               \
-        {                                                       \
-            if (name##_closure != Val_unit)                     \
-            {                                                   \
-                glfw_setter(NULL);                              \
-                raise_if_error();                               \
-                caml_remove_global_root(&name##_closure);       \
-                name##_closure = Val_unit;                      \
-            }                                                   \
-        }                                                       \
-        else                                                    \
-        {                                                       \
-            if (name##_closure == Val_unit)                     \
-            {                                                   \
-                glfw_setter(name##_callback_stub);              \
-                raise_if_error();                               \
-                caml_register_global_root(&name##_closure);     \
-            }                                                   \
-            name##_closure = Some_val(new_closure);             \
-        }                                                       \
-        CAMLreturn(previous_closure);                           \
+#define CAML_SETTER_STUB(glfw_setter, name)                             \
+    CAMLprim value caml_##glfw_setter(value new_closure)                \
+    {                                                                   \
+        CAMLparam1(new_closure);                                        \
+        CAMLlocal1(previous_closure);                                   \
+                                                                        \
+        if (name##_closure == Val_unit)                                 \
+            previous_closure = Val_none;                                \
+        else                                                            \
+            previous_closure = caml_alloc_some(name##_closure);         \
+        if (Is_none(new_closure))                                       \
+        {                                                               \
+            if (name##_closure != Val_unit)                             \
+            {                                                           \
+                glfw_setter(NULL);                                      \
+                raise_if_error();                                       \
+                caml_remove_global_root(&name##_closure);               \
+                name##_closure = Val_unit;                              \
+            }                                                           \
+        }                                                               \
+        else                                                            \
+        {                                                               \
+            if (name##_closure == Val_unit)                             \
+            {                                                           \
+                glfw_setter(name##_callback_stub);                      \
+                raise_if_error();                                       \
+                caml_register_global_root(&name##_closure);             \
+            }                                                           \
+            name##_closure = Some_val(new_closure);                     \
+        }                                                               \
+        CAMLreturn(previous_closure);                                   \
     }
 
 struct ml_window_callbacks
