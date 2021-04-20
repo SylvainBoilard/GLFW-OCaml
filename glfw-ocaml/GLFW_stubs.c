@@ -51,7 +51,7 @@ static value caml_alloc_some(value v)
             {                                                           \
                 glfw_setter(NULL);                                      \
                 raise_if_error();                                       \
-                caml_remove_global_root(&name##_closure);               \
+                caml_remove_generational_global_root(&name##_closure);  \
                 name##_closure = Val_unit;                              \
             }                                                           \
         }                                                               \
@@ -61,9 +61,12 @@ static value caml_alloc_some(value v)
             {                                                           \
                 glfw_setter(name##_callback_stub);                      \
                 raise_if_error();                                       \
-                caml_register_global_root(&name##_closure);             \
+                name##_closure = Some_val(new_closure);                 \
+                caml_register_generational_global_root(&name##_closure); \
             }                                                           \
-            name##_closure = Some_val(new_closure);                     \
+            else                                                        \
+                caml_modify_generational_global_root(                   \
+                    &name##_closure, Some_val(new_closure));            \
         }                                                               \
         CAMLreturn(previous_closure);                                   \
     }
@@ -202,14 +205,14 @@ static const struct ml_window_attrib ml_window_attrib[] = {
 static inline value caml_list_of_pointer_array(void** array, int count)
 {
     CAMLparam0();
-    CAMLlocal2(ret, tmp);
+    CAMLlocal1(ret);
     ret = Val_emptylist;
     while (count > 0)
     {
-        tmp = caml_alloc_small(2, 0);
+        value tmp = caml_alloc_small(2, 0);
         Field(tmp, 0) = Val_cptr(array[--count]);
         Field(tmp, 1) = ret;
-        caml_modify(&ret, tmp);
+        ret = tmp;
     }
     CAMLreturn(ret);
 }
@@ -217,15 +220,15 @@ static inline value caml_list_of_pointer_array(void** array, int count)
 static inline value caml_list_of_flags(int flags, int count)
 {
     CAMLparam0();
-    CAMLlocal2(ret, tmp);
+    CAMLlocal1(ret);
     ret = Val_emptylist;
     for (int i = 0; i < count; ++i)
         if (flags >> i & 1)
         {
-            tmp = caml_alloc_small(2, 0);
+            value tmp = caml_alloc_small(2, 0);
             Field(tmp, 0) = Val_int(i);
             Field(tmp, 1) = ret;
-            caml_modify(&ret, tmp);
+            ret = tmp;
         }
     CAMLreturn(ret);
 }
@@ -441,7 +444,7 @@ CAML_SETTER_STUB(glfwSetMonitorCallback, monitor)
 CAMLprim value caml_glfwGetVideoModes(value monitor)
 {
     CAMLparam0();
-    CAMLlocal3(ret, vm, tmp);
+    CAMLlocal2(ret, vm);
     int videomode_count;
     const GLFWvidmode* videomodes =
         glfwGetVideoModes(Cptr_val(GLFWmonitor*, monitor), &videomode_count);
@@ -451,10 +454,10 @@ CAMLprim value caml_glfwGetVideoModes(value monitor)
     while (videomode_count > 0)
     {
         vm = caml_copy_vidmode(videomodes + --videomode_count);
-        tmp = caml_alloc_small(2, 0);
+        value tmp = caml_alloc_small(2, 0);
         Field(tmp, 0) = vm;
         Field(tmp, 1) = ret;
-        caml_modify(&ret, tmp);
+        ret = tmp;
     }
     CAMLreturn(ret);
 }
@@ -599,7 +602,7 @@ CAMLprim value caml_glfwCreateWindow(
     for (unsigned int i = 0; i < ML_WINDOW_CALLBACKS_WOSIZE; ++i)
         Field(callbacks, i) = Val_unit;
     *(value*)user_pointer = callbacks;
-    caml_register_global_root(user_pointer);
+    caml_register_generational_global_root(user_pointer);
     glfwSetWindowUserPointer(window, user_pointer);
     return Val_cptr(window);
 }
@@ -617,7 +620,7 @@ CAMLprim value caml_glfwDestroyWindow(value ml_window)
     void* user_pointer = glfwGetWindowUserPointer(window);
 
     raise_if_error();
-    caml_remove_global_root(user_pointer);
+    caml_remove_generational_global_root(user_pointer);
     free(user_pointer);
     glfwDestroyWindow(window);
     raise_if_error();
@@ -1295,7 +1298,7 @@ CAML_WINDOW_SETTER_STUB(glfwSetScrollCallback, scroll)
 void drop_callback_stub(GLFWwindow* window, int count, const char** paths)
 {
     CAMLparam0();
-    CAMLlocal3(ml_paths, str, tmp);
+    CAMLlocal2(ml_paths, str);
     struct ml_window_callbacks* ml_window_callbacks =
         *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
 
@@ -1303,10 +1306,10 @@ void drop_callback_stub(GLFWwindow* window, int count, const char** paths)
     while (count > 0)
     {
         str = caml_copy_string(paths[--count]);
-        tmp = caml_alloc_small(2, 0);
+        value tmp = caml_alloc_small(2, 0);
         Field(tmp, 0) = str;
         Field(tmp, 1) = ml_paths;
-        caml_modify(&ml_paths, tmp);
+        ml_paths = tmp;
     }
     caml_callback2(ml_window_callbacks->drop, Val_cptr(window), ml_paths);
     CAMLreturn0;
