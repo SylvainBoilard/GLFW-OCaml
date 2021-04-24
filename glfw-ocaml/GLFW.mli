@@ -363,11 +363,11 @@ type video_mode = {
     refresh_rate : int;
   }
 
-type monitor
+type monitor [@@immediate]
 
-type window
+type window [@@immediate]
 
-type cursor
+type cursor [@@immediate]
 
 (** GammaRamp module. Describes the gamma ramp for a monitor.
 
