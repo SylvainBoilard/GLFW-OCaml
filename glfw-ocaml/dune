@@ -4,19 +4,14 @@
  (modules                   GLFW)
  (wrapped                   false)
  (libraries                 bigarray)
- (c_library_flags           -lglfw)
- (self_build_stubs_archive  (GLFW)))
+ (foreign_stubs
+  (language    c)
+  (names       GLFW_stubs)
+  (extra_deps  GLFW_key_conv_arrays.inl))
+ (c_library_flags           -lglfw))
 
 (rule
- (targets   libGLFW_stubs.a dllGLFW_stubs.so)
- (deps      (:src GLFW_stubs.c) GLFW_key_conv_arrays.inl)
- (action
-  (progn
-   (run %{ocamlc} %{src} -o GLFW_stubs.o)
-   (run %{ocaml_bin}/ocamlmklib GLFW_stubs.o -o GLFW_stubs -lglfw))))
-
-(rule
- (targets GLFW_key_conv_arrays.inl)
+ (target  GLFW_key_conv_arrays.inl)
  (deps    (:gen gen_key_conv_arrays.exe))
  (action  (run %{gen})))
 
