@@ -1508,3 +1508,10 @@ CAMLprim value caml_glfwSwapInterval(value interval)
     raise_if_error();
     return Val_unit;
 }
+
+CAMLprim value caml_glfwExtensionSupported(value extension)
+{
+    int result = Bool_val(glfwExtensionSupported(String_val(extension)));
+    raise_if_error();
+    return Bool_val(result);
+}

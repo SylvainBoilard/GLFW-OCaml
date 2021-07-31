@@ -62,10 +62,10 @@ The `Image` module likewise provides a `create` function to create an image from
 ### Return values
 Some of the original functions return their result via pointer arguments. In GLFW-OCaml these functions instead return a tuple with the individual elements in the same order as they appear in the original function.
 
-### `GLFW_DONT_CARE` and `NULL`-able values 
+### `GLFW_DONT_CARE` and `NULL`-able values
 Wherever `GLFW_DONT_CARE` or a `NULL` pointer would be a legal value, an option type is used to wrap the value and `None` is used to represent `GLFW_DONT_CARE` or `NULL`.
 
-### `glfwGetProcAddress`, `glfwExtensionSupported` and Vulkan
-The `glfwGetProcAddress` function is not supported because it would require to write an entire OpenGL wrapper to make the functions returned by GLFW usable from OCaml. Incidentally the `glfwExtensionSupported` function is not provided either. There are numerous OpenGL bindings available for OCaml that you can use instead.
+### `glfwGetProcAddress` and Vulkan
+The `glfwGetProcAddress` function is not supported because it would require writing an entire OpenGL wrapper to make the functions returned by GLFW usable from OCaml. There are several OpenGL bindings available for OCaml that you can use instead.
 
-The Vulkan related functions are not supported as of now but we might look into it at some point.                                                                                  
+The Vulkan related functions are not supported as of now but we might look into it at some point or on request.

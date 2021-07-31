@@ -552,6 +552,8 @@ external getCurrentContext : unit -> window option
   = "caml_glfwGetCurrentContext"
 external swapBuffers : window:window -> unit = "caml_glfwSwapBuffers"
 external swapInterval : interval:int -> unit = "caml_glfwSwapInterval"
+external extensionSupported : extension:string -> bool
+  = "caml_glfwExtensionSupported"
 
 external init_stub : unit -> unit = "init_stub" [@@noalloc]
 
