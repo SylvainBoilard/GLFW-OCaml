@@ -32,7 +32,12 @@ static value caml_alloc_some(value v)
    deprecated in version 4.11. As per the OCaml 4.12.0 manual in
    section 18.2.3, provided we check such pointers never have their
    lowest bit set, we may represent these as tagged integers. */
-#define Val_cptr(p) (assert(((uintptr_t)(p) & 1) == 0), (value)(p) | 1)
+static value Val_cptr(void* p)
+{
+    assert(((uintptr_t)p & 1) == 0);
+    return (value)p | 1;
+}
+
 #define Cptr_val(t, v) ((t)((v) & ~1))
 
 #define CAML_SETTER_STUB(glfw_setter, name)                             \
