@@ -1,4 +1,5 @@
 #include <GLFW/glfw3.h>
+#include <string.h>
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
 #include <caml/memory.h>
@@ -495,9 +496,12 @@ CAMLprim value caml_glfwGetGammaRamp(value monitor)
     Field(ret, 0) = Val_unit;
     Field(ret, 1) = Val_unit;
     Field(ret, 2) = Val_unit;
-    Store_field(ret, 0, caml_ba_alloc(flags, 1, gamma_ramp->red, &size));
-    Store_field(ret, 1, caml_ba_alloc(flags, 1, gamma_ramp->green, &size));
-    Store_field(ret, 2, caml_ba_alloc(flags, 1, gamma_ramp->blue, &size));
+    Store_field(ret, 0, caml_ba_alloc(flags, 1, NULL, &size));
+    Store_field(ret, 1, caml_ba_alloc(flags, 1, NULL, &size));
+    Store_field(ret, 2, caml_ba_alloc(flags, 1, NULL, &size));
+    memcpy(Caml_ba_data_val(Field(ret, 0)), gamma_ramp->red, size);
+    memcpy(Caml_ba_data_val(Field(ret, 1)), gamma_ramp->green, size);
+    memcpy(Caml_ba_data_val(Field(ret, 2)), gamma_ramp->blue, size);
     CAMLreturn(ret);
 }
 
