@@ -38,7 +38,7 @@ GLFW-OCaml is a pretty straight-forward binding from the original API. Please re
 ### Naming conventions
 Functions have the `glfw` prefix removed and their first letter uncapitalized. For example `glfwCreateWindow` would become `createWindow`.
 
-Values have the `GLFW_` and where appropriate the `KEY_` or `MOD_` prefixes removed, are converted to CamelCase and typed according to their usage. For example `GLFW_KEY_LEFT_BRACKET` would become constructor `LeftBracket` of type `key` and `GLFW_NO_RESET_NOTIFICATION` would become constructor `NoResetNotification` of type `context_robustness`. Names with a single letter prefix directly appended such as `GLFW_IBEAM_CURSOR` become `IBeamCursor`.
+Values have the `GLFW_` and where appropriate the `KEY_` or `MOD_` prefixes removed, are converted to PascalCase and typed according to their usage. For example `GLFW_KEY_LEFT_BRACKET` would become constructor `LeftBracket` of type `key` and `GLFW_NO_RESET_NOTIFICATION` would become constructor `NoResetNotification` of type `context_robustness`. Names with a single letter prefix directly appended such as `GLFW_IBEAM_CURSOR` become `IBeamCursor`.
 
 ### Mouse buttons and joysticks
 Instead of defining values for individual mouse buttons and joysticks, a plain 0-indexed number is used, although there are `mouse_button_{left,right,middle}` values defined for the most common mouse buttons. The maximum number of mouse buttons and connected joysticks can be accessed with the `mouse_button_max_count` and `joystick_max_count` values.
