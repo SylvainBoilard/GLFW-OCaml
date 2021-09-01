@@ -1,4 +1,4 @@
-(** OCaml binding for GLFW 3.4 *)
+(** OCaml binding for GLFW 3.5 *)
 
 (** GLFW-OCaml version numbers. *)
 val version_major : int

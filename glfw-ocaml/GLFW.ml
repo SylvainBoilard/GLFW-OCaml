@@ -1,5 +1,5 @@
 let version_major = 3
-let version_minor = 4
+let version_minor = 5
 let version_revision = 0
 
 exception NotInitialized of string

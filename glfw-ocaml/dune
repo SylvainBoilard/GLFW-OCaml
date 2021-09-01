@@ -15,7 +15,7 @@
  (deps    (:gen gen_key_conv_arrays.exe))
  (action
   (progn
-   (run  pkg-config glfw3 --atleast-version 3.4 --max-version 4.0~)
+   (run  pkg-config glfw3 --atleast-version 3.5 --max-version 4.0~)
    (run  %{gen}))))
 
 (executable
