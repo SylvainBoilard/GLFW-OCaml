@@ -1,6 +1,6 @@
 let version_major = 3
 let version_minor = 3
-let version_revision = 0
+let version_revision = 1
 
 exception NotInitialized of string
 exception NoCurrentContext of string
