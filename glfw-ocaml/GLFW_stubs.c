@@ -491,6 +491,7 @@ CAMLprim value caml_glfwGetGammaRamp(value monitor)
     raise_if_error();
     const int flags = CAML_BA_UINT16 | CAML_BA_C_LAYOUT;
     intnat size = gamma_ramp->size;
+    const unsigned int byte_size = size * sizeof(*gamma_ramp->red);
 
     ret = caml_alloc_small(3, 0);
     Field(ret, 0) = Val_unit;
@@ -499,9 +500,9 @@ CAMLprim value caml_glfwGetGammaRamp(value monitor)
     Store_field(ret, 0, caml_ba_alloc(flags, 1, NULL, &size));
     Store_field(ret, 1, caml_ba_alloc(flags, 1, NULL, &size));
     Store_field(ret, 2, caml_ba_alloc(flags, 1, NULL, &size));
-    memcpy(Caml_ba_data_val(Field(ret, 0)), gamma_ramp->red, size);
-    memcpy(Caml_ba_data_val(Field(ret, 1)), gamma_ramp->green, size);
-    memcpy(Caml_ba_data_val(Field(ret, 2)), gamma_ramp->blue, size);
+    memcpy(Caml_ba_data_val(Field(ret, 0)), gamma_ramp->red, byte_size);
+    memcpy(Caml_ba_data_val(Field(ret, 1)), gamma_ramp->green, byte_size);
+    memcpy(Caml_ba_data_val(Field(ret, 2)), gamma_ramp->blue, byte_size);
     CAMLreturn(ret);
 }
 
