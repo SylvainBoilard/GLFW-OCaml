@@ -1188,7 +1188,7 @@ CAMLprim value caml_glfwCreateCursor(value image, value xhot, value yhot)
 CAMLprim value caml_glfwCreateStandardCursor(value shape)
 {
     GLFWcursor* ret =
-        glfwCreateStandardCursor(Int_val(shape) - GLFW_ARROW_CURSOR);
+        glfwCreateStandardCursor(GLFW_ARROW_CURSOR + Int_val(shape));
     raise_if_error();
     return Val_cptr(ret);
 }
