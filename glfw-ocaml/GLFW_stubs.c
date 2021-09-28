@@ -1341,11 +1341,9 @@ CAMLprim value caml_glfwGetJoystickAxes(value joy)
     const float* axes = glfwGetJoystickAxes(Int_val(joy), &count);
 
     raise_if_error();
-    if (count == 0)
-        return Atom(Double_array_tag);
     ret = caml_alloc_float_array(count);
     for (int i = 0; i < count; ++i)
-        Double_field(ret, i) = axes[i];
+        Store_double_field(ret, i, axes[i]);
     return ret;
 }
 
@@ -1440,7 +1438,7 @@ CAMLprim value caml_glfwGetGamepadState(value joy)
         Field(buttons, i) = Val_bool(gamepad_state.buttons[i] == GLFW_PRESS);
     axes = caml_alloc_float_array(6);
     for (unsigned int i = 0; i < 6; ++i)
-        Double_field(axes, i) = gamepad_state.axes[i];
+        Store_double_field(axes, i, gamepad_state.axes[i]);
     ret = caml_alloc_small(2, 0);
     Field(ret, 0) = buttons;
     Field(ret, 1) = axes;
