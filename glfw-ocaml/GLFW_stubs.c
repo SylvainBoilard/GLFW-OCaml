@@ -1519,7 +1519,7 @@ CAMLprim value caml_glfwSwapInterval(value interval)
 
 CAMLprim value caml_glfwExtensionSupported(value extension)
 {
-    int result = Bool_val(glfwExtensionSupported(String_val(extension)));
+    int result = glfwExtensionSupported(String_val(extension));
     raise_if_error();
-    return Bool_val(result);
+    return Val_bool(result);
 }

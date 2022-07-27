@@ -437,8 +437,7 @@ type gamepad_state = {
 
     There is no binding for the glfwGetProcAddress function because it would
     basicaly require to write an entire OpenGL wrapper to make the functions
-    returned by GLFW usable from OCaml. Incidentaly the glfwExtensionSupported
-    function is not provided either. There are numerous OpenGL bindings
+    returned by GLFW usable from OCaml. There are numerous OpenGL bindings
     available for OCaml that you can use instead.
 
     The Vulkan related functions are not supported as of now but we might look
