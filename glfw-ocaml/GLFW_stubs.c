@@ -1239,9 +1239,10 @@ void character_mods_callback_stub(
 {
     struct ml_window_callbacks* ml_window_callbacks =
         *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
+    value ml_mods = caml_list_of_flags(mods, 4);
 
     caml_callback3(ml_window_callbacks->character_mods, Val_cptr(window),
-                   Val_int(codepoint), caml_list_of_flags(mods, 4));
+                   Val_int(codepoint), ml_mods);
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetCharModsCallback, character_mods)
