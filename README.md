@@ -2,7 +2,7 @@
 A [GLFW](https://www.glfw.org) binding for OCaml.
 
 ## Installing
-The current release is version **3.3.1-1**. Please install the GLFW library and its development files before attempting to install GLFW-OCaml.
+The current release is version **3.3.1-2**. Please install the GLFW library and its development files before attempting to install GLFW-OCaml.
 
 ### With opam
 [Opam](https://opam.ocaml.org/) is a package manager for OCaml. This is the recommended way, simply run:
@@ -17,9 +17,9 @@ opam pin git+https://github.com/SylvainBoilard/GLFW-OCaml.git
 ### Building from source
 GLFW-OCaml uses [Dune](https://github.com/ocaml/dune/blob/master/README.md) as its build system. Fetch the source by running:
 ```
-wget https://github.com/SylvainBoilard/GLFW-OCaml/archive/3.3.1-1.zip
-unzip GLFW-OCaml-3.3.1-1.zip
-cd GLFW-OCaml-3.3.1-1
+wget https://github.com/SylvainBoilard/GLFW-OCaml/archive/3.3.1-2.zip
+unzip GLFW-OCaml-3.3.1-2.zip
+cd GLFW-OCaml-3.3.1-2
 ```
 or for the latest revision:
 ```
