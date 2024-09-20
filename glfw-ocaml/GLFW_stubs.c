@@ -136,6 +136,7 @@ struct ml_window_callbacks
 enum value_type
 {
     Int,
+    Bool = Int,
     IntOption,
     ClientApi,
     ContextRobustness,
@@ -152,6 +153,126 @@ static const int ml_init_hint[] = {
     GLFW_COCOA_MENUBAR
 };
 
+static const int ml_client_api[] = {
+    GLFW_NO_API,
+    GLFW_OPENGL_API,
+    GLFW_OPENGL_ES_API
+};
+
+static const int ml_context_robustness[] = {
+    GLFW_NO_ROBUSTNESS,
+    GLFW_NO_RESET_NOTIFICATION,
+    GLFW_LOSE_CONTEXT_ON_RESET
+};
+
+static const int ml_opengl_profile[] = {
+    GLFW_OPENGL_ANY_PROFILE,
+    GLFW_OPENGL_CORE_PROFILE,
+    GLFW_OPENGL_COMPAT_PROFILE
+};
+
+static const int ml_context_release_behavior[] = {
+    GLFW_ANY_RELEASE_BEHAVIOR,
+    GLFW_RELEASE_BEHAVIOR_FLUSH,
+    GLFW_RELEASE_BEHAVIOR_NONE
+};
+
+static const int ml_context_creation_api[] = {
+    GLFW_NATIVE_CONTEXT_API,
+    GLFW_EGL_CONTEXT_API,
+    GLFW_OSMESA_CONTEXT_API
+};
+
+static int glfw_of_ml_value(value ml_val, enum value_type value_type)
+{
+    int result;
+
+    switch (value_type)
+    {
+    case Int:
+        result = Int_val(ml_val);
+        break;
+
+    case IntOption:
+        result = Is_none(ml_val) ? GLFW_DONT_CARE : Int_val(Some_val(ml_val));
+        break;
+
+    case ClientApi:
+        result = ml_client_api[Int_val(ml_val)];
+        break;
+
+    case ContextRobustness:
+        result = ml_context_robustness[Int_val(ml_val)];
+        break;
+
+    case OpenGLProfile:
+        result = ml_opengl_profile[Int_val(ml_val)];
+        break;
+
+    case ContextReleaseBehavior:
+        result = ml_context_release_behavior[Int_val(ml_val)];
+        break;
+
+    case ContextCreationApi:
+        result = ml_context_creation_api[Int_val(ml_val)];
+        break;
+
+    case String:
+        /* For values of type String (currently only some window hints),
+           a specialized GLFW function (namely glfwWindowHintString) needs
+           to be used. In contexts where that would be a possible type for
+           a value, it needs to be checked for and handled separately. */
+        result = INT_MIN;
+    }
+    return result;
+}
+
+static size_t find_value_offset(const int array[], size_t length, int value)
+{
+    size_t min = 0, max = length;
+    while (min < max)
+    {
+        size_t mean = (min + max) / 2;
+        if (array[mean] < value)
+            min = mean + 1;
+        else
+            max = mean;
+    }
+    return min;
+}
+
+#define FIND_VALUE_OFFSET(array, value) \
+    find_value_offset(array, sizeof(array) / sizeof(*array), value)
+
+static value ml_of_glfw_value(enum value_type value_type, int glfw_val)
+{
+    switch (value_type)
+    {
+    case Int:
+        return Val_int(glfw_val);
+        break;
+
+    case ClientApi:
+        return Val_int(FIND_VALUE_OFFSET(ml_client_api, glfw_val));
+        break;
+
+    case ContextRobustness:
+        return Val_int(FIND_VALUE_OFFSET(ml_context_robustness, glfw_val));
+        break;
+
+    case OpenGLProfile:
+        return Val_int(FIND_VALUE_OFFSET(ml_opengl_profile, glfw_val));
+        break;
+
+    case ContextCreationApi:
+        return Val_int(FIND_VALUE_OFFSET(ml_context_creation_api, glfw_val));
+        break;
+
+    default: /* The other types currently do not need to be converted. */
+        return Val_int(-1);
+    }
+}
+
 struct ml_window_attrib
 {
     int glfw_window_attrib;
@@ -159,18 +280,18 @@ struct ml_window_attrib
 };
 
 static const struct ml_window_attrib ml_window_attrib[] = {
-    {GLFW_FOCUSED, Int},
-    {GLFW_ICONIFIED, Int},
-    {GLFW_RESIZABLE, Int},
-    {GLFW_VISIBLE, Int},
-    {GLFW_DECORATED, Int},
-    {GLFW_AUTO_ICONIFY, Int},
-    {GLFW_FLOATING, Int},
-    {GLFW_MAXIMIZED, Int},
-    {GLFW_CENTER_CURSOR, Int},
-    {GLFW_TRANSPARENT_FRAMEBUFFER, Int},
-    {GLFW_HOVERED, Int},
-    {GLFW_FOCUS_ON_SHOW, Int},
+    {GLFW_FOCUSED, Bool},
+    {GLFW_ICONIFIED, Bool},
+    {GLFW_RESIZABLE, Bool},
+    {GLFW_VISIBLE, Bool},
+    {GLFW_DECORATED, Bool},
+    {GLFW_AUTO_ICONIFY, Bool},
+    {GLFW_FLOATING, Bool},
+    {GLFW_MAXIMIZED, Bool},
+    {GLFW_CENTER_CURSOR, Bool},
+    {GLFW_TRANSPARENT_FRAMEBUFFER, Bool},
+    {GLFW_HOVERED, Bool},
+    {GLFW_FOCUS_ON_SHOW, Bool},
     {GLFW_RED_BITS, IntOption},
     {GLFW_GREEN_BITS, IntOption},
     {GLFW_BLUE_BITS, IntOption},
@@ -182,26 +303,26 @@ static const struct ml_window_attrib ml_window_attrib[] = {
     {GLFW_ACCUM_BLUE_BITS, IntOption},
     {GLFW_ACCUM_ALPHA_BITS, IntOption},
     {GLFW_AUX_BUFFERS, IntOption},
-    {GLFW_STEREO, Int},
+    {GLFW_STEREO, Bool},
     {GLFW_SAMPLES, IntOption},
-    {GLFW_SRGB_CAPABLE, Int},
+    {GLFW_SRGB_CAPABLE, Bool},
     {GLFW_REFRESH_RATE, IntOption},
-    {GLFW_DOUBLEBUFFER, Int},
+    {GLFW_DOUBLEBUFFER, Bool},
     {GLFW_CLIENT_API, ClientApi},
     {GLFW_CONTEXT_VERSION_MAJOR, Int},
     {GLFW_CONTEXT_VERSION_MINOR, Int},
     {GLFW_CONTEXT_REVISION, Int},
     {GLFW_CONTEXT_ROBUSTNESS, ContextRobustness},
-    {GLFW_OPENGL_FORWARD_COMPAT, Int},
-    {GLFW_OPENGL_DEBUG_CONTEXT, Int},
+    {GLFW_OPENGL_FORWARD_COMPAT, Bool},
+    {GLFW_OPENGL_DEBUG_CONTEXT, Bool},
     {GLFW_OPENGL_PROFILE, OpenGLProfile},
     {GLFW_CONTEXT_RELEASE_BEHAVIOR, ContextReleaseBehavior},
-    {GLFW_CONTEXT_NO_ERROR, Int},
+    {GLFW_CONTEXT_NO_ERROR, Bool},
     {GLFW_CONTEXT_CREATION_API, ContextCreationApi},
-    {GLFW_SCALE_TO_MONITOR, Int},
-    {GLFW_COCOA_RETINA_FRAMEBUFFER, Int},
+    {GLFW_SCALE_TO_MONITOR, Bool},
+    {GLFW_COCOA_RETINA_FRAMEBUFFER, Bool},
     {GLFW_COCOA_FRAME_NAME, String},
-    {GLFW_COCOA_GRAPHICS_SWITCHING, Int},
+    {GLFW_COCOA_GRAPHICS_SWITCHING, Bool},
     {GLFW_X11_CLASS_NAME, String},
     {GLFW_X11_INSTANCE_NAME, String}
 };
@@ -530,70 +651,14 @@ CAMLprim value caml_glfwDefaultWindowHints(CAMLvoid)
 CAMLprim value caml_glfwWindowHint(value hint, value ml_val)
 {
     const int offset = Int_val(hint);
-    int glfw_val;
 
-    switch (ml_window_attrib[offset].value_type)
-    {
-    case Int:
-        glfw_val = Int_val(ml_val);
-        break;
-
-    case IntOption:
-        glfw_val = Is_none(ml_val) ? GLFW_DONT_CARE : Int_val(Some_val(ml_val));
-        break;
-
-    case ClientApi:
-        if (ml_val == Val_int(0))
-            glfw_val = GLFW_NO_API;
-        else if (ml_val == Val_int(1))
-            glfw_val = GLFW_OPENGL_API;
-        else
-            glfw_val = GLFW_OPENGL_ES_API;
-        break;
-
-    case ContextRobustness:
-        if (ml_val == Val_int(0))
-            glfw_val = GLFW_NO_ROBUSTNESS;
-        else if (ml_val == Val_int(1))
-            glfw_val = GLFW_NO_RESET_NOTIFICATION;
-        else
-            glfw_val = GLFW_LOSE_CONTEXT_ON_RESET;
-        break;
-
-    case OpenGLProfile:
-        if (ml_val == Val_int(0))
-            glfw_val = GLFW_OPENGL_ANY_PROFILE;
-        else if (ml_val == Val_int(1))
-            glfw_val = GLFW_OPENGL_CORE_PROFILE;
-        else
-            glfw_val = GLFW_OPENGL_COMPAT_PROFILE;
-        break;
-
-    case ContextReleaseBehavior:
-        if (ml_val == Val_int(0))
-            glfw_val = GLFW_ANY_RELEASE_BEHAVIOR;
-        else if (ml_val == Val_int(1))
-            glfw_val = GLFW_RELEASE_BEHAVIOR_FLUSH;
-        else
-            glfw_val = GLFW_RELEASE_BEHAVIOR_NONE;
-        break;
-
-    case ContextCreationApi:
-        if (ml_val == Val_int(0))
-            glfw_val = GLFW_NATIVE_CONTEXT_API;
-        else if (ml_val == Val_int(1))
-            glfw_val = GLFW_EGL_CONTEXT_API;
-        else
-            glfw_val = GLFW_OSMESA_CONTEXT_API;
-        break;
-
-    case String: /* Special case: need to use glfwWindowHintString. */
+    if (ml_window_attrib[offset].value_type != String)
+        glfwWindowHint(
+            ml_window_attrib[offset].glfw_window_attrib,
+            glfw_of_ml_value(ml_val, ml_window_attrib[offset].value_type));
+    else /* The hint is a string, we need to use glfwWindowHintString. */
         glfwWindowHintString(
             ml_window_attrib[offset].glfw_window_attrib, String_val(ml_val));
-        raise_if_error();
-        return Val_unit;
-    }
-    glfwWindowHint(ml_window_attrib[offset].glfw_window_attrib, glfw_val);
     raise_if_error();
     return Val_unit;
 }
@@ -892,56 +957,12 @@ CAMLprim value caml_glfwSetWindowMonitor_byte(value* val_array, int val_count)
 CAMLprim value caml_glfwGetWindowAttrib(value window, value attribute)
 {
     const int offset = Int_val(attribute);
-    int glfw_val = glfwGetWindowAttrib(
+    const int glfw_val = glfwGetWindowAttrib(
         Cptr_val(GLFWwindow*, window),
         ml_window_attrib[offset].glfw_window_attrib);
+
     raise_if_error();
-    value ret = Val_unit;
-
-    switch (ml_window_attrib[offset].value_type)
-    {
-    case Int:
-        ret = Val_int(glfw_val);
-        break;
-
-    case ClientApi:
-        if (glfw_val == GLFW_NO_API)
-            ret = Val_int(0);
-        else if (glfw_val == GLFW_OPENGL_API)
-            ret = Val_int(1);
-        else
-            ret = Val_int(2);
-        break;
-
-    case ContextRobustness:
-        if (glfw_val == GLFW_NO_ROBUSTNESS)
-            ret = Val_int(0);
-        else if (glfw_val == GLFW_NO_RESET_NOTIFICATION)
-            ret = Val_int(1);
-        else
-            ret = Val_int(2);
-        break;
-
-    case OpenGLProfile:
-        if (glfw_val == GLFW_OPENGL_ANY_PROFILE)
-            ret = Val_int(0);
-        else if (glfw_val == GLFW_OPENGL_CORE_PROFILE)
-            ret = Val_int(1);
-        else
-            ret = Val_int(2);
-        break;
-
-    case ContextCreationApi:
-        if (glfw_val == GLFW_NATIVE_CONTEXT_API)
-            ret = Val_int(0);
-        else if (glfw_val == GLFW_EGL_CONTEXT_API)
-            ret = Val_int(1);
-        else
-            ret = Val_int(2);
-
-    default:;
-    }
-    return (ret);
+    return ml_of_glfw_value(ml_window_attrib[offset].value_type, glfw_val);
 }
 
 CAMLprim value caml_glfwSetWindowAttrib(value window, value hint, value ml_val)
