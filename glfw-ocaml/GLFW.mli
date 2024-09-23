@@ -21,6 +21,10 @@ exception VersionUnavailable of string
 exception PlatformError of string
 exception FormatUnavailable of string
 exception NoWindowContext of string
+exception CursorUnavailable of string
+exception FeatureUnavailable of string
+exception FeatureUnimplemented of string
+exception PlatformUnavailable of string
 
 (** Key actions.
 

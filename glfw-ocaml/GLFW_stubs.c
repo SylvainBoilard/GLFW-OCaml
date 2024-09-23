@@ -409,6 +409,18 @@ static void error_callback(int error, const char* description)
         break;
     case GLFW_NO_WINDOW_CONTEXT:
         error_tag = *caml_named_value("GLFW.NoWindowContext");
+        break;
+    case GLFW_CURSOR_UNAVAILABLE:
+        error_tag = *caml_named_value("GLFW.CursorUnavailable");
+        break;
+    case GLFW_FEATURE_UNAVAILABLE:
+        error_tag = *caml_named_value("GLFW.FeatureUnavailable");
+        break;
+    case GLFW_FEATURE_UNIMPLEMENTED:
+        error_tag = *caml_named_value("GLFW.FeatureUnimplemented");
+        break;
+    case GLFW_PLATFORM_UNAVAILABLE:
+        error_tag = *caml_named_value("GLFW.PlatformUnavailable");
     }
     error_arg = caml_copy_string(description);
 }

@@ -12,6 +12,10 @@ exception VersionUnavailable of string
 exception PlatformError of string
 exception FormatUnavailable of string
 exception NoWindowContext of string
+exception CursorUnavailable of string
+exception FeatureUnavailable of string
+exception FeatureUnimplemented of string
+exception PlatformUnavailable of string
 
 type key_action =
   | Release
@@ -568,4 +572,8 @@ let () =
   Callback.register_exception "GLFW.PlatformError" (PlatformError "");
   Callback.register_exception "GLFW.FormatUnavailable" (FormatUnavailable "");
   Callback.register_exception "GLFW.NoWindowContext" (NoWindowContext "");
+  Callback.register_exception "GLFW.CursorUnavailable" (CursorUnavailable "");
+  Callback.register_exception "GLFW.FeatureUnavailable" (FeatureUnavailable "");
+  Callback.register_exception "GLFW.FeatureUnimplemented" (FeatureUnimplemented "");
+  Callback.register_exception "GLFW.PlatformUnavailable" (PlatformUnavailable "");
   init_stub ()
