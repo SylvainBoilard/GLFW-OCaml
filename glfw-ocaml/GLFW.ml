@@ -210,7 +210,7 @@ module A =
       | Samples : (int option, [<`hint]) window_attr
       | SrgbCapable : (bool, [<`hint]) window_attr
       | RefreshRate : (int option, [<`hint]) window_attr
-      | DoubleBuffer : (bool, [<`hint]) window_attr
+      | DoubleBuffer : (bool, [<`hint|`attr]) window_attr
       | ClientApi : (client_api, [<`hint|`attr]) window_attr
       | ContextVersionMajor : (int, [<`hint|`attr]) window_attr
       | ContextVersionMinor : (int, [<`hint|`attr]) window_attr
@@ -220,8 +220,8 @@ module A =
       | OpenGLDebugContext : (bool, [<`hint|`attr]) window_attr
       | OpenGLProfile : (opengl_profile, [<`hint|`attr]) window_attr
       | ContextReleaseBehavior :
-          (context_release_behavior, [<`hint]) window_attr
-      | ContextNoError : (bool, [<`hint]) window_attr
+          (context_release_behavior, [<`hint|`attr]) window_attr
+      | ContextNoError : (bool, [<`hint|`attr]) window_attr
       | ContextCreationApi : (context_creation_api, [<`hint|`attr]) window_attr
       | ScaleToMonitor : (bool, [<`hint]) window_attr
       | CocoaRetinaFramebuffer : (bool, [<`hint]) window_attr
