@@ -266,6 +266,7 @@ type cursor_mode =
   | Normal
   | Hidden
   | Disabled
+  | Captured
 
 type _ input_mode =
   | Cursor : cursor_mode input_mode
@@ -281,6 +282,13 @@ type cursor_shape =
   | HandCursor
   | HResizeCursor
   | VResizeCursor
+  | PointingHandCursor
+  | ResizeEWCursor
+  | ResizeNSCursor
+  | ResizeNWSECursor
+  | ResizeNESWCursor
+  | ResizeAllCursor
+  | NotAllowedCursor
 
 type connection_event =
   | Connected

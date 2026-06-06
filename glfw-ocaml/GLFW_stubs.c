@@ -377,6 +377,22 @@ static const struct ml_window_attrib ml_window_attrib[] = {
     {GLFW_X11_INSTANCE_NAME, String}
 };
 
+static const int ml_cursor_shape[] = {
+    GLFW_ARROW_CURSOR,
+    GLFW_IBEAM_CURSOR,
+    GLFW_CROSSHAIR_CURSOR,
+    GLFW_HAND_CURSOR,
+    GLFW_HRESIZE_CURSOR,
+    GLFW_VRESIZE_CURSOR,
+    GLFW_POINTING_HAND_CURSOR,
+    GLFW_RESIZE_EW_CURSOR,
+    GLFW_RESIZE_NS_CURSOR,
+    GLFW_RESIZE_NWSE_CURSOR,
+    GLFW_RESIZE_NESW_CURSOR,
+    GLFW_RESIZE_ALL_CURSOR,
+    GLFW_NOT_ALLOWED_CURSOR
+};
+
 #include "GLFW_key_conv_arrays.inl"
 
 static inline value caml_list_of_pointer_array(void** array, int count)
@@ -1270,8 +1286,7 @@ CAMLprim value caml_glfwCreateCursor(value image, value xhot, value yhot)
 
 CAMLprim value caml_glfwCreateStandardCursor(value shape)
 {
-    GLFWcursor* ret =
-        glfwCreateStandardCursor(GLFW_ARROW_CURSOR + Int_val(shape));
+    GLFWcursor* ret = glfwCreateStandardCursor(ml_cursor_shape[Int_val(shape)]);
     raise_if_error();
     return Val_cptr(ret);
 }

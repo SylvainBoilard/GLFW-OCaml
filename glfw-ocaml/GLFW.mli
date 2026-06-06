@@ -321,6 +321,7 @@ type cursor_mode =
   | Normal
   | Hidden
   | Disabled
+  | Captured
 
 (** Input modes. Use with setInputMode and getInputMode in a similar manner as
     with window hints.
@@ -341,6 +342,13 @@ type cursor_shape =
   | HandCursor
   | HResizeCursor
   | VResizeCursor
+  | PointingHandCursor
+  | ResizeEWCursor
+  | ResizeNSCursor
+  | ResizeNWSECursor
+  | ResizeNESWCursor
+  | ResizeAllCursor
+  | NotAllowedCursor
 
 (** Joystick connection event. *)
 type connection_event =
