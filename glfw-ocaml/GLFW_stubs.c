@@ -138,6 +138,7 @@ enum value_type
     Int,
     Bool = Int,
     IntOption,
+    Position,
     AnglePlatformType,
     Platform,
     WaylandLibdecor,
@@ -213,6 +214,10 @@ static int glfw_of_ml_value(value ml_val, enum value_type value_type)
 
     case IntOption:
         result = Is_none(ml_val) ? GLFW_DONT_CARE : Int_val(Some_val(ml_val));
+        break;
+
+    case Position:
+        result = Is_none(ml_val) ? GLFW_ANY_POSITION : Int_val(Some_val(ml_val));
         break;
 
     case AnglePlatformType:
@@ -374,7 +379,15 @@ static const struct ml_window_attrib ml_window_attrib[] = {
     {GLFW_COCOA_FRAME_NAME, String},
     {GLFW_COCOA_GRAPHICS_SWITCHING, Bool},
     {GLFW_X11_CLASS_NAME, String},
-    {GLFW_X11_INSTANCE_NAME, String}
+    {GLFW_X11_INSTANCE_NAME, String},
+    {GLFW_MOUSE_PASSTHROUGH, Bool},
+    {GLFW_POSITION_X, Position},
+    {GLFW_POSITION_Y, Position},
+    {GLFW_CONTEXT_DEBUG, Bool},
+    {GLFW_SCALE_FRAMEBUFFER, Bool},
+    {GLFW_WIN32_KEYBOARD_MENU, Bool},
+    {GLFW_WIN32_SHOWDEFAULT, Bool},
+    {GLFW_WAYLAND_APP_ID, String},
 };
 
 static const int ml_cursor_shape[] = {

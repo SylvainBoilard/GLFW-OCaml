@@ -283,6 +283,14 @@ module A :
       | CocoaGraphicsSwitching : (bool, [<`hint]) window_attr
       | X11ClassName : (string, [<`hint]) window_attr
       | X11InstanceName : (string, [<`hint]) window_attr
+      | MousePassthrough : (bool, [<`hint|`attr|`update]) window_attr
+      | PositionX : (int option, [`hint]) window_attr
+      | PositionY : (int option, [`hint]) window_attr
+      | ContextDebug : (bool, [<`hint|`attr]) window_attr
+      | ScaleFramebuffer : (bool, [<`hint]) window_attr
+      | Win32KeyboardMenu : (bool, [<`hint]) window_attr
+      | Win32ShowDefault : (bool, [<`hint]) window_attr
+      | WaylandAppID : (string, [<`hint]) window_attr
   end
 
 include module type of A

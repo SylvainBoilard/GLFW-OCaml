@@ -186,6 +186,8 @@ type context_creation_api =
 
 module A =
   struct
+    (* FIXME: on next major revision, put these in
+       the same order as they appear in glfw*.h *)
     type ('a, _) window_attr =
       | Focused : (bool, [<`hint|`attr]) window_attr
       | Iconified : (bool, [<`attr]) window_attr
@@ -233,6 +235,14 @@ module A =
       | CocoaGraphicsSwitching : (bool, [<`hint]) window_attr
       | X11ClassName : (string, [<`hint]) window_attr
       | X11InstanceName : (string, [<`hint]) window_attr
+      | MousePassthrough : (bool, [<`hint|`attr|`update]) window_attr
+      | PositionX : (int option, [`hint]) window_attr
+      | PositionY : (int option, [`hint]) window_attr
+      | ContextDebug : (bool, [<`hint|`attr]) window_attr
+      | ScaleFramebuffer : (bool, [<`hint]) window_attr
+      | Win32KeyboardMenu : (bool, [<`hint]) window_attr
+      | Win32ShowDefault : (bool, [<`hint]) window_attr
+      | WaylandAppID : (string, [<`hint]) window_attr
   end
 
 include A
@@ -313,7 +323,8 @@ type wayland_libdecor =
   | Prefer
   | Disable
 
-(* FIXME: on next major revision, put these in the same order they appear in glfw*.h *)
+(* FIXME: on next major revision, put these in
+   the same order as they appear in glfw*.h *)
 type _ init_hint =
   | JoystickHatButtons : bool init_hint
   | CocoaChdirResources : bool init_hint
