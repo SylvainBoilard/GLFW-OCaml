@@ -397,6 +397,9 @@ external terminate : unit -> unit = "caml_glfwTerminate"
 external initHint : hint:'a init_hint -> value:'a -> unit = "caml_glfwInitHint"
 external getVersion : unit -> int * int * int = "caml_glfwGetVersion"
 external getVersionString : unit -> string = "caml_glfwGetVersionString"
+external getPlatform : unit -> platform = "caml_glfwGetPlatform"
+external platformSupported : platform:platform -> bool
+  = "caml_glfwPlatformSupported"
 external getMonitors : unit -> monitor list = "caml_glfwGetMonitors"
 external getPrimaryMonitor : unit -> monitor = "caml_glfwGetPrimaryMonitor"
 external getMonitorPos : monitor:monitor -> int * int = "caml_glfwGetMonitorPos"
@@ -430,6 +433,7 @@ external windowShouldClose : window:window -> bool
   = "caml_glfwWindowShouldClose"
 external setWindowShouldClose : window:window -> b:bool -> unit
   = "caml_glfwSetWindowShouldClose"
+external getWindowTitle : window:window -> string = "caml_glfwGetWindowTitle"
 external setWindowTitle : window:window -> title:string -> unit
   = "caml_glfwSetWindowTitle"
 external setWindowIcon : window:window -> images:Image.t list -> unit

@@ -566,6 +566,20 @@ CAMLprim value caml_glfwGetVersionString(CAMLvoid)
     return caml_copy_string(glfwGetVersionString());
 }
 
+CAMLprim value caml_glfwGetPlatform(CAMLvoid)
+{
+    const int glfw_val = glfwGetPlatform();
+    raise_if_error();
+    return Val_int(FIND_VALUE_OFFSET(ml_platform, glfw_val));
+}
+
+CAMLprim value caml_glfwPlatformSupported(value platform)
+{
+    const int ret = glfwPlatformSupported(ml_platform[Int_val(platform)]);
+    raise_if_error();
+    return Val_bool(ret);
+}
+
 CAMLprim value caml_glfwGetMonitors(CAMLvoid)
 {
     int monitor_count;
@@ -805,6 +819,13 @@ CAMLprim value caml_glfwSetWindowShouldClose(value window, value val)
     glfwSetWindowShouldClose(Cptr_val(GLFWwindow*, window), Bool_val(val));
     raise_if_error();
     return Val_unit;
+}
+
+CAMLprim value caml_glfwGetWindowTitle(value window)
+{
+    const char* ret = glfwGetWindowTitle(Cptr_val(GLFWwindow*, window));
+    raise_if_error();
+    return caml_copy_string(ret);
 }
 
 CAMLprim value caml_glfwSetWindowTitle(value window, value title)
