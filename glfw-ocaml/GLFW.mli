@@ -350,10 +350,33 @@ type connection_event =
 (** Initialization hints.
 
     @see <http://www.glfw.org/docs/latest/intro_guide.html#init_hints> *)
+type angle_platform_type =
+  | OpenGL
+  | OpenGLES
+  | D3D9
+  | D3D11
+  | Vulkan
+  | Metal
+
+type platform =
+  | Win32
+  | Cocoa
+  | Wayland
+  | X11
+  | Null
+
+type wayland_libdecor =
+  | Prefer
+  | Disable
+
 type _ init_hint =
   | JoystickHatButtons : bool init_hint
   | CocoaChdirResources : bool init_hint
   | CocoaMenubar : bool init_hint
+  | AnglePlatformType : angle_platform_type option init_hint
+  | Platform : platform option init_hint
+  | X11XcbVulkanSurface : bool init_hint
+  | WaylandLibdecor : wayland_libdecor init_hint
 
 (** Video mode description as returned by getVideoMode(s).
 

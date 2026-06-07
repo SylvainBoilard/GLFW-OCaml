@@ -138,6 +138,9 @@ enum value_type
     Int,
     Bool = Int,
     IntOption,
+    AnglePlatformType,
+    Platform,
+    WaylandLibdecor,
     ClientApi,
     ContextRobustness,
     OpenGLProfile,
@@ -146,11 +149,26 @@ enum value_type
     String
 };
 
-/* All initialization hints are booleans at the moment. */
-static const int ml_init_hint[] = {
-    GLFW_JOYSTICK_HAT_BUTTONS,
-    GLFW_COCOA_CHDIR_RESOURCES,
-    GLFW_COCOA_MENUBAR
+static const int ml_angle_platform_type[] = {
+    GLFW_ANGLE_PLATFORM_TYPE_OPENGL,
+    GLFW_ANGLE_PLATFORM_TYPE_OPENGLES,
+    GLFW_ANGLE_PLATFORM_TYPE_D3D9,
+    GLFW_ANGLE_PLATFORM_TYPE_D3D11,
+    GLFW_ANGLE_PLATFORM_TYPE_VULKAN,
+    GLFW_ANGLE_PLATFORM_TYPE_METAL
+};
+
+static const int ml_platform[] = {
+    GLFW_PLATFORM_WIN32,
+    GLFW_PLATFORM_COCOA,
+    GLFW_PLATFORM_WAYLAND,
+    GLFW_PLATFORM_X11,
+    GLFW_PLATFORM_NULL
+};
+
+static const int ml_wayland_libdecor[] = {
+    GLFW_WAYLAND_PREFER_LIBDECOR,
+    GLFW_WAYLAND_DISABLE_LIBDECOR
 };
 
 static const int ml_client_api[] = {
@@ -195,6 +213,22 @@ static int glfw_of_ml_value(value ml_val, enum value_type value_type)
 
     case IntOption:
         result = Is_none(ml_val) ? GLFW_DONT_CARE : Int_val(Some_val(ml_val));
+        break;
+
+    case AnglePlatformType:
+        result = Is_none(ml_val)
+            ? GLFW_ANGLE_PLATFORM_TYPE_NONE
+            : ml_angle_platform_type[Int_val(Some_val(ml_val))];
+        break;
+
+    case Platform:
+        result = Is_none(ml_val)
+            ? GLFW_ANY_PLATFORM
+            : ml_platform[Int_val(Some_val(ml_val))];
+        break;
+
+    case WaylandLibdecor:
+        result = ml_wayland_libdecor[Int_val(ml_val)];
         break;
 
     case ClientApi:
@@ -272,6 +306,22 @@ static value ml_of_glfw_value(enum value_type value_type, int glfw_val)
         return Val_int(-1);
     }
 }
+
+struct ml_init_hint
+{
+    int glfw_init_hint;
+    enum value_type value_type;
+};
+
+static const struct ml_init_hint ml_init_hint[] = {
+    {GLFW_JOYSTICK_HAT_BUTTONS, Bool},
+    {GLFW_COCOA_CHDIR_RESOURCES, Bool},
+    {GLFW_COCOA_MENUBAR, Bool},
+    {GLFW_ANGLE_PLATFORM_TYPE, AnglePlatformType},
+    {GLFW_PLATFORM, Platform},
+    {GLFW_X11_XCB_VULKAN_SURFACE, Bool},
+    {GLFW_WAYLAND_LIBDECOR, WaylandLibdecor}
+};
 
 struct ml_window_attrib
 {
@@ -461,10 +511,10 @@ CAMLprim value caml_glfwTerminate(CAMLvoid)
 CAMLprim value caml_glfwInitHint(value hint, value ml_val)
 {
     const int offset = Int_val(hint);
-    /* All updateable attributes are booleans at the moment. */
-    const int glfw_val = Bool_val(ml_val);
+    const int glfw_val =
+        glfw_of_ml_value(ml_val, ml_init_hint[offset].value_type);
 
-    glfwInitHint(ml_init_hint[offset], glfw_val);
+    glfwInitHint(ml_init_hint[offset].glfw_init_hint, glfw_val);
     raise_if_error();
     return Val_unit;
 }
