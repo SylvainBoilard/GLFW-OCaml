@@ -1346,7 +1346,7 @@ void key_callback_stub(
         *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
     value args[] = {
         Val_cptr(window), Val_int(glfw_to_ml_key[key - GLFW_KEY_FIRST]),
-        Val_int(scancode), Val_int(action), caml_list_of_flags(mods, 4)
+        Val_int(scancode), Val_int(action), caml_list_of_flags(mods, 6)
     };
 
     caml_callbackN(
@@ -1371,7 +1371,7 @@ void character_mods_callback_stub(
 {
     struct ml_window_callbacks* ml_window_callbacks =
         *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
-    value ml_mods = caml_list_of_flags(mods, 4);
+    value ml_mods = caml_list_of_flags(mods, 6);
 
     caml_callback3(ml_window_callbacks->character_mods, Val_cptr(window),
                    Val_int(codepoint), ml_mods);
@@ -1386,7 +1386,7 @@ void mouse_button_callback_stub(
         *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
     value args[] = {
         Val_cptr(window), Val_int(button), Val_bool(action),
-        caml_list_of_flags(mods, 4)
+        caml_list_of_flags(mods, 6)
     };
 
     caml_callbackN(

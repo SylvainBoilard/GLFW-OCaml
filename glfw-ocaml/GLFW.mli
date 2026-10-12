@@ -168,6 +168,8 @@ type key_mod =
   | Control
   | Alt
   | Super
+  | CapsLock
+  | NumLock
 
 (** Maximum number of buttons handled for a mouse. *)
 val mouse_button_max_count : int

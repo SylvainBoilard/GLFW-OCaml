@@ -150,6 +150,8 @@ type key_mod =
   | Control
   | Alt
   | Super
+  | CapsLock
+  | NumLock
 
 let mouse_button_max_count = 8
 
