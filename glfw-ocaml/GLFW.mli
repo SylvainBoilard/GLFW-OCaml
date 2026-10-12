@@ -281,6 +281,9 @@ module A :
       | TransparentFramebuffer : (bool, [<`hint|`attr]) window_attr
       | Hovered : (bool, [<`attr]) window_attr
       | FocusOnShow : (bool, [<`hint|`attr|`update]) window_attr
+      | MousePassthrough : (bool, [<`hint|`attr|`update]) window_attr
+      | PositionX : (int option, [`hint]) window_attr
+      | PositionY : (int option, [`hint]) window_attr
       | RedBits : (int option, [<`hint]) window_attr
       | GreenBits : (int option, [<`hint]) window_attr
       | BlueBits : (int option, [<`hint]) window_attr
@@ -303,6 +306,7 @@ module A :
       | ContextRevision : (int, [<`attr]) window_attr
       | ContextRobustness : (context_robustness, [<`hint|`attr]) window_attr
       | OpenGLForwardCompat : (bool, [<`hint|`attr]) window_attr
+      | ContextDebug : (bool, [<`hint|`attr]) window_attr
       | OpenGLDebugContext : (bool, [<`hint|`attr]) window_attr
       | OpenGLProfile : (opengl_profile, [<`hint|`attr]) window_attr
       | ContextReleaseBehavior :
@@ -310,16 +314,12 @@ module A :
       | ContextNoError : (bool, [<`hint|`attr]) window_attr
       | ContextCreationApi : (context_creation_api, [<`hint|`attr]) window_attr
       | ScaleToMonitor : (bool, [<`hint]) window_attr
+      | ScaleFramebuffer : (bool, [<`hint]) window_attr
       | CocoaRetinaFramebuffer : (bool, [<`hint]) window_attr
       | CocoaFrameName : (string, [<`hint]) window_attr
       | CocoaGraphicsSwitching : (bool, [<`hint]) window_attr
       | X11ClassName : (string, [<`hint]) window_attr
       | X11InstanceName : (string, [<`hint]) window_attr
-      | MousePassthrough : (bool, [<`hint|`attr|`update]) window_attr
-      | PositionX : (int option, [`hint]) window_attr
-      | PositionY : (int option, [`hint]) window_attr
-      | ContextDebug : (bool, [<`hint|`attr]) window_attr
-      | ScaleFramebuffer : (bool, [<`hint]) window_attr
       | Win32KeyboardMenu : (bool, [<`hint]) window_attr
       | Win32ShowDefault : (bool, [<`hint]) window_attr
       | WaylandAppID : (string, [<`hint]) window_attr
@@ -379,9 +379,6 @@ type cursor_shape =
   | ArrowCursor
   | IBeamCursor
   | CrosshairCursor
-  | HandCursor
-  | HResizeCursor
-  | VResizeCursor
   | PointingHandCursor
   | ResizeEWCursor
   | ResizeNSCursor
@@ -389,6 +386,9 @@ type cursor_shape =
   | ResizeNESWCursor
   | ResizeAllCursor
   | NotAllowedCursor
+  | HResizeCursor
+  | VResizeCursor
+  | HandCursor
 
 (** Joystick connection event. *)
 type connection_event =
@@ -419,10 +419,10 @@ type wayland_libdecor =
 
 type _ init_hint =
   | JoystickHatButtons : bool init_hint
-  | CocoaChdirResources : bool init_hint
-  | CocoaMenubar : bool init_hint
   | AnglePlatformType : angle_platform_type option init_hint
   | Platform : platform option init_hint
+  | CocoaChdirResources : bool init_hint
+  | CocoaMenubar : bool init_hint
   | X11XcbVulkanSurface : bool init_hint
   | WaylandLibdecor : wayland_libdecor init_hint
 

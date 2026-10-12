@@ -320,10 +320,10 @@ struct ml_init_hint
 
 static const struct ml_init_hint ml_init_hint[] = {
     {GLFW_JOYSTICK_HAT_BUTTONS, Bool},
-    {GLFW_COCOA_CHDIR_RESOURCES, Bool},
-    {GLFW_COCOA_MENUBAR, Bool},
     {GLFW_ANGLE_PLATFORM_TYPE, AnglePlatformType},
     {GLFW_PLATFORM, Platform},
+    {GLFW_COCOA_CHDIR_RESOURCES, Bool},
+    {GLFW_COCOA_MENUBAR, Bool},
     {GLFW_X11_XCB_VULKAN_SURFACE, Bool},
     {GLFW_WAYLAND_LIBDECOR, WaylandLibdecor}
 };
@@ -347,6 +347,9 @@ static const struct ml_window_attrib ml_window_attrib[] = {
     {GLFW_TRANSPARENT_FRAMEBUFFER, Bool},
     {GLFW_HOVERED, Bool},
     {GLFW_FOCUS_ON_SHOW, Bool},
+    {GLFW_MOUSE_PASSTHROUGH, Bool},
+    {GLFW_POSITION_X, Position},
+    {GLFW_POSITION_Y, Position},
     {GLFW_RED_BITS, IntOption},
     {GLFW_GREEN_BITS, IntOption},
     {GLFW_BLUE_BITS, IntOption},
@@ -369,41 +372,38 @@ static const struct ml_window_attrib ml_window_attrib[] = {
     {GLFW_CONTEXT_REVISION, Int},
     {GLFW_CONTEXT_ROBUSTNESS, ContextRobustness},
     {GLFW_OPENGL_FORWARD_COMPAT, Bool},
+    {GLFW_CONTEXT_DEBUG, Bool},
     {GLFW_OPENGL_DEBUG_CONTEXT, Bool},
     {GLFW_OPENGL_PROFILE, OpenGLProfile},
     {GLFW_CONTEXT_RELEASE_BEHAVIOR, ContextReleaseBehavior},
     {GLFW_CONTEXT_NO_ERROR, Bool},
     {GLFW_CONTEXT_CREATION_API, ContextCreationApi},
     {GLFW_SCALE_TO_MONITOR, Bool},
+    {GLFW_SCALE_FRAMEBUFFER, Bool},
     {GLFW_COCOA_RETINA_FRAMEBUFFER, Bool},
     {GLFW_COCOA_FRAME_NAME, String},
     {GLFW_COCOA_GRAPHICS_SWITCHING, Bool},
     {GLFW_X11_CLASS_NAME, String},
     {GLFW_X11_INSTANCE_NAME, String},
-    {GLFW_MOUSE_PASSTHROUGH, Bool},
-    {GLFW_POSITION_X, Position},
-    {GLFW_POSITION_Y, Position},
-    {GLFW_CONTEXT_DEBUG, Bool},
-    {GLFW_SCALE_FRAMEBUFFER, Bool},
     {GLFW_WIN32_KEYBOARD_MENU, Bool},
     {GLFW_WIN32_SHOWDEFAULT, Bool},
-    {GLFW_WAYLAND_APP_ID, String},
+    {GLFW_WAYLAND_APP_ID, String}
 };
 
 static const int ml_cursor_shape[] = {
     GLFW_ARROW_CURSOR,
     GLFW_IBEAM_CURSOR,
     GLFW_CROSSHAIR_CURSOR,
-    GLFW_HAND_CURSOR,
-    GLFW_HRESIZE_CURSOR,
-    GLFW_VRESIZE_CURSOR,
     GLFW_POINTING_HAND_CURSOR,
     GLFW_RESIZE_EW_CURSOR,
     GLFW_RESIZE_NS_CURSOR,
     GLFW_RESIZE_NWSE_CURSOR,
     GLFW_RESIZE_NESW_CURSOR,
     GLFW_RESIZE_ALL_CURSOR,
-    GLFW_NOT_ALLOWED_CURSOR
+    GLFW_NOT_ALLOWED_CURSOR,
+    GLFW_HRESIZE_CURSOR,
+    GLFW_VRESIZE_CURSOR,
+    GLFW_HAND_CURSOR
 };
 
 #include "GLFW_key_conv_arrays.inl"
