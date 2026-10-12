@@ -182,6 +182,36 @@ val mouse_button_middle : int
 (** Maximum number of joysticks connected. *)
 val joystick_max_count : int
 
+(** Values of gamepad buttons. *)
+val gamepad_button_A : int
+val gamepad_button_B : int
+val gamepad_button_X : int
+val gamepad_button_Y : int
+val gamepad_button_left_bumper : int
+val gamepad_button_right_bumper : int
+val gamepad_button_back : int
+val gamepad_button_start : int
+val gamepad_button_guide : int
+val gamepad_button_left_thumb : int
+val gamepad_button_right_thumb : int
+val gamepad_button_dpad_up : int
+val gamepad_button_dpad_right : int
+val gamepad_button_dpad_down : int
+val gamepad_button_dpad_left : int
+
+val gamepad_button_cross : int
+val gamepad_button_circle : int
+val gamepad_button_square : int
+val gamepad_button_triangle : int
+
+(** Values of gamepad axes. *)
+val gamepad_axis_left_x : int
+val gamepad_axis_left_y : int
+val gamepad_axis_right_x : int
+val gamepad_axis_right_y : int
+val gamepad_axis_left_trigger : int
+val gamepad_axis_right_trigger : int
+
 (** Client OpenGL API hint *)
 type client_api =
   | NoApi

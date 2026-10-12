@@ -161,6 +161,34 @@ let mouse_button_middle = 2
 
 let joystick_max_count = 16
 
+let gamepad_button_A = 0
+let gamepad_button_B = 1
+let gamepad_button_X = 2
+let gamepad_button_Y = 3
+let gamepad_button_left_bumper = 4
+let gamepad_button_right_bumper = 5
+let gamepad_button_back = 6
+let gamepad_button_start = 7
+let gamepad_button_guide = 8
+let gamepad_button_left_thumb = 9
+let gamepad_button_right_thumb = 10
+let gamepad_button_dpad_up = 11
+let gamepad_button_dpad_right = 12
+let gamepad_button_dpad_down = 13
+let gamepad_button_dpad_left = 14
+
+let gamepad_button_cross = gamepad_button_A
+let gamepad_button_circle = gamepad_button_B
+let gamepad_button_square = gamepad_button_X
+let gamepad_button_triangle = gamepad_button_Y
+
+let gamepad_axis_left_x = 0
+let gamepad_axis_left_y = 1
+let gamepad_axis_right_x = 2
+let gamepad_axis_right_y = 3
+let gamepad_axis_left_trigger = 4
+let gamepad_axis_right_trigger = 5
+
 type client_api =
   | NoApi
   | OpenGLApi
