@@ -1,0 +1,11 @@
+(library
+ (name             test_stubs)
+ (modules          ())
+ (foreign_stubs
+  (language  c)
+  (names     test_stubs))
+ (c_library_flags  -lGL))
+
+(executable
+ (name       test)
+ (libraries  GLFW test_stubs))
