@@ -21,6 +21,8 @@ module CallbackLogger = struct
     | CursorEnter
     | Scroll
     | Drop
+    | Monitor
+    | Joystick
 
   (* Callbacks that should have their repeated calls deduplicated *)
   let deduplicate = function
@@ -63,6 +65,8 @@ module CallbackLogger = struct
     | CursorEnter -> "CursorEnter"
     | Scroll -> "Scroll"
     | Drop -> "Drop"
+    | Monitor -> "Monitor"
+    | Joystick -> "Joystick"
 
   let key_action_to_string = function
     | GLFW.Release -> "Release"
@@ -227,6 +231,25 @@ let drop_callback _window paths =
   let data = Printf.sprintf "[%s]" (String.concat "," paths) in
   log_call Drop data ()
 
+let monitor_callback monitor event =
+  let open CallbackLogger in
+  let event_str = match event with
+    | GLFW.Connected -> "connected"
+    | GLFW.Disconnected -> "disconnected"
+  in
+  let data = Printf.sprintf "%s %s" (GLFW.getMonitorName monitor) event_str in
+  log_call Monitor data ()
+
+let joystick_callback joystick event =
+  let open CallbackLogger in
+  let data = match event with
+    | GLFW.Connected ->
+       let name = Option.value (GLFW.getJoystickName joystick) ~default:"(no name)" in
+       Printf.sprintf "#%d %s connected" joystick name
+    | GLFW.Disconnected -> Printf.sprintf "#%d disconnected" joystick
+  in
+  log_call Joystick data ()
+
 let () =
   GLFW.init ();
   at_exit (fun () ->
@@ -255,6 +278,8 @@ let () =
   ignore (GLFW.setScrollCallback window (Some scroll_callback));
   ignore (GLFW.setDropCallback window (Some drop_callback));
 
+  ignore (GLFW.setMonitorCallback (Some monitor_callback));
+  ignore (GLFW.setJoystickCallback (Some joystick_callback));
   GLFW.makeContextCurrent (Some window);
   while not (GLFW.windowShouldClose window) do
     glClearColorBufferBit ();
