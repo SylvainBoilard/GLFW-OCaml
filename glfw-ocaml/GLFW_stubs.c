@@ -1544,7 +1544,7 @@ static value joystick_closure = Val_unit;
 void joystick_callback_stub(int joy, int event)
 {
     caml_callback2(
-        joystick_closure, Val_int(joy), Val_int(event - GLFW_DISCONNECTED));
+        joystick_closure, Val_int(joy), Val_int(event - GLFW_CONNECTED));
 }
 
 CAML_SETTER_STUB(glfwSetJoystickCallback, joystick)
