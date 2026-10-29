@@ -24,8 +24,7 @@ module CallbackLogger = struct
     | Monitor
     | Joystick
 
-  (* Callbacks that should have their repeated calls deduplicated *)
-  let deduplicate = function
+  let deduplicate_callback = function
     | WindowPos | WindowSize | WindowRefresh | WindowContentScale
     | FramebufferSize | Scroll | CursorPos -> true
     | Key -> true (* only for Repeat actions *)
@@ -38,14 +37,13 @@ module CallbackLogger = struct
         mutable count : int;
         first_data : string;
         mutable last_data : string;
-        mutable acc_x : float;  (* Accumulated scroll x *)
-        mutable acc_y : float;  (* Accumulated scroll y *)
+        mutable scroll_x : float;
+        mutable scroll_y : float;
       }
 
   let current_state = ref NoCall
 
-  let clear_line () =
-    Printf.eprintf "\r\x1b[K"
+  let clear_line () = Printf.eprintf "\r\x1b[K"
 
   let callback_name_to_string = function
     | WindowPos -> "WindowPos"
@@ -95,33 +93,34 @@ module CallbackLogger = struct
         && List.exists ((=) "Repeat") new_rest
     | _ -> false
 
-  let format_data name first_data last_data acc_x acc_y =
+  let format_data name first_data last_data scroll_x scroll_y =
     match name with
     | WindowPos | CursorPos | WindowSize | WindowContentScale | FramebufferSize ->
         Printf.sprintf "%s -> %s" first_data last_data
     | Scroll ->
-        Printf.sprintf "(%.2f,%.2f)" acc_x acc_y
+        Printf.sprintf "(%.2f,%.2f)" scroll_x scroll_y
     | WindowClose | WindowRefresh -> ""
     | _ -> last_data
 
-  let log_call name data_str ?(acc_x=0.0) ?(acc_y=0.0) () =
+  let log_call name data_str ?(scroll_x=0.0) ?(scroll_y=0.0) () =
     match !current_state with
     | Called prev when prev.name = name && (name <> Key || key_should_deduplicate prev.last_data data_str) ->
-        let new_acc_x = if name = Scroll then prev.acc_x +. acc_x else prev.acc_x in
-        let new_acc_y = if name = Scroll then prev.acc_y +. acc_y else prev.acc_y in
-        let display_str = format_data name prev.first_data data_str new_acc_x new_acc_y in
+        let new_scroll_x = prev.scroll_x +. scroll_x in
+        let new_scroll_y = prev.scroll_y +. scroll_y in
+        let display_str = format_data name prev.first_data data_str new_scroll_x new_scroll_y in
         clear_line ();
         Printf.eprintf "[%s] %s (×%d)%!" (callback_name_to_string name) display_str (prev.count + 1);
         prev.count <- prev.count + 1;
         prev.last_data <- data_str;
-        if name = Scroll then (prev.acc_x <- new_acc_x; prev.acc_y <- new_acc_y)
+        prev.scroll_x <- new_scroll_x;
+        prev.scroll_y <- new_scroll_y
     | _ ->
         if !current_state <> NoCall then Printf.eprintf "\n";
-        let display_str = format_data name data_str data_str acc_x acc_y in
-        if deduplicate name then (
+        let display_str = format_data name data_str data_str scroll_x scroll_y in
+        if deduplicate_callback name then (
           Printf.eprintf "[%s] %s%!" (callback_name_to_string name) display_str;
           current_state := Called { name; count = 1; first_data = data_str;
-                                    last_data = data_str; acc_x; acc_y }
+                                    last_data = data_str; scroll_x; scroll_y }
         ) else (
           Printf.eprintf "[%s] %s\n%!" (callback_name_to_string name) display_str;
           current_state := NoCall
@@ -181,7 +180,7 @@ let framebuffer_size_callback _window width height =
 let scroll_callback _window xoffset yoffset =
   let open CallbackLogger in
   let data = Printf.sprintf "(%.2f,%.2f)" xoffset yoffset in
-  log_call Scroll data ~acc_x:xoffset ~acc_y:yoffset ()
+  log_call Scroll data ~scroll_x:xoffset ~scroll_y:yoffset ()
 
 let key_callback _window key scancode action mods =
   let open CallbackLogger in
@@ -256,8 +255,6 @@ let () =
     CallbackLogger.finalize ();
     GLFW.terminate ());
   let window = GLFW.createWindow 640 480 "GLFW-OCaml Test App" () in
-
-  (* Window callbacks *)
   ignore (GLFW.setWindowPosCallback window (Some window_pos_callback));
   ignore (GLFW.setWindowSizeCallback window (Some window_size_callback));
   ignore (GLFW.setWindowCloseCallback window (Some window_close_callback));
@@ -267,8 +264,6 @@ let () =
   ignore (GLFW.setWindowMaximizeCallback window (Some window_maximize_callback));
   ignore (GLFW.setWindowContentScaleCallback window (Some window_content_scale_callback));
   ignore (GLFW.setFramebufferSizeCallback window (Some framebuffer_size_callback));
-
-  (* Input callbacks *)
   ignore (GLFW.setKeyCallback window (Some key_callback));
   ignore (GLFW.setCharCallback window (Some char_callback));
   ignore (GLFW.setCharModsCallback window (Some char_mods_callback) [@warning "-3"]);
@@ -277,7 +272,6 @@ let () =
   ignore (GLFW.setCursorEnterCallback window (Some cursor_enter_callback));
   ignore (GLFW.setScrollCallback window (Some scroll_callback));
   ignore (GLFW.setDropCallback window (Some drop_callback));
-
   ignore (GLFW.setMonitorCallback (Some monitor_callback));
   ignore (GLFW.setJoystickCallback (Some joystick_callback));
   GLFW.makeContextCurrent (Some window);
