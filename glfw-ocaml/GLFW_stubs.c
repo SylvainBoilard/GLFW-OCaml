@@ -8,11 +8,7 @@
 #include <caml/bigarray.h>
 #include <assert.h>
 
-#ifdef CAMLunused_start /* Introduced in OCaml 4.03 */
-# define CAMLvoid CAMLunused_start value unit CAMLunused_end
-#else
-# define CAMLvoid CAMLunused value unit
-#endif
+#define CAMLvoid CAMLunused_start value unit CAMLunused_end
 
 #ifndef Val_none /* These definitions appeared in OCaml 4.12 */
 # define Val_none Val_int(0)
