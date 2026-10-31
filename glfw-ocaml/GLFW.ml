@@ -402,7 +402,7 @@ module Image =
     let create ~width ~height ~pixels =
       if width < 0 || height < 0
       then invalid_arg "Image.create: negative dimension."
-      else if width * height * 4 > Bytes.length pixels
+      else if height <> 0 && width > Bytes.length pixels / height / 4
       then invalid_arg "Image.create: insufficient pixel data."
       else { width; height; pixels }
   end
