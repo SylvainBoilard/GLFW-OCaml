@@ -982,9 +982,9 @@ CAMLprim value caml_glfwGetWindowOpacity(value window)
     return caml_copy_double(opacity);
 }
 
-CAMLprim value caml_glfwSetWindowOpacity(value window, value time)
+CAMLprim value caml_glfwSetWindowOpacity(value window, value opacity)
 {
-    glfwSetWindowOpacity(Cptr_val(GLFWwindow*, window), Double_val(time));
+    glfwSetWindowOpacity(Cptr_val(GLFWwindow*, window), Double_val(opacity));
     raise_if_error();
     return Val_unit;
 }
@@ -1576,11 +1576,11 @@ CAMLprim value caml_glfwGetGamepadState(value joy)
 
     glfwGetGamepadState(Int_val(joy), &gamepad_state);
     raise_if_error();
-    buttons = caml_alloc_small(15, 0);
-    for (unsigned int i = 0; i < 15; ++i)
+    buttons = caml_alloc_small(GLFW_GAMEPAD_BUTTON_LAST + 1, 0);
+    for (unsigned int i = 0; i < GLFW_GAMEPAD_BUTTON_LAST + 1; ++i)
         Field(buttons, i) = Val_bool(gamepad_state.buttons[i] == GLFW_PRESS);
-    axes = caml_alloc_float_array(6);
-    for (unsigned int i = 0; i < 6; ++i)
+    axes = caml_alloc_float_array(GLFW_GAMEPAD_AXIS_LAST + 1);
+    for (unsigned int i = 0; i < GLFW_GAMEPAD_AXIS_LAST + 1; ++i)
         Store_double_field(axes, i, gamepad_state.axes[i]);
     ret = caml_alloc_small(2, 0);
     Field(ret, 0) = buttons;
