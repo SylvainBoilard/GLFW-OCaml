@@ -452,11 +452,12 @@ static inline value caml_copy_vidmode(const GLFWvidmode* vidmode)
     return v;
 }
 
-static value error_tag = Val_unit;
 static value error_arg = Val_unit;
+static value error_tag = Val_unit;
 
 static void error_callback(int error, const char* description)
 {
+    error_arg = caml_copy_string(description);
     switch (error)
     {
     case GLFW_NOT_INITIALIZED:
@@ -501,7 +502,6 @@ static void error_callback(int error, const char* description)
     case GLFW_PLATFORM_UNAVAILABLE:
         error_tag = *caml_named_value("GLFW.PlatformUnavailable");
     }
-    error_arg = caml_copy_string(description);
 }
 
 static inline void raise_if_error(void)
