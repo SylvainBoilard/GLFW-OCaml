@@ -303,6 +303,10 @@ static value ml_of_glfw_value(enum value_type value_type, int glfw_val)
         return Val_int(FIND_VALUE_OFFSET(ml_opengl_profile, glfw_val));
         break;
 
+    case ContextReleaseBehavior:
+        return Val_int(FIND_VALUE_OFFSET(ml_context_release_behavior, glfw_val));
+        break;
+
     case ContextCreationApi:
         return Val_int(FIND_VALUE_OFFSET(ml_context_creation_api, glfw_val));
         break;
