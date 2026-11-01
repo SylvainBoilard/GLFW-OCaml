@@ -517,6 +517,12 @@ static inline void raise_if_error(void)
     }
 }
 
+static void raise_oom(void)
+{
+    value error_arg = caml_copy_string("Out of memory");
+    caml_raise_with_arg(*caml_named_value("GLFW.OutOfMemory"), error_arg);
+}
+
 CAMLprim value init_stub(CAMLvoid)
 {
     glfwSetErrorCallback(error_callback);
@@ -771,12 +777,20 @@ CAMLprim value caml_glfwWindowHint(value hint, value ml_val)
 CAMLprim value caml_glfwCreateWindow(
     value width, value height, value title, value mntor, value share, CAMLvoid)
 {
+    void* user_pointer = malloc(sizeof(value));
+    if (user_pointer == NULL)
+        raise_oom();
+
     GLFWwindow* window = glfwCreateWindow(
         Int_val(width), Int_val(height), String_val(title),
         Is_none(mntor) ? NULL : Cptr_val(GLFWmonitor*, Some_val(mntor)),
         Is_none(share) ? NULL : Cptr_val(GLFWwindow*, Some_val(share)));
-    raise_if_error();
-    void* user_pointer = malloc(sizeof(value));
+    if (window == NULL)
+    {
+        free(user_pointer);
+        raise_if_error();
+    }
+
     value callbacks = caml_alloc_small(ML_WINDOW_CALLBACKS_WOSIZE, 0);
 
     for (unsigned int i = 0; i < ML_WINDOW_CALLBACKS_WOSIZE; ++i)
@@ -847,6 +861,8 @@ CAMLprim value caml_glfwSetWindowIcon(value window, value images)
         iter = Field(iter, 1);
     }
     glfw_images = malloc(sizeof(*glfw_images) * count);
+    if (glfw_images == NULL && count != 0)
+        raise_oom();
     iter = images;
     for (unsigned int i = 0; i < count; ++i)
     {
