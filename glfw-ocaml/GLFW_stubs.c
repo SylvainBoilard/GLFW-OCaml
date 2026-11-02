@@ -6,6 +6,11 @@
 #include <caml/fail.h>
 #include <caml/callback.h>
 #include <caml/bigarray.h>
+/* The function declaration for caml_fatal_uncaught_exception() in
+   printexc.h is conditioned by the definition of CAML_INTERNALS. */
+#define CAML_INTERNALS
+#include <caml/printexc.h>
+#undef CAML_INTERNALS
 #include <assert.h>
 
 #define CAMLvoid CAMLunused_start value unit CAMLunused_end
@@ -145,6 +150,16 @@ static inline struct ml_window_callbacks* get_ml_window_callbacks(
         }                                                               \
         CAMLreturn(previous_closure);                                   \
     }
+
+static void caml_callbackN_abort_exn(value closure, int nargs, value* args)
+{
+    value res = caml_callbackN_exn(closure, nargs, args);
+    if (Is_exception_result(res))
+        caml_fatal_uncaught_exception(Extract_exception(res));
+}
+
+#define CAML_CALLBACK_ABORT_EXN(closure, args) \
+    caml_callbackN_abort_exn(closure, sizeof(args) / sizeof(*args), args)
 
 enum value_type
 {
@@ -716,8 +731,8 @@ CAMLprim value caml_glfwGetMonitorName(value monitor)
 
 void monitor_callback_stub(GLFWmonitor* monitor, int event)
 {
-    caml_callback2(
-        monitor_closure, Val_cptr(monitor), Val_int(event - GLFW_CONNECTED));
+    value args[] = { Val_cptr(monitor), Val_int(event - GLFW_CONNECTED) };
+    CAML_CALLBACK_ABORT_EXN(monitor_closure, args);
 }
 
 CAML_SETTER_STUB(glfwSetMonitorCallback, monitor)
@@ -1161,9 +1176,8 @@ void window_pos_callback_stub(GLFWwindow* window, int xpos, int ypos)
 {
     struct ml_window_callbacks* ml_window_callbacks =
         get_ml_window_callbacks(window);
-
-    caml_callback3(ml_window_callbacks->window_pos, Val_cptr(window),
-                   Val_int(xpos), Val_int(ypos));
+    value args[] = { Val_cptr(window), Val_int(xpos), Val_int(ypos) };
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->window_pos, args);
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetWindowPosCallback, window_pos)
@@ -1172,9 +1186,8 @@ void window_size_callback_stub(GLFWwindow* window, int width, int height)
 {
     struct ml_window_callbacks* ml_window_callbacks =
         get_ml_window_callbacks(window);
-
-    caml_callback3(ml_window_callbacks->window_size, Val_cptr(window),
-                   Val_int(width), Val_int(height));
+    value args[] = { Val_cptr(window), Val_int(width), Val_int(height) };
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->window_size, args);
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetWindowSizeCallback, window_size)
@@ -1183,8 +1196,8 @@ void window_close_callback_stub(GLFWwindow* window)
 {
     struct ml_window_callbacks* ml_window_callbacks =
         get_ml_window_callbacks(window);
-
-    caml_callback(ml_window_callbacks->window_close, Val_cptr(window));
+    value args[] = { Val_cptr(window) };
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->window_close, args);
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetWindowCloseCallback, window_close)
@@ -1193,8 +1206,8 @@ void window_refresh_callback_stub(GLFWwindow* window)
 {
     struct ml_window_callbacks* ml_window_callbacks =
         get_ml_window_callbacks(window);
-
-    caml_callback(ml_window_callbacks->window_refresh, Val_cptr(window));
+    value args[] = { Val_cptr(window) };
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->window_refresh, args);
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetWindowRefreshCallback, window_refresh)
@@ -1203,9 +1216,8 @@ void window_focus_callback_stub(GLFWwindow* window, int focused)
 {
     struct ml_window_callbacks* ml_window_callbacks =
         get_ml_window_callbacks(window);
-
-    caml_callback2(
-        ml_window_callbacks->window_focus, Val_cptr(window), Val_bool(focused));
+    value args[] = { Val_cptr(window), Val_bool(focused) };
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->window_focus, args);
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetWindowFocusCallback, window_focus)
@@ -1214,9 +1226,8 @@ void window_iconify_callback_stub(GLFWwindow* window, int iconified)
 {
     struct ml_window_callbacks* ml_window_callbacks =
         get_ml_window_callbacks(window);
-
-    caml_callback2(ml_window_callbacks->window_iconify, Val_cptr(window),
-                   Val_bool(iconified));
+    value args[] = { Val_cptr(window), Val_bool(iconified) };
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->window_iconify, args);
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetWindowIconifyCallback, window_iconify)
@@ -1225,9 +1236,8 @@ void window_maximize_callback_stub(GLFWwindow* window, int maximized)
 {
     struct ml_window_callbacks* ml_window_callbacks =
         get_ml_window_callbacks(window);
-
-    caml_callback2(ml_window_callbacks->window_maximize, Val_cptr(window),
-                   Val_bool(maximized));
+    value args[] = { Val_cptr(window), Val_bool(maximized) };
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->window_maximize, args);
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetWindowMaximizeCallback, window_maximize)
@@ -1236,9 +1246,8 @@ void framebuffer_size_callback_stub(GLFWwindow* window, int width, int height)
 {
     struct ml_window_callbacks* ml_window_callbacks =
         get_ml_window_callbacks(window);
-
-    caml_callback3(ml_window_callbacks->framebuffer_size, Val_cptr(window),
-                   Val_int(width), Val_int(height));
+    value args[] = { Val_cptr(window), Val_int(width), Val_int(height) };
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->framebuffer_size, args);
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetFramebufferSizeCallback, framebuffer_size)
@@ -1253,8 +1262,8 @@ void window_content_scale_callback_stub(GLFWwindow* window, float xscale,
 
     ml_xscale = caml_copy_double(xscale);
     ml_yscale = caml_copy_double(yscale);
-    caml_callback3(ml_window_callbacks->window_content_scale, Val_cptr(window),
-                   ml_xscale, ml_yscale);
+    value args[] = { Val_cptr(window), ml_xscale, ml_yscale };
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->window_content_scale, args);
     CAMLreturn0;
 }
 
@@ -1424,9 +1433,7 @@ void key_callback_stub(
         Val_cptr(window), Val_int(ml_key), Val_int(scancode), Val_int(action),
         caml_list_of_flags(mods, 6)
     };
-
-    caml_callbackN(
-        ml_window_callbacks->key, sizeof(args) / sizeof(*args), args);
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->key, args);
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetKeyCallback, key)
@@ -1435,9 +1442,8 @@ void character_callback_stub(GLFWwindow* window, unsigned int codepoint)
 {
     struct ml_window_callbacks* ml_window_callbacks =
         get_ml_window_callbacks(window);
-
-    caml_callback2(
-        ml_window_callbacks->character, Val_cptr(window), Val_int(codepoint));
+    value args[] = { Val_cptr(window), Val_int(codepoint) };
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->character, args);
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetCharCallback, character)
@@ -1448,9 +1454,8 @@ void character_mods_callback_stub(
     struct ml_window_callbacks* ml_window_callbacks =
         get_ml_window_callbacks(window);
     value ml_mods = caml_list_of_flags(mods, 6);
-
-    caml_callback3(ml_window_callbacks->character_mods, Val_cptr(window),
-                   Val_int(codepoint), ml_mods);
+    value args[] = { Val_cptr(window), Val_int(codepoint), ml_mods };
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->character_mods, args);
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetCharModsCallback, character_mods)
@@ -1464,9 +1469,7 @@ void mouse_button_callback_stub(
         Val_cptr(window), Val_int(button), Val_bool(action),
         caml_list_of_flags(mods, 6)
     };
-
-    caml_callbackN(
-        ml_window_callbacks->mouse_button, sizeof(args) / sizeof(*args), args);
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->mouse_button, args);
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetMouseButtonCallback, mouse_button)
@@ -1480,8 +1483,8 @@ void cursor_pos_callback_stub(GLFWwindow* window, double xpos, double ypos)
 
     ml_xpos = caml_copy_double(xpos);
     ml_ypos = caml_copy_double(ypos);
-    caml_callback3(
-        ml_window_callbacks->cursor_pos, Val_cptr(window), ml_xpos, ml_ypos);
+    value args[] = { Val_cptr(window), ml_xpos, ml_ypos };
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->cursor_pos, args);
     CAMLreturn0;
 }
 
@@ -1491,9 +1494,8 @@ void cursor_enter_callback_stub(GLFWwindow* window, int entered)
 {
     struct ml_window_callbacks* ml_window_callbacks =
         get_ml_window_callbacks(window);
-
-    caml_callback2(
-        ml_window_callbacks->cursor_enter, Val_cptr(window), Val_bool(entered));
+    value args[] = { Val_cptr(window), Val_bool(entered) };
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->cursor_enter, args);
 }
 
 CAML_WINDOW_SETTER_STUB(glfwSetCursorEnterCallback, cursor_enter)
@@ -1507,8 +1509,8 @@ void scroll_callback_stub(GLFWwindow* window, double xoffset, double yoffset)
 
     ml_xoffset = caml_copy_double(xoffset);
     ml_yoffset = caml_copy_double(yoffset);
-    caml_callback3(
-        ml_window_callbacks->scroll, Val_cptr(window), ml_xoffset, ml_yoffset);
+    value args[] = { Val_cptr(window), ml_xoffset, ml_yoffset };
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->scroll, args);
     CAMLreturn0;
 }
 
@@ -1530,7 +1532,8 @@ void drop_callback_stub(GLFWwindow* window, int count, const char** paths)
         Field(tmp, 1) = ml_paths;
         ml_paths = tmp;
     }
-    caml_callback2(ml_window_callbacks->drop, Val_cptr(window), ml_paths);
+    value args[] = { Val_cptr(window), ml_paths };
+    CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->drop, args);
     CAMLreturn0;
 }
 
@@ -1617,8 +1620,8 @@ CAMLprim value caml_glfwJoystickIsGamepad(value joy)
 
 void joystick_callback_stub(int joy, int event)
 {
-    caml_callback2(
-        joystick_closure, Val_int(joy), Val_int(event - GLFW_CONNECTED));
+    value args[] = { Val_int(joy), Val_int(event - GLFW_CONNECTED) };
+    CAML_CALLBACK_ABORT_EXN(joystick_closure, args);
 }
 
 CAML_SETTER_STUB(glfwSetJoystickCallback, joystick)
