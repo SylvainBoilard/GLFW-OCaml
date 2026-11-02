@@ -1583,21 +1583,28 @@ CAMLprim value caml_glfwGetGamepadName(value joy)
 CAMLprim value caml_glfwGetGamepadState(value joy)
 {
     CAMLparam0();
-    CAMLlocal3(buttons, axes, ret);
+    CAMLlocal3(buttons, axes, res);
     GLFWgamepadstate gamepad_state;
+    int ret = glfwGetGamepadState(Int_val(joy), &gamepad_state);
 
-    glfwGetGamepadState(Int_val(joy), &gamepad_state);
     raise_if_error();
+    if (!ret)
+        /* FIXME: GLFW does not consider this an actual error and we should
+           be returning an option type, but that would break our public API.
+           For now, raise an exception instead of returning incoherent data.
+           To be modified at the next major version. */
+        caml_raise_with_string(*caml_named_value("GLFW.InvalidValue"),
+                               "Joystick is not connected or is not a gamepad");
     buttons = caml_alloc_small(GLFW_GAMEPAD_BUTTON_LAST + 1, 0);
     for (unsigned int i = 0; i < GLFW_GAMEPAD_BUTTON_LAST + 1; ++i)
         Field(buttons, i) = Val_bool(gamepad_state.buttons[i] == GLFW_PRESS);
     axes = caml_alloc_float_array(GLFW_GAMEPAD_AXIS_LAST + 1);
     for (unsigned int i = 0; i < GLFW_GAMEPAD_AXIS_LAST + 1; ++i)
         Store_double_field(axes, i, gamepad_state.axes[i]);
-    ret = caml_alloc_small(2, 0);
-    Field(ret, 0) = buttons;
-    Field(ret, 1) = axes;
-    CAMLreturn(ret);
+    res = caml_alloc_small(2, 0);
+    Field(res, 0) = buttons;
+    Field(res, 1) = axes;
+    CAMLreturn(res);
 }
 
 CAMLprim value caml_glfwSetClipboardString(CAMLvoid, value string)
