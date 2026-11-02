@@ -1276,15 +1276,20 @@ CAMLprim value caml_glfwGetKeyName(value key, value scancode)
 
 CAMLprim value caml_glfwGetKeyScancode(value key)
 {
-    int ret = glfwGetKeyScancode(ml_to_glfw_key[Int_val(key)]);
+    const int glfw_key = ml_to_glfw_key[Int_val(key)];
+    if (glfw_key == GLFW_KEY_UNKNOWN)
+        caml_invalid_argument("GLFW.getKeyScancode: invalid key Unknown");
+    int ret = glfwGetKeyScancode(glfw_key);
     raise_if_error();
     return Val_int(ret);
 }
 
 CAMLprim value caml_glfwGetKey(value window, value key)
 {
-    int ret =
-        glfwGetKey(Cptr_val(GLFWwindow*, window), ml_to_glfw_key[Int_val(key)]);
+    const int glfw_key = ml_to_glfw_key[Int_val(key)];
+    if (glfw_key == GLFW_KEY_UNKNOWN)
+        caml_invalid_argument("GLFW.getKey: invalid key Unknown");
+    int ret = glfwGetKey(Cptr_val(GLFWwindow*, window), glfw_key);
     raise_if_error();
     return Val_bool(ret);
 }
