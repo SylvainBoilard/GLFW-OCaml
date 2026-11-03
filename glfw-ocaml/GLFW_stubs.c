@@ -273,6 +273,8 @@ static size_t find_value_offset(const int array[], size_t length, int value)
         else
             max = mean;
     }
+    if (min == length || array[min] != value)
+        caml_failwith("GLFW-OCaml: unknown enum value returned by GLFW");
     return min;
 }
 
@@ -501,6 +503,9 @@ static void error_callback(int error, const char* description)
         break;
     case GLFW_PLATFORM_UNAVAILABLE:
         error_tag = *caml_named_value("GLFW.PlatformUnavailable");
+        break;
+    default: /* Unknown error code, possibly from a newer GLFW version. */
+        error_tag = *caml_named_value("GLFW.PlatformError");
     }
 }
 
@@ -1365,9 +1370,12 @@ void key_callback_stub(
 {
     struct ml_window_callbacks* ml_window_callbacks =
         *(struct ml_window_callbacks**)glfwGetWindowUserPointer(window);
+    const int ml_key = key < GLFW_KEY_FIRST || key > GLFW_KEY_LAST
+        ? 0 /* Unknown */
+        : glfw_to_ml_key[key - GLFW_KEY_FIRST];
     value args[] = {
-        Val_cptr(window), Val_int(glfw_to_ml_key[key - GLFW_KEY_FIRST]),
-        Val_int(scancode), Val_int(action), caml_list_of_flags(mods, 6)
+        Val_cptr(window), Val_int(ml_key), Val_int(scancode), Val_int(action),
+        caml_list_of_flags(mods, 6)
     };
 
     caml_callbackN(

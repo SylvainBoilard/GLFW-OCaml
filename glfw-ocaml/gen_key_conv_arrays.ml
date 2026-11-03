@@ -30,8 +30,10 @@ let generate keys =
       [Open_creat; Open_trunc; Open_wronly] 0o664 "GLFW_key_conv_arrays.inl"
   in
   let min_key, max_key =
-    List.fold_left (fun (min_key, max_key) (_, _, v) ->
-        min min_key v, max max_key v
+    List.fold_left (fun (min_key, max_key) (_, name, v) ->
+        if name = "GLFW_KEY_UNKNOWN"
+        then min_key, max_key
+        else min min_key v, max max_key v
       ) (max_int, min_int) keys
   in
   let open Buffer in
@@ -50,7 +52,7 @@ let generate keys =
     | (ml_val, _, glfw_val) :: tl when i = glfw_val ->
        add_string buffer (sprintf "    %d,\n" ml_val);
        keys := tl
-    | _ -> add_string buffer "    -1,\n"
+    | _ -> add_string buffer "    0,\n" (* Unknown *)
   done;
   add_string buffer "};\n";
   output_buffer key_stub buffer;
