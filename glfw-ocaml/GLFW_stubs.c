@@ -526,17 +526,20 @@ static void error_callback(int error, const char* description)
     }
 }
 
+static void do_raise_error(void)
+{
+    value error_tag_dup = error_tag;
+    value error_arg_dup = error_arg;
+
+    error_tag = Val_unit;
+    error_arg = Val_unit;
+    caml_raise_with_arg(error_tag_dup, error_arg_dup);
+}
+
 static inline void raise_if_error(void)
 {
     if (error_tag != Val_unit)
-    {
-        value error_tag_dup = error_tag;
-        value error_arg_dup = error_arg;
-
-        error_tag = Val_unit;
-        error_arg = Val_unit;
-        caml_raise_with_arg(error_tag_dup, error_arg_dup);
-    }
+        do_raise_error();
 }
 
 static void raise_oom(void)
