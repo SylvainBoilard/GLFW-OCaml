@@ -486,6 +486,9 @@ static inline value caml_copy_vidmode(const GLFWvidmode* vidmode)
     return v;
 }
 
+/* These values are not registered as global roots on the assumption
+   that no OCaml code can run and no allocation happens between the call
+   to the error callback inside GLFW and our call to raise_if_error. */
 static value error_arg = Val_unit;
 static value error_tag = Val_unit;
 
@@ -539,6 +542,7 @@ static void error_callback(int error, const char* description)
     default: /* Unknown error code, possibly from a newer GLFW version. */
         error_tag = *caml_named_value("GLFW.PlatformError");
     }
+    glfwGetError(NULL);
 }
 
 static void do_raise_error(void)
