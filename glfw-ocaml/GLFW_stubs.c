@@ -120,20 +120,27 @@ static inline struct ml_window_callbacks* get_ml_window_callbacks(
     return (struct ml_window_callbacks*)node->callbacks;
 }
 
+/* The callbacks block lives in the OCaml heap, so a raw pointer to it must
+   not be held across an allocation: root the block as a value, derive the
+   pointer from it for reads, and re-derive it after caml_alloc_some below,
+   which may have triggered a GC that moved the block. */
 #define CAML_WINDOW_SETTER_STUB(glfw_setter, name)                      \
     CAMLprim value caml_##glfw_setter(value ml_window, value new_closure) \
     {                                                                   \
         CAMLparam1(new_closure);                                        \
-        CAMLlocal1(previous_closure);                                   \
+        CAMLlocal2(previous_closure, callbacks);                        \
         GLFWwindow* window = Cptr_val(GLFWwindow*, ml_window);          \
-        struct ml_window_callbacks* ml_window_callbacks =               \
-            get_ml_window_callbacks(window);                            \
+        struct ml_window_callbacks* ml_window_callbacks;                \
+        void* user_pointer = glfwGetWindowUserPointer(window);          \
                                                                         \
         raise_if_error();                                               \
+        callbacks = ((struct ml_user_pointer_node*)user_pointer)->callbacks; \
+        ml_window_callbacks = (struct ml_window_callbacks*)callbacks;   \
         if (ml_window_callbacks->name == Val_unit)                      \
             previous_closure = Val_none;                                \
         else                                                            \
             previous_closure = caml_alloc_some(ml_window_callbacks->name); \
+        ml_window_callbacks = (struct ml_window_callbacks*)callbacks;   \
         if (Is_none(new_closure))                                       \
         {                                                               \
             if (ml_window_callbacks->name != Val_unit)                  \
@@ -1261,11 +1268,10 @@ void window_content_scale_callback_stub(GLFWwindow* window, float xscale,
 {
     CAMLparam0();
     CAMLlocal2(ml_xscale, ml_yscale);
-    struct ml_window_callbacks* ml_window_callbacks =
-        get_ml_window_callbacks(window);
-
     ml_xscale = caml_copy_double(xscale);
     ml_yscale = caml_copy_double(yscale);
+    struct ml_window_callbacks* ml_window_callbacks =
+        get_ml_window_callbacks(window);
     value args[] = { Val_cptr(window), ml_xscale, ml_yscale };
     CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->window_content_scale, args);
     CAMLreturn0;
@@ -1428,14 +1434,15 @@ CAMLprim value caml_glfwSetCursor(value window, value cursor)
 void key_callback_stub(
     GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    struct ml_window_callbacks* ml_window_callbacks =
-        get_ml_window_callbacks(window);
     const int ml_key = key < GLFW_KEY_FIRST || key > GLFW_KEY_LAST
         ? 0 /* Unknown */
         : glfw_to_ml_key[key - GLFW_KEY_FIRST];
+    value ml_mods = caml_list_of_flags(mods, 6);
+    struct ml_window_callbacks* ml_window_callbacks =
+        get_ml_window_callbacks(window);
     value args[] = {
         Val_cptr(window), Val_int(ml_key), Val_int(scancode), Val_int(action),
-        caml_list_of_flags(mods, 6)
+        ml_mods
     };
     CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->key, args);
 }
@@ -1455,9 +1462,9 @@ CAML_WINDOW_SETTER_STUB(glfwSetCharCallback, character)
 void character_mods_callback_stub(
     GLFWwindow* window, unsigned int codepoint, int mods)
 {
+    value ml_mods = caml_list_of_flags(mods, 6);
     struct ml_window_callbacks* ml_window_callbacks =
         get_ml_window_callbacks(window);
-    value ml_mods = caml_list_of_flags(mods, 6);
     value args[] = { Val_cptr(window), Val_int(codepoint), ml_mods };
     CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->character_mods, args);
 }
@@ -1467,11 +1474,11 @@ CAML_WINDOW_SETTER_STUB(glfwSetCharModsCallback, character_mods)
 void mouse_button_callback_stub(
     GLFWwindow* window, int button, int action, int mods)
 {
+    value ml_mods = caml_list_of_flags(mods, 6);
     struct ml_window_callbacks* ml_window_callbacks =
         get_ml_window_callbacks(window);
     value args[] = {
-        Val_cptr(window), Val_int(button), Val_bool(action),
-        caml_list_of_flags(mods, 6)
+        Val_cptr(window), Val_int(button), Val_bool(action), ml_mods
     };
     CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->mouse_button, args);
 }
@@ -1482,11 +1489,10 @@ void cursor_pos_callback_stub(GLFWwindow* window, double xpos, double ypos)
 {
     CAMLparam0();
     CAMLlocal2(ml_xpos, ml_ypos);
-    struct ml_window_callbacks* ml_window_callbacks =
-        get_ml_window_callbacks(window);
-
     ml_xpos = caml_copy_double(xpos);
     ml_ypos = caml_copy_double(ypos);
+    struct ml_window_callbacks* ml_window_callbacks =
+        get_ml_window_callbacks(window);
     value args[] = { Val_cptr(window), ml_xpos, ml_ypos };
     CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->cursor_pos, args);
     CAMLreturn0;
@@ -1508,11 +1514,10 @@ void scroll_callback_stub(GLFWwindow* window, double xoffset, double yoffset)
 {
     CAMLparam0();
     CAMLlocal2(ml_xoffset, ml_yoffset);
-    struct ml_window_callbacks* ml_window_callbacks =
-        get_ml_window_callbacks(window);
-
     ml_xoffset = caml_copy_double(xoffset);
     ml_yoffset = caml_copy_double(yoffset);
+    struct ml_window_callbacks* ml_window_callbacks =
+        get_ml_window_callbacks(window);
     value args[] = { Val_cptr(window), ml_xoffset, ml_yoffset };
     CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->scroll, args);
     CAMLreturn0;
@@ -1524,9 +1529,6 @@ void drop_callback_stub(GLFWwindow* window, int count, const char** paths)
 {
     CAMLparam0();
     CAMLlocal2(ml_paths, str);
-    struct ml_window_callbacks* ml_window_callbacks =
-        get_ml_window_callbacks(window);
-
     ml_paths = Val_emptylist;
     while (count > 0)
     {
@@ -1536,6 +1538,8 @@ void drop_callback_stub(GLFWwindow* window, int count, const char** paths)
         Field(tmp, 1) = ml_paths;
         ml_paths = tmp;
     }
+    struct ml_window_callbacks* ml_window_callbacks =
+        get_ml_window_callbacks(window);
     value args[] = { Val_cptr(window), ml_paths };
     CAML_CALLBACK_ABORT_EXN(ml_window_callbacks->drop, args);
     CAMLreturn0;
