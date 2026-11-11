@@ -462,11 +462,11 @@ static inline value caml_list_of_flags(int flags, int count)
     CAMLparam0();
     CAMLlocal1(ret);
     ret = Val_emptylist;
-    for (int i = 0; i < count; ++i)
-        if (flags >> i & 1)
+    while (count > 0)
+        if (flags >> --count & 1)
         {
             value tmp = caml_alloc_small(2, 0);
-            Field(tmp, 0) = Val_int(i);
+            Field(tmp, 0) = Val_int(count);
             Field(tmp, 1) = ret;
             ret = tmp;
         }
