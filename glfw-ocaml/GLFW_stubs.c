@@ -1566,9 +1566,7 @@ CAMLprim value caml_glfwGetJoystickButtons(value joy)
     const unsigned char* buttons = glfwGetJoystickButtons(Int_val(joy), &count);
 
     raise_if_error();
-    if (count == 0)
-        return Atom(0);
-    ret = caml_alloc_small(count, 0);
+    ret = caml_alloc(count, 0);
     for (int i = 0; i < count; ++i)
         Field(ret, i) = Val_bool(buttons[i] == GLFW_PRESS);
     return ret;
@@ -1582,16 +1580,9 @@ CAMLprim value caml_glfwGetJoystickHats(value joy)
     const unsigned char* hats = glfwGetJoystickHats(Int_val(joy), &count);
 
     raise_if_error();
-    if (count == 0)
-        ret = Atom(0);
-    else
-    {
-        ret = caml_alloc_small(count, 0);
-        for (int i = 0; i < count; ++i)
-            Field(ret, i) = Val_unit;
-        for (int i = 0; i < count; ++i)
-            Store_field(ret, i, caml_list_of_flags(hats[i], 4));
-    }
+    ret = caml_alloc(count, 0);
+    for (int i = 0; i < count; ++i)
+        Store_field(ret, i, caml_list_of_flags(hats[i], 4));
     CAMLreturn(ret);
 }
 
