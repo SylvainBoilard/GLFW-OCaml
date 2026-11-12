@@ -1674,6 +1674,13 @@ CAMLprim value caml_glfwGetClipboardString(CAMLvoid)
 {
     const char* string = glfwGetClipboardString(NULL);
     raise_if_error();
+    if (string == NULL)
+        /* HACK: glfwGetClipboardString returns NULL without generating
+           an error when the clipboard is empty on the Null platform.
+           See this GitHub PR: <https://github.com/glfw/glfw/pull/2928> .
+           Should be removed once fixed upstream. */
+        caml_raise_with_string(*caml_named_value("GLFW.FormatUnavailable"),
+                               "No clipboard data available");
     return caml_copy_string(string);
 }
 
