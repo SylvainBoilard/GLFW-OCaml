@@ -1,11 +1,11 @@
 module C = Configurator.V1
 
-let read_keys headers_location =
-  let glfw_header = open_in (headers_location ^ "/GLFW/glfw3.h") in
-  let delim_regexp = Str.regexp " +" in
+let read_keys header_location =
+  let glfw_header = open_in header_location in
+  let delim_regexp = Str.regexp "[ \t]+" in
   let prefix_regexp = Str.regexp "GLFW_KEY_" in
   let rec loop acc i =
-    let line = input_line glfw_header in
+    let line = String.trim (input_line glfw_header) in
     match Str.split delim_regexp line with
     | "#define" :: "GLFW_KEY_LAST" :: _ ->
        close_in_noerr glfw_header;
@@ -15,14 +15,18 @@ let read_keys headers_location =
        loop ((i, name, int_of_string value) :: acc) (succ i)
     | _ -> loop acc i
   in
-  loop [] 0
+  let keys = loop [] 0 in
+  close_in_noerr glfw_header;
+  keys
 
-let rec find_header_read_keys = function
-  | [] -> read_keys "/usr/include"
-  | hd :: tl when Str.first_chars hd 2 <> "-I" -> find_header_read_keys tl
+let rec find_header = function
+  | [] -> "/usr/include/GLFW/glfw3.h"
+  | hd :: tl when Str.first_chars hd 2 <> "-I" -> find_header tl
   | hd :: tl ->
-     try read_keys (Str.string_after hd 2)
-     with Sys_error _ -> find_header_read_keys tl
+     let header_location = Str.string_after hd 2 ^ "/GLFW/glfw3.h" in
+     if Sys.file_exists header_location
+     then header_location
+     else find_header tl
 
 let generate keys =
   let key_stub =
@@ -66,7 +70,8 @@ let main c =
      | None -> []
      | Some deps -> deps.cflags
   end
-  |> find_header_read_keys
+  |> find_header
+  |> read_keys
   |> generate
 
 let () =

@@ -13,7 +13,10 @@
 (rule
  (target  GLFW_key_conv_arrays.inl)
  (deps    (:gen gen_key_conv_arrays.exe))
- (action  (run %{gen})))
+ (action
+  (progn
+   (run  pkg-config glfw3 --atleast-version 3.4 --max-version 4.0~)
+   (run  %{gen}))))
 
 (executable
  (name      gen_key_conv_arrays)
