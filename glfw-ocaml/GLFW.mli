@@ -473,8 +473,8 @@ module Image :
     (** Create an image from the supplied pixel data with the specified width
         and height.
 
-        @raise Invalid_argument if a dimension is negative or if there is not
-        enough data to make an image with the specified dimensions. *)
+        @raise Invalid_argument if a dimension is not positive or if there is
+        not enough data to make an image with the specified dimensions. *)
     val create : width:int -> height:int -> pixels:bytes -> t
   end
 

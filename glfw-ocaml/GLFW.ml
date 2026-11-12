@@ -400,9 +400,9 @@ module Image =
     type t = { width : int; height : int; pixels : bytes }
 
     let create ~width ~height ~pixels =
-      if width < 0 || height < 0
-      then invalid_arg "Image.create: negative dimension."
-      else if height <> 0 && width > Bytes.length pixels / height / 4
+      if width <= 0 || height <= 0
+      then invalid_arg "Image.create: non-positive dimension."
+      else if width > Bytes.length pixels / height / 4
       then invalid_arg "Image.create: insufficient pixel data."
       else { width; height; pixels }
   end
