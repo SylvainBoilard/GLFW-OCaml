@@ -182,6 +182,7 @@ enum value_type
     OpenGLProfile,
     ContextReleaseBehavior,
     ContextCreationApi,
+    CursorMode,
     String
 };
 
@@ -237,6 +238,13 @@ static const int ml_context_creation_api[] = {
     GLFW_OSMESA_CONTEXT_API
 };
 
+static const int ml_cursor_mode[] = {
+    GLFW_CURSOR_NORMAL,
+    GLFW_CURSOR_HIDDEN,
+    GLFW_CURSOR_DISABLED,
+    GLFW_CURSOR_CAPTURED
+};
+
 static int glfw_of_ml_value(value ml_val, enum value_type value_type)
 {
     int result;
@@ -289,6 +297,10 @@ static int glfw_of_ml_value(value ml_val, enum value_type value_type)
 
     case ContextCreationApi:
         result = ml_context_creation_api[Int_val(ml_val)];
+        break;
+
+    case CursorMode:
+        result = ml_cursor_mode[Int_val(ml_val)];
         break;
 
     case String:
@@ -348,8 +360,15 @@ static value ml_of_glfw_value(enum value_type value_type, int glfw_val)
         return Val_int(FIND_VALUE_OFFSET(ml_context_creation_api, glfw_val));
         break;
 
-    default: /* The other types currently do not need to be converted. */
-        return Val_int(-1);
+    case CursorMode:
+        return Val_int(FIND_VALUE_OFFSET(ml_cursor_mode, glfw_val));
+        break;
+
+    default:
+        /* The remaining types (IntOption, Position, String, ...) are never
+           produced by the GLFW functions returning values we convert, so
+           reaching this point means something is wrong. */
+        caml_failwith("GLFW-OCaml: unexpected value type");
     }
 }
 
@@ -445,6 +464,20 @@ static const int ml_cursor_shape[] = {
     GLFW_HRESIZE_CURSOR,
     GLFW_VRESIZE_CURSOR,
     GLFW_HAND_CURSOR
+};
+
+struct ml_input_mode
+{
+    int glfw_input_mode;
+    enum value_type value_type;
+};
+
+static const struct ml_input_mode ml_input_mode[] = {
+    {GLFW_CURSOR, CursorMode},
+    {GLFW_STICKY_KEYS, Bool},
+    {GLFW_STICKY_MOUSE_BUTTONS, Bool},
+    {GLFW_LOCK_KEY_MODS, Bool},
+    {GLFW_RAW_MOUSE_MOTION, Bool}
 };
 
 #include "GLFW_key_conv_arrays.inl"
@@ -852,11 +885,22 @@ CAMLprim value caml_glfwWindowHint(value hint, value ml_val)
 CAMLprim value caml_glfwCreateWindow(
     value width, value height, value title, value mntor, value share, CAMLvoid)
 {
-    struct ml_user_pointer_node* node = malloc(sizeof(*node));
+    CAMLparam3(title, mntor, share);
+    CAMLlocal1(callbacks);
+    struct ml_user_pointer_node* node;
+    GLFWwindow* window;
+
+    /* Allocate the callbacks block first: if the minor heap is exhausted,
+       Out_of_memory is raised before any C allocation, so nothing leaks. */
+    callbacks = caml_alloc_small(ML_WINDOW_CALLBACKS_WOSIZE, 0);
+    for (unsigned int i = 0; i < ML_WINDOW_CALLBACKS_WOSIZE; ++i)
+        Field(callbacks, i) = Val_unit;
+
+    node = malloc(sizeof(*node));
     if (node == NULL)
         raise_oom();
 
-    GLFWwindow* window = glfwCreateWindow(
+    window = glfwCreateWindow(
         Int_val(width), Int_val(height), String_val(title),
         Is_none(mntor) ? NULL : Cptr_val(GLFWmonitor*, Some_val(mntor)),
         Is_none(share) ? NULL : Cptr_val(GLFWwindow*, Some_val(share)));
@@ -866,16 +910,12 @@ CAMLprim value caml_glfwCreateWindow(
         raise_if_error();
     }
 
-    value callbacks = caml_alloc_small(ML_WINDOW_CALLBACKS_WOSIZE, 0);
-
-    for (unsigned int i = 0; i < ML_WINDOW_CALLBACKS_WOSIZE; ++i)
-        Field(callbacks, i) = Val_unit;
     node->callbacks = callbacks;
     caml_register_generational_global_root(&node->callbacks);
     node->next = ml_user_pointer_list;
     ml_user_pointer_list = node;
     glfwSetWindowUserPointer(window, node);
-    return Val_cptr(window);
+    CAMLreturn(Val_cptr(window));
 }
 
 CAMLprim value caml_glfwCreateWindow_byte(value* val_array, int val_count)
@@ -1315,22 +1355,21 @@ CAMLprim value caml_glfwPostEmptyEvent(CAMLvoid)
 
 CAMLprim value caml_glfwGetInputMode(value window, value mode)
 {
-    int v = glfwGetInputMode(Cptr_val(GLFWwindow*, window),
-                             Int_val(mode) + GLFW_CURSOR);
+    const int offset = Int_val(mode);
+    const int glfw_val = glfwGetInputMode(
+        Cptr_val(GLFWwindow*, window), ml_input_mode[offset].glfw_input_mode);
 
     raise_if_error();
-    if (Int_val(mode) == 0)
-        return Val_int(v - GLFW_CURSOR_NORMAL);
-    return Val_bool(v);
+    return ml_of_glfw_value(ml_input_mode[offset].value_type, glfw_val);
 }
 
 CAMLprim value caml_glfwSetInputMode(value window, value mode, value v)
 {
-    int glfw_val =
-        Int_val(mode) == 0 ? Int_val(v) + GLFW_CURSOR_NORMAL : Bool_val(v);
+    const int offset = Int_val(mode);
 
     glfwSetInputMode(
-        Cptr_val(GLFWwindow*, window), Int_val(mode) + GLFW_CURSOR, glfw_val);
+        Cptr_val(GLFWwindow*, window), ml_input_mode[offset].glfw_input_mode,
+        glfw_of_ml_value(v, ml_input_mode[offset].value_type));
     raise_if_error();
     return Val_unit;
 }
