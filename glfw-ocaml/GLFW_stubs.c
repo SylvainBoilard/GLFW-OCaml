@@ -670,6 +670,12 @@ CAMLprim value caml_glfwGetPrimaryMonitor(CAMLvoid)
 {
     GLFWmonitor* ret = glfwGetPrimaryMonitor();
     raise_if_error();
+    if (ret == NULL)
+        /* FIXME: GLFW does not consider this an actual error and we should
+           be returning an option type, but that would break our public API.
+           For now, raise an exception instead of returning incoherent data.
+           To be modified at the next major version. */
+        caml_failwith("GLFW-OCaml: no monitor available");
     return Val_cptr(ret);
 }
 

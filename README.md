@@ -65,6 +65,8 @@ Some of the original functions return their result via pointer arguments. In GLF
 ### `GLFW_DONT_CARE` and `NULL`-able values
 Wherever `GLFW_DONT_CARE` or a `NULL` pointer would be a legal value, an option type is used to wrap the value and `None` is used to represent `GLFW_DONT_CARE` or `NULL`.
 
+**Caveat**: `getPrimaryMonitor` and `getGamepadState` should qualify as well but were unfortunately overlooked. Instead, these function raise `Failure` and `InvalidValue` respectively. This will be fixed in the next major version.
+
 ### `glfwGetProcAddress` and Vulkan
 The `glfwGetProcAddress` function is not supported because it would require writing an entire OpenGL wrapper to make the functions returned by GLFW usable from OCaml. There are several OpenGL bindings available for OCaml that you can use instead.
 
