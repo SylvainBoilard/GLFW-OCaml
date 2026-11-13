@@ -256,7 +256,9 @@ static int glfw_of_ml_value(value ml_val, enum value_type value_type)
         return Is_none(ml_val) ? GLFW_DONT_CARE : Int_val(Some_val(ml_val));
 
     case Position:
-        return Is_none(ml_val) ? GLFW_ANY_POSITION : Int_val(Some_val(ml_val));
+        return Is_none(ml_val)
+            ? (int)GLFW_ANY_POSITION
+            : Int_val(Some_val(ml_val));
 
     case AnglePlatformType:
         return Is_none(ml_val)
@@ -294,8 +296,9 @@ static int glfw_of_ml_value(value ml_val, enum value_type value_type)
            a specialized GLFW function (namely glfwWindowHintString) needs
            to be used. In contexts where that would be a possible type for
            a value, it needs to be checked for and handled separately. */
-        caml_failwith("GLFW-OCaml: unexpected value type");
+        break;
     }
+    caml_failwith("GLFW-OCaml: unexpected value type");
 }
 
 static size_t find_value_offset(const int array[], size_t length, int value)
