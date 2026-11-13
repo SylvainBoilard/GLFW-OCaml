@@ -247,70 +247,55 @@ static const int ml_cursor_mode[] = {
 
 static int glfw_of_ml_value(value ml_val, enum value_type value_type)
 {
-    int result;
-
     switch (value_type)
     {
     case Int:
-        result = Int_val(ml_val);
-        break;
+        return Int_val(ml_val);
 
     case IntOption:
-        result = Is_none(ml_val) ? GLFW_DONT_CARE : Int_val(Some_val(ml_val));
-        break;
+        return Is_none(ml_val) ? GLFW_DONT_CARE : Int_val(Some_val(ml_val));
 
     case Position:
-        result = Is_none(ml_val) ? GLFW_ANY_POSITION : Int_val(Some_val(ml_val));
-        break;
+        return Is_none(ml_val) ? GLFW_ANY_POSITION : Int_val(Some_val(ml_val));
 
     case AnglePlatformType:
-        result = Is_none(ml_val)
+        return Is_none(ml_val)
             ? GLFW_ANGLE_PLATFORM_TYPE_NONE
             : ml_angle_platform_type[Int_val(Some_val(ml_val))];
-        break;
 
     case Platform:
-        result = Is_none(ml_val)
+        return Is_none(ml_val)
             ? GLFW_ANY_PLATFORM
             : ml_platform[Int_val(Some_val(ml_val))];
-        break;
 
     case WaylandLibdecor:
-        result = ml_wayland_libdecor[Int_val(ml_val)];
-        break;
+        return ml_wayland_libdecor[Int_val(ml_val)];
 
     case ClientApi:
-        result = ml_client_api[Int_val(ml_val)];
-        break;
+        return ml_client_api[Int_val(ml_val)];
 
     case ContextRobustness:
-        result = ml_context_robustness[Int_val(ml_val)];
-        break;
+        return ml_context_robustness[Int_val(ml_val)];
 
     case OpenGLProfile:
-        result = ml_opengl_profile[Int_val(ml_val)];
-        break;
+        return ml_opengl_profile[Int_val(ml_val)];
 
     case ContextReleaseBehavior:
-        result = ml_context_release_behavior[Int_val(ml_val)];
-        break;
+        return ml_context_release_behavior[Int_val(ml_val)];
 
     case ContextCreationApi:
-        result = ml_context_creation_api[Int_val(ml_val)];
-        break;
+        return ml_context_creation_api[Int_val(ml_val)];
 
     case CursorMode:
-        result = ml_cursor_mode[Int_val(ml_val)];
-        break;
+        return ml_cursor_mode[Int_val(ml_val)];
 
     case String:
         /* For values of type String (currently only some window hints),
            a specialized GLFW function (namely glfwWindowHintString) needs
            to be used. In contexts where that would be a possible type for
            a value, it needs to be checked for and handled separately. */
-        result = INT_MIN;
+        caml_failwith("GLFW-OCaml: unexpected value type");
     }
-    return result;
 }
 
 static size_t find_value_offset(const int array[], size_t length, int value)
@@ -338,31 +323,25 @@ static value ml_of_glfw_value(enum value_type value_type, int glfw_val)
     {
     case Int:
         return Val_int(glfw_val);
-        break;
 
     case ClientApi:
         return Val_int(FIND_VALUE_OFFSET(ml_client_api, glfw_val));
-        break;
 
     case ContextRobustness:
         return Val_int(FIND_VALUE_OFFSET(ml_context_robustness, glfw_val));
-        break;
 
     case OpenGLProfile:
         return Val_int(FIND_VALUE_OFFSET(ml_opengl_profile, glfw_val));
-        break;
 
     case ContextReleaseBehavior:
-        return Val_int(FIND_VALUE_OFFSET(ml_context_release_behavior, glfw_val));
-        break;
+        return Val_int(
+            FIND_VALUE_OFFSET(ml_context_release_behavior, glfw_val));
 
     case ContextCreationApi:
         return Val_int(FIND_VALUE_OFFSET(ml_context_creation_api, glfw_val));
-        break;
 
     case CursorMode:
         return Val_int(FIND_VALUE_OFFSET(ml_cursor_mode, glfw_val));
-        break;
 
     default:
         /* The remaining types (IntOption, Position, String, ...) are never
