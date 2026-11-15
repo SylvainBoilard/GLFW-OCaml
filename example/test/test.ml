@@ -89,8 +89,8 @@ module CallbackLogger = struct
     match prev_parts, new_parts with
     | prev_key :: prev_rest, new_key :: new_rest ->
         prev_key = new_key
-        && List.exists ((=) "Repeat") prev_rest
-        && List.exists ((=) "Repeat") new_rest
+        && List.exists ((=) "action=Repeat") prev_rest
+        && List.exists ((=) "action=Repeat") new_rest
     | _ -> false
 
   let format_data name first_data last_data scroll_x scroll_y =
@@ -184,10 +184,13 @@ let scroll_callback _window xoffset yoffset =
 
 let key_callback _window key scancode action mods =
   let open CallbackLogger in
-  let key_name = Option.value (GLFW.getKeyName key scancode) ~default:"Unknown" in
+  let key_name = Option.value (GLFW.getKeyName key scancode) ~default:"(none)" in
   let action_str = key_action_to_string action in
   let mods_str = mods_to_string mods in
-  let data = Printf.sprintf "%s scan=%d %s mods=%s" key_name scancode action_str mods_str in
+  let data =
+    Printf.sprintf "cstr=#%d scan=%d name=%s action=%s mods=%s"
+      (Obj.magic key : int) scancode key_name action_str mods_str
+  in
   log_call Key data ()
 
 let codepoint_to_utf8 codepoint =

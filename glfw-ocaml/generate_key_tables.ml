@@ -18,6 +18,8 @@ let read_keys header_location =
   keys
 
 let generate keys =
+  (* Unknown being used as the default value, we can omit the corresponding
+     GLFW key when converting from OCaml to C, saving memory for that table. *)
   let min_key, max_key =
     List.fold_left (fun (min_key, max_key) (_, name, v) ->
         if name = "GLFW_KEY_UNKNOWN"
@@ -31,14 +33,17 @@ let generate keys =
   List.iter (fun (_, name, _) -> printf "    %s,\n" name) keys;
   printf "};\n\n";
   printf "static const int glfw_to_ml_key[] = {\n";
-  let keys = ref keys in
-  for i = min_key to max_key do
-    match !keys with
+  let rec loop i = function
+    | _ when i > max_key -> ()
+    | (_, "GLFW_KEY_UNKNOWN", _) :: tl -> loop i tl
     | (ml_val, _, glfw_val) :: tl when i = glfw_val ->
        printf "    %d,\n" ml_val;
-       keys := tl
-    | _ -> printf "    0,\n" (* Unknown *)
-  done;
+       loop (i + 1) tl
+    | keys ->
+       printf "    0,\n"; (* Unknown *)
+       loop (i + 1) keys
+  in
+  loop min_key keys;
   printf "};\n"
 
 let () =
