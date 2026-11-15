@@ -2,7 +2,8 @@ module C = Configurator.V1
 
 let rec find_header = function
   | [] -> "/usr/include/GLFW/glfw3.h"
-  | hd :: tl when Str.first_chars hd 2 <> "-I" -> find_header tl
+  | hd :: tl when String.length hd < 2 || Str.first_chars hd 2 <> "-I" ->
+     find_header tl
   | hd :: tl ->
      let header_location = Str.string_after hd 2 ^ "/GLFW/glfw3.h" in
      if Sys.file_exists header_location
