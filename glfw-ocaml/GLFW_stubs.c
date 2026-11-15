@@ -139,8 +139,10 @@ static inline struct ml_window_callbacks* get_ml_window_callbacks(
         if (ml_window_callbacks->name == Val_unit)                      \
             previous_closure = Val_none;                                \
         else                                                            \
+        {                                                               \
             previous_closure = caml_alloc_some(ml_window_callbacks->name); \
-        ml_window_callbacks = (struct ml_window_callbacks*)callbacks;   \
+            ml_window_callbacks = (struct ml_window_callbacks*)callbacks; \
+        }                                                               \
         if (Is_none(new_closure))                                       \
         {                                                               \
             if (ml_window_callbacks->name != Val_unit)                  \
@@ -911,9 +913,9 @@ CAMLprim value caml_glfwDestroyWindow(value ml_window)
 {
     GLFWwindow* window = Cptr_val(GLFWwindow*, ml_window);
     struct ml_user_pointer_node* node = glfwGetWindowUserPointer(window);
-
     raise_if_error();
     struct ml_user_pointer_node** link = &ml_user_pointer_list;
+
     while (*link != node)
     {
         assert(*link != NULL);
@@ -1159,7 +1161,6 @@ CAMLprim value caml_glfwRequestWindowAttention(value window)
 CAMLprim value caml_glfwGetWindowMonitor(value window)
 {
     GLFWmonitor* monitor = glfwGetWindowMonitor(Cptr_val(GLFWwindow*, window));
-
     raise_if_error();
     return monitor == NULL ? Val_none : caml_alloc_some(Val_cptr(monitor));
 }
@@ -1203,7 +1204,7 @@ CAMLprim value caml_glfwSetWindowAttrib(value window, value hint, value ml_val)
 {
     const int offset = Int_val(hint);
     /* All updateable attributes are booleans at the moment. */
-    const int glfw_val = Int_val(ml_val);
+    const int glfw_val = Bool_val(ml_val);
 
     glfwSetWindowAttrib(Cptr_val(GLFWwindow*, window),
                         ml_window_attrib[offset].glfw_window_attrib, glfw_val);
@@ -1624,7 +1625,6 @@ CAMLprim value caml_glfwGetJoystickHats(value joy)
 CAMLprim value caml_glfwGetJoystickGUID(value joy)
 {
     const char* name = glfwGetJoystickGUID(Int_val(joy));
-
     raise_if_error();
     return name == NULL ? Val_none : caml_alloc_some(caml_copy_string(name));
 }
@@ -1632,7 +1632,6 @@ CAMLprim value caml_glfwGetJoystickGUID(value joy)
 CAMLprim value caml_glfwGetJoystickName(value joy)
 {
     const char* name = glfwGetJoystickName(Int_val(joy));
-
     raise_if_error();
     return name == NULL ? Val_none : caml_alloc_some(caml_copy_string(name));
 }
@@ -1662,7 +1661,6 @@ CAMLprim value caml_glfwUpdateGamepadMappings(value string)
 CAMLprim value caml_glfwGetGamepadName(value joy)
 {
     const char* name = glfwGetGamepadName(Int_val(joy));
-
     raise_if_error();
     return name == NULL ? Val_none : caml_alloc_some(caml_copy_string(name));
 }
@@ -1754,7 +1752,6 @@ CAMLprim value caml_glfwMakeContextCurrent(value window)
 CAMLprim value caml_glfwGetCurrentContext(CAMLvoid)
 {
     GLFWwindow* window = glfwGetCurrentContext();
-
     raise_if_error();
     return window == NULL ? Val_none : caml_alloc_some(Val_cptr(window));
 }
