@@ -9,7 +9,7 @@ bug-reports: "https://github.com/SylvainBoilard/GLFW-OCaml/issues"
 depends: [
   "conf-glfw3"
   "base-bigarray"
-  "dune"              {>= "2.0"}
+  "dune"              {>= "3.1"}
   "dune-configurator"
   "conf-pkg-config"   {build}
   "ocaml"             {>= "4.03.0"}

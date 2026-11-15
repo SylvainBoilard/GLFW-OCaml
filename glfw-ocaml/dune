@@ -7,18 +7,33 @@
  (foreign_stubs
   (language    c)
   (names       GLFW_stubs)
-  (extra_deps  GLFW_key_conv_arrays.inl))
+  (extra_deps  GLFW_key_tables.inl))
  (c_library_flags           -lglfw))
 
 (rule
- (target  GLFW_key_conv_arrays.inl)
- (deps    (:gen gen_key_conv_arrays.exe))
+ (target  glfw_header.sexp)
+ (deps    (:generator  generate_header_dependency.exe))
  (action
   (progn
    (run  pkg-config glfw3 --atleast-version 3.4 --max-version 4.0~)
-   (run  %{gen}))))
+   (with-stdout-to  %{target}
+    (run  %{generator})))))
+
+(rule
+ (target  GLFW_key_tables.inl)
+ (deps
+  (:generator    generate_key_tables.exe)
+  (:glfw_header  (include glfw_header.sexp)))
+ (action
+  (with-stdout-to  %{target}
+   (run  %{generator} %{glfw_header}))))
 
 (executable
- (name      gen_key_conv_arrays)
- (modules   gen_key_conv_arrays)
- (libraries str dune.configurator))
+ (name       generate_header_dependency)
+ (modules    generate_header_dependency)
+ (libraries  str dune.configurator))
+
+(executable
+ (name       generate_key_tables)
+ (modules    generate_key_tables)
+ (libraries  str))

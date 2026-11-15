@@ -462,7 +462,7 @@ static const struct ml_input_mode ml_input_mode[] = {
     {GLFW_RAW_MOUSE_MOTION, Bool}
 };
 
-#include "GLFW_key_conv_arrays.inl"
+#include "GLFW_key_tables.inl"
 
 static inline value caml_list_of_pointer_array(void** array, int count)
 {
