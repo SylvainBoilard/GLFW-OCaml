@@ -14,10 +14,8 @@
  (target  glfw_header.sexp)
  (deps    (:generator  generate_header_dependency.exe))
  (action
-  (progn
-   (run  pkg-config glfw3 --atleast-version 3.4 --max-version 4.0~)
-   (with-stdout-to  %{target}
-    (run  %{generator})))))
+  (with-stdout-to  %{target}
+   (run  %{generator}))))
 
 (rule
  (target  GLFW_key_tables.inl)
@@ -25,8 +23,10 @@
   (:generator    generate_key_tables.exe)
   (:glfw_header  (include glfw_header.sexp)))
  (action
-  (with-stdout-to  %{target}
-   (run  %{generator} %{glfw_header}))))
+  (progn
+   (run  pkg-config glfw3 --atleast-version 3.4 --max-version 4.0~)
+   (with-stdout-to  %{target}
+    (run  %{generator} %{glfw_header})))))
 
 (executable
  (name       generate_header_dependency)
