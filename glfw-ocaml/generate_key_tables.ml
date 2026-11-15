@@ -19,7 +19,7 @@ let read_keys header_location =
 
 let generate keys =
   (* Unknown being used as the default value, we can omit the corresponding
-     GLFW key when converting from OCaml to C, saving memory for that table. *)
+     GLFW key when converting from C to OCaml, saving memory for that table. *)
   let min_key, max_key =
     List.fold_left (fun (min_key, max_key) (_, name, v) ->
         if name = "GLFW_KEY_UNKNOWN"

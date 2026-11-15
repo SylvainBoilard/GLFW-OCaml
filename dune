@@ -1,0 +1,3 @@
+(env
+ (_
+  (c_flags (:standard -Wall -Wextra -fdiagnostics-color))))
