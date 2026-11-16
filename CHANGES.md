@@ -8,6 +8,10 @@ See the [GLFW changelog](https://www.glfw.org/changelog.html) for the features a
 
 This release updates the binding to GLFW 3.5; see the [GLFW release notes](https://https://www.glfw.org/docs/3.5/news.html) for the features added in this version of GLFW.
 
+### Added
+
+- Support for the new GLFW 3.5 feature, the `UnlimitedMouseButtons` input mode.
+
 ## 3.4
 
 This release updates the binding to GLFW 3.4; see the [GLFW release notes](https://https://www.glfw.org/docs/3.4/news.html) for the features added in this version of GLFW.

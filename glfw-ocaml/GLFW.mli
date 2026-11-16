@@ -373,6 +373,7 @@ type _ input_mode =
   | StickyMouseButtons : bool input_mode
   | LockKeyMods : bool input_mode
   | RawMouseMotion : bool input_mode
+  | UnlimitedMouseButtons : bool input_mode
 
 (** Standard cursor shapes. *)
 type cursor_shape =

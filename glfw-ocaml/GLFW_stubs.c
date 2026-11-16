@@ -461,7 +461,8 @@ static const struct ml_input_mode ml_input_mode[] = {
     {GLFW_STICKY_KEYS, Bool},
     {GLFW_STICKY_MOUSE_BUTTONS, Bool},
     {GLFW_LOCK_KEY_MODS, Bool},
-    {GLFW_RAW_MOUSE_MOTION, Bool}
+    {GLFW_RAW_MOUSE_MOTION, Bool},
+    {GLFW_UNLIMITED_MOUSE_BUTTONS, Bool}
 };
 
 #include "GLFW_key_tables.inl"
