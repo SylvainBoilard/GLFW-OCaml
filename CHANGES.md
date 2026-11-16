@@ -4,7 +4,7 @@ All notable user-facing changes to GLFW-OCaml are documented in this file. The f
 
 See the [GLFW changelog](https://www.glfw.org/changelog.html) for the features added by new versions of GLFW.
 
-## 3.5 (unreleased)
+## 3.5
 
 This release updates the binding to GLFW 3.5; see the [GLFW release notes](https://https://www.glfw.org/docs/3.5/news.html) for the features added in this version of GLFW.
 
