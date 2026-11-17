@@ -1,37 +1,26 @@
 (library
- (name                      GLFW)
- (public_name               glfw-ocaml)
- (modules                   GLFW)
- (wrapped                   false)
- (libraries                 bigarray)
+ (name             GLFW)
+ (public_name      glfw-ocaml)
+ (modules          GLFW)
+ (wrapped          false)
+ (libraries        bigarray)
  (foreign_stubs
   (language    c)
   (names       GLFW_stubs)
-  (extra_deps  GLFW_key_tables.inl))
- (c_library_flags           -lglfw))
-
-(rule
- (target  glfw_header.sexp)
- (deps    (:generator  generate_header_dependency.exe))
- (action
-  (with-stdout-to  %{target}
-   (run  %{generator}))))
+  (extra_deps  GLFW_key_tables.inl)
+  (flags       :standard (:include ../glfw_cflags.sexp)))
+ (c_library_flags  (:include ../glfw_libs.sexp)))
 
 (rule
  (target  GLFW_key_tables.inl)
  (deps
   (:generator    generate_key_tables.exe)
-  (:glfw_header  (include glfw_header.sexp)))
+  (:glfw_header  (include ../glfw_header.sexp)))
  (action
   (progn
    (run  pkg-config glfw3 --atleast-version 3.4 --max-version 4.0~)
    (with-stdout-to  %{target}
     (run  %{generator} %{glfw_header})))))
-
-(executable
- (name       generate_header_dependency)
- (modules    generate_header_dependency)
- (libraries  str dune.configurator))
 
 (executable
  (name       generate_key_tables)

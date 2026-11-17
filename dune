@@ -1,3 +1,13 @@
 (env
  (_
   (c_flags (:standard -Wall -Wextra -fdiagnostics-color))))
+
+(executable
+ (name       generate_dune_config)
+ (modules    generate_dune_config)
+ (libraries  str dune.configurator))
+
+(rule
+ (targets  glfw_header.sexp glfw_cflags.sexp glfw_libs.sexp)
+ (deps     (:generator  generate_dune_config.exe))
+ (action   (run  %{generator})))
