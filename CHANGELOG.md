@@ -4,7 +4,7 @@ All notable user-facing changes to GLFW-OCaml are documented in this file. The f
 
 See the [GLFW changelog](https://www.glfw.org/changelog.html) for the features added by new versions of GLFW.
 
-## 3.5
+## 3.5 (2026-11-21)
 
 This release updates the binding to GLFW 3.5; see the [GLFW release notes](https://https://www.glfw.org/docs/3.5/news.html) for the features added in this version of GLFW.
 
@@ -12,7 +12,7 @@ This release updates the binding to GLFW 3.5; see the [GLFW release notes](https
 
 - Support for the new GLFW 3.5 feature, the `UnlimitedMouseButtons` input mode.
 
-## 3.4
+## 3.4 (2026-11-21)
 
 This release updates the binding to GLFW 3.4; see the [GLFW release notes](https://https://www.glfw.org/docs/3.4/news.html) for the features added in this version of GLFW.
 
@@ -50,4 +50,4 @@ This release updates the binding to GLFW 3.4; see the [GLFW release notes](https
 
 ### Known limitations
 
-- `getPrimaryMonitor` and `getGamepadState` raise exceptions instead of returning an option type; this will be fixed in the next major version (see the README).
+- `getPrimaryMonitor` and `getGamepadState` raise exceptions instead of returning an option type; this will be fixed in the next major version (see the [README](README.md)).
